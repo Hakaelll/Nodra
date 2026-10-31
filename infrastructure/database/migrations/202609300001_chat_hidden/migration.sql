@@ -1,0 +1,1 @@
+ALTER TABLE "ChatParticipant" ADD COLUMN "hiddenAt" TIMESTAMPTZ;

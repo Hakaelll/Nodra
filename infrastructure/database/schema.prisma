@@ -1,0 +1,424 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+}
+enum PermissionRole {
+  OWNER
+  ADMIN
+  COORDINATOR
+  MEMBER
+}
+enum MembershipStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  LEFT
+}
+enum ServiceStatus {
+  DRAFT
+  OPEN
+  SELECTION
+  CONFIRMATION
+  READY
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+enum AssignmentStatus {
+  AWAITING_CONFIRMATION
+  CONFIRMED
+  DECLINED
+  CANCELLED
+  COMPLETED
+}
+enum InterestStatus {
+  INTERESTED
+  WITHDRAWN
+}
+enum GroupType {
+  PERMANENT
+  SERVICE
+  CUSTOM
+}
+enum AuthActionPurpose {
+  PASSWORD_RESET
+  EMAIL_VERIFICATION
+}
+enum DevicePlatform {
+  ANDROID
+  IOS
+  WEB
+}
+enum DeliveryChannel {
+  PUSH
+  EMAIL
+}
+enum ChatKind {
+  MANUAL
+  SERVICE
+}
+model User {
+  id String @id @default(uuid()) @db.Uuid
+  email String @unique
+  passwordHash String
+  firstName String
+  lastName String
+  avatarUpdatedAt DateTime? @db.Timestamptz
+  active Boolean @default(true)
+  emailVerifiedAt DateTime? @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  memberships Membership[]
+  sessions Session[]
+  notifications Notification[]
+  deviceTokens DeviceToken[]
+  authActions AuthAction[]
+}
+model DeviceToken {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  platform DevicePlatform
+  token String @unique
+  deviceIdentifier String?
+  lastSeenAt DateTime @default(now()) @db.Timestamptz
+  revokedAt DateTime? @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  @@index([userId,revokedAt])
+  @@unique([userId,deviceIdentifier])
+}
+model Session {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id])
+  familyId String @db.Uuid
+  tokenHash String @unique
+  expiresAt DateTime @db.Timestamptz
+  revokedAt DateTime? @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  @@index([userId,familyId])
+}
+model AuthAction {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  purpose AuthActionPurpose
+  tokenHash String @unique
+  expiresAt DateTime @db.Timestamptz
+  consumedAt DateTime? @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  email AuthActionEmail?
+  @@index([userId,purpose,consumedAt])
+}
+model AuthActionEmail {
+  id String @id @default(uuid()) @db.Uuid
+  actionId String @unique @db.Uuid
+  action AuthAction @relation(fields:[actionId],references:[id],onDelete:Cascade)
+  encryptedToken String?
+  nonce String?
+  tag String?
+  attemptCount Int @default(0)
+  nextAttemptAt DateTime @default(now()) @db.Timestamptz
+  leasedUntil DateTime? @db.Timestamptz
+  processedAt DateTime? @db.Timestamptz
+  deliveredAt DateTime? @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  @@index([processedAt,nextAttemptAt])
+}
+model Organization {
+  id String @id @default(uuid()) @db.Uuid
+  slug String @unique
+  name String
+  timezone String @default("Europe/Madrid")
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  settings OrganizationSettings?
+  memberships Membership[]
+  invitations Invitation[]
+  jobRoles JobRole[]
+  groups Group[]
+  services Service[]
+  notices Notice[]
+  events AuditEvent[]
+  chats ChatThread[]
+}
+model OrganizationSettings {
+  organizationId String @id @db.Uuid
+  organization Organization @relation(fields:[organizationId],references:[id])
+  serviceLabel String @default("Servicio")
+  features Json @default("{\"groups\":true,\"availability\":false,\"customFields\":false,\"chat\":true}")
+}
+model Membership {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  userId String @db.Uuid
+  organization Organization @relation(fields:[organizationId],references:[id])
+  user User @relation(fields:[userId],references:[id])
+  permissionRole PermissionRole @default(MEMBER)
+  status MembershipStatus @default(ACTIVE)
+  joinedAt DateTime @default(now()) @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  groups GroupMember[]
+  interests ServiceInterest[]
+  assignments ServiceAssignment[]
+  acknowledgements NoticeAcknowledgement[]
+  noticeRecipients NoticeRecipient[]
+  chatParticipations ChatParticipant[]
+  @@unique([organizationId,userId])
+  @@unique([id,organizationId])
+  @@index([userId,status])
+}
+model Invitation {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  organization Organization @relation(fields:[organizationId],references:[id])
+  tokenHash String @unique
+  codeHash String? @unique
+  createdBy String @db.Uuid
+  expiresAt DateTime @db.Timestamptz
+  maxUses Int @default(1)
+  uses Int @default(0)
+  revokedAt DateTime? @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  @@index([organizationId])
+}
+model JobRole {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  organization Organization @relation(fields:[organizationId],references:[id])
+  name String
+  description String @default("")
+  active Boolean @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  positions ServicePosition[]
+  @@unique([organizationId,name])
+  @@unique([id,organizationId])
+}
+model Group {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  organization Organization @relation(fields:[organizationId],references:[id])
+  name String
+  type GroupType @default(CUSTOM)
+  active Boolean @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  members GroupMember[]
+  @@unique([id,organizationId])
+  @@unique([organizationId,name])
+}
+model GroupMember {
+  groupId String @db.Uuid
+  membershipId String @db.Uuid
+  organizationId String @db.Uuid
+  group Group @relation(fields:[groupId,organizationId],references:[id,organizationId])
+  membership Membership @relation(fields:[membershipId,organizationId],references:[id,organizationId])
+  @@id([groupId,membershipId])
+}
+model Service {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  organization Organization @relation(fields:[organizationId],references:[id])
+  title String
+  description String @default("")
+  locationText String @default("")
+  startsAt DateTime @db.Timestamptz
+  endsAt DateTime @db.Timestamptz
+  status ServiceStatus @default(DRAFT)
+  createdBy String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  positions ServicePosition[]
+  chat ChatThread?
+  @@unique([id,organizationId])
+  @@index([organizationId,startsAt,status])
+}
+model ServicePosition {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  serviceId String @db.Uuid
+  service Service @relation(fields:[serviceId,organizationId],references:[id,organizationId])
+  jobRoleId String @db.Uuid
+  jobRole JobRole @relation(fields:[jobRoleId,organizationId],references:[id,organizationId])
+  quantity Int
+  description String @default("")
+  compensation String?
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  interests ServiceInterest[]
+  assignments ServiceAssignment[]
+  @@unique([id,organizationId])
+  @@index([serviceId])
+}
+model ServiceInterest {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  servicePositionId String @db.Uuid
+  userId String @db.Uuid
+  membership Membership @relation(fields:[organizationId,userId],references:[organizationId,userId])
+  position ServicePosition @relation(fields:[servicePositionId,organizationId],references:[id,organizationId])
+  status InterestStatus @default(INTERESTED)
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  @@unique([servicePositionId,userId])
+}
+model ServiceAssignment {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  servicePositionId String @db.Uuid
+  userId String @db.Uuid
+  membership Membership @relation(fields:[organizationId,userId],references:[organizationId,userId])
+  position ServicePosition @relation(fields:[servicePositionId,organizationId],references:[id,organizationId])
+  status AssignmentStatus @default(AWAITING_CONFIRMATION)
+  selectedBy String @db.Uuid
+  selectedAt DateTime @default(now()) @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  confirmations Confirmation[]
+  @@index([servicePositionId,status])
+  @@index([organizationId,userId,status])
+}
+model Confirmation {
+  id String @id @default(uuid()) @db.Uuid
+  assignmentId String @db.Uuid
+  assignment ServiceAssignment @relation(fields:[assignmentId],references:[id])
+  requestedAt DateTime @default(now()) @db.Timestamptz
+  respondedAt DateTime? @db.Timestamptz
+  response String?
+  @@index([assignmentId])
+}
+model ChatThread {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  organization Organization @relation(fields:[organizationId],references:[id])
+  serviceId String? @db.Uuid
+  service Service? @relation(fields:[serviceId,organizationId],references:[id,organizationId])
+  kind ChatKind
+  title String
+  createdBy String @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  participants ChatParticipant[]
+  messages ChatMessage[]
+  @@unique([id,organizationId])
+  @@unique([serviceId,organizationId])
+  @@index([organizationId,updatedAt])
+}
+model ChatParticipant {
+  chatId String @db.Uuid
+  organizationId String @db.Uuid
+  userId String @db.Uuid
+  chat ChatThread @relation(fields:[chatId,organizationId],references:[id,organizationId])
+  membership Membership @relation(fields:[organizationId,userId],references:[organizationId,userId])
+  joinedAt DateTime @default(now()) @db.Timestamptz
+  unreadCount Int @default(0)
+  hiddenAt DateTime? @db.Timestamptz
+  messages ChatMessage[]
+  @@id([chatId,userId])
+  @@index([organizationId,userId])
+}
+model ChatMessage {
+  id String @id @default(uuid()) @db.Uuid
+  chatId String @db.Uuid
+  organizationId String @db.Uuid
+  senderId String @db.Uuid
+  chat ChatThread @relation(fields:[chatId,organizationId],references:[id,organizationId])
+  sender ChatParticipant @relation(fields:[chatId,senderId],references:[chatId,userId])
+  body String @db.VarChar(4000)
+  clientNonce String? @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz
+  @@unique([chatId,senderId,clientNonce])
+  @@index([chatId,createdAt,id])
+}
+model Notice {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  organization Organization @relation(fields:[organizationId],references:[id])
+  title String
+  body String
+  priority String @default("NORMAL")
+  targetType String @default("ORGANIZATION")
+  audienceVersion Int @default(0)
+  createdBy String @db.Uuid
+  requiresAcknowledgement Boolean @default(false)
+  publishedAt DateTime @default(now()) @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+  acknowledgements NoticeAcknowledgement[]
+  recipients NoticeRecipient[]
+  @@unique([id,organizationId])
+  @@index([organizationId,publishedAt])
+}
+model NoticeRecipient {
+  noticeId String @db.Uuid
+  membershipId String @db.Uuid
+  organizationId String @db.Uuid
+  notice Notice @relation(fields:[noticeId,organizationId],references:[id,organizationId],onDelete:Cascade)
+  membership Membership @relation(fields:[membershipId,organizationId],references:[id,organizationId])
+  @@id([noticeId,membershipId])
+  @@index([organizationId,membershipId])
+}
+model NoticeAcknowledgement {
+  noticeId String @db.Uuid
+  userId String @db.Uuid
+  organizationId String @db.Uuid
+  notice Notice @relation(fields:[noticeId,organizationId],references:[id,organizationId])
+  membership Membership @relation(fields:[organizationId,userId],references:[organizationId,userId])
+  createdAt DateTime @default(now()) @db.Timestamptz
+  @@id([noticeId,userId])
+}
+model AuditEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  organization Organization @relation(fields:[organizationId],references:[id])
+  actorId String @db.Uuid
+  action String
+  entityId String @db.Uuid
+  metadata Json @default("{}")
+  createdAt DateTime @default(now()) @db.Timestamptz
+  @@index([organizationId,createdAt])
+}
+model DomainEvent {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @db.Uuid
+  kind String
+  entityId String @db.Uuid
+  title String
+  body String
+  recipientIds String[] @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz
+  queuedAt DateTime? @db.Timestamptz
+  processedAt DateTime? @db.Timestamptz
+  @@index([processedAt,createdAt])
+}
+model Notification {
+  id String @id @default(uuid()) @db.Uuid
+  eventId String @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id])
+  organizationId String @db.Uuid
+  title String
+  body String
+  readAt DateTime? @db.Timestamptz
+  deliveredAt DateTime? @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  deliveries NotificationDelivery[]
+  @@unique([eventId,userId])
+  @@index([userId,organizationId,createdAt])
+}
+model NotificationDelivery {
+  id String @id @default(uuid()) @db.Uuid
+  notificationId String @db.Uuid
+  notification Notification @relation(fields:[notificationId],references:[id],onDelete:Cascade)
+  channel DeliveryChannel
+  attemptCount Int @default(0)
+  lastAttemptAt DateTime? @db.Timestamptz
+  deliveredAt DateTime? @db.Timestamptz
+  createdAt DateTime @default(now()) @db.Timestamptz
+  @@unique([notificationId,channel])
+}

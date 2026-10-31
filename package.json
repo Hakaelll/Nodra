@@ -1,0 +1,47 @@
+{
+  "name": "nodra",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24.11.0"
+  },
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter './apps/*' dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint apps packages --max-warnings 0",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:test": "node infrastructure/scripts/migrate-test.mjs",
+    "db:verify-bootstrap": "node infrastructure/scripts/verify-bootstrap.mjs",
+    "db:verify-restore": "node infrastructure/scripts/verify-restore.mjs",
+    "test:web-vertical": "node infrastructure/scripts/verify-web-vertical.mjs",
+    "db:dev": "prisma migrate dev",
+    "db:seed": "tsx --tsconfig apps/api/tsconfig.json infrastructure/scripts/seed.ts",
+    "db:studio": "prisma studio",
+    "format": "prettier --write apps packages docs"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "dotenv": "^17.2.3",
+    "pg": "^8.16.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.10.0",
+    "@types/pg": "^8.16.0",
+    "embedded-postgres": "18.4.0-beta.17",
+    "eslint": "^10.11.0",
+    "prettier": "^3.8.1",
+    "prisma": "7.10.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^4.0.18"
+  }
+}

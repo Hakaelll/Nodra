@@ -1,0 +1,67 @@
+name: nodra
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: nodra
+      POSTGRES_PASSWORD: nodra_local
+      POSTGRES_DB: nodra
+    ports: ['127.0.0.1:5432:5432']
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U nodra -d nodra]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  postgres-test:
+    image: postgres:17-alpine
+    profiles: [test]
+    environment:
+      POSTGRES_USER: nodra
+      POSTGRES_PASSWORD: nodra_local
+      POSTGRES_DB: nodra_test
+    ports: ['127.0.0.1:5433:5432']
+    tmpfs: [/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U nodra -d nodra_test]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  valkey:
+    image: valkey/valkey:8.1-alpine
+    command: [valkey-server, --appendonly, 'yes', --maxmemory-policy, noeviction]
+    ports: ['127.0.0.1:6379:6379']
+    volumes: [valkey_data:/data]
+    healthcheck:
+      test: [CMD, valkey-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  mailpit:
+    image: axllent/mailpit:v1.31.1
+    ports: ['127.0.0.1:1025:1025', '127.0.0.1:8025:8025']
+    healthcheck:
+      test: [CMD, /mailpit, readyz]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+  minio:
+    profiles: [storage]
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Minio.Dockerfile
+    command: [server, /data, --console-address, ':9001']
+    environment:
+      MINIO_ROOT_USER: nodra_local
+      MINIO_ROOT_PASSWORD: nodra_local_storage_only
+    ports: ['127.0.0.1:9000:9000', '127.0.0.1:9001:9001']
+    volumes: [minio_data:/data]
+    healthcheck:
+      test: [CMD, curl, -f, http://localhost:9000/minio/health/live]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+volumes:
+  postgres_data:
+  valkey_data:
+  minio_data:
