@@ -34,7 +34,10 @@ export function Input({
   type,
   id,
   ...props
-}: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
+}: InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  ref?: Ref<HTMLInputElement>;
+}) {
   const generatedId = useId();
   const [visible, setVisible] = useState(false);
   const fieldId = id ?? generatedId;

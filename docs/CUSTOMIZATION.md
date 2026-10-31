@@ -1,6 +1,6 @@
 # Personalización y presets
 
-Diseño para §59/61/62 del [prompt](BOOTSTRAP_PROMPT.md). No declara tablas, endpoints ni controles disponibles. Actualmente Organization tiene name y timezone; OrganizationSettings conserva serviceLabel y features. No hay logo organizativo, editor de terminología ni selector de accent. La foto personal no es un logo de organización.
+Diseño para §59/61/62 del [prompt](BOOTSTRAP_PROMPT.md). Distingue la edición disponible de los campos futuros. Organization permite corregir name y timezone; OrganizationSettings conserva serviceLabel y features. No hay logo organizativo, editor de terminología ni selector de accent. La foto personal no es un logo de organización.
 
 ## CustomFieldDefinition y CustomFieldValue
 
@@ -30,7 +30,9 @@ Antes de activar: migración aditiva con FKs/checks, validación Zod discriminad
 
 ## Identidad de organización
 
-Conservar name obligatorio (2–120 caracteres) y timezone IANA existentes. Añadir logo mediante upload autenticado OWNER/ADMIN, clave derivada del organizationId autorizado, recodificación raster y límites equivalentes al avatar; no aceptar SVG activo ni URL de terceros. Lectura requiere Membership. No reutilizar la ruta de foto personal ni exponer storage público.
+Implementado el 31/10: OWNER/ADMIN pueden editar nombre (2–120 caracteres) y zona IANA desde Perfil → Configuración. PATCH organizations/:org exige el par expected anterior, rechaza cambios obsoletos con 409 y registra ORGANIZATION_UPDATED en la misma transacción. No cambia slug ni instantes UTC de servicios. Los offsets fijos no son zonas IANA; un valor antiguo de ese tipo puede corregirse usando su snapshot esperado.
+
+Pendiente: añadir logo mediante upload autenticado OWNER/ADMIN, clave derivada del organizationId autorizado, recodificación raster y límites equivalentes al avatar; no aceptar SVG activo ni URL de terceros. Lectura requiere Membership. No reutilizar la ruta de foto personal ni exponer storage público.
 
 terminology será un objeto estricto para service singular/plural y jobRole singular/plural, con etiquetas acotadas, sin HTML ni CSS. Los identificadores internos, rutas y estados se mantienen neutrales y estables. accent será un enum pequeño de tokens contrastados del design system; no hex libre, no fuentes, layouts, CSS ni sombras configurables. La UI siempre conserva foco, estados de error y navegación coherentes. Estas opciones aún no están implementadas ni activables por settings/features.
 

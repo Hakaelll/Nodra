@@ -21,6 +21,7 @@ import {
 } from "@nestjs/swagger";
 import {
   organizationInput,
+  organizationUpdateInput,
   invitationInput,
   tokenInput,
   pageInput,
@@ -91,6 +92,23 @@ export class OrganizationsController {
   @ApiResponse({ status: 409, schema: openApiSchema(errorOutput) })
   create(@CurrentUser() user: string, @Body() body: unknown) {
     return this.service.create(user, parse(organizationInput, body));
+  }
+  @Patch("organizations/:org")
+  @ApiParam({ name: "org", format: "uuid" })
+  @ApiOperation({
+    summary: "Corregir nombre y zona horaria de la organización",
+    description:
+      "Sólo OWNER/ADMIN. expected evita sobrescribir cambios simultáneos. No cambia slug ni instantes UTC de servicios.",
+  })
+  @ApiBody({ schema: openApiSchema(organizationUpdateInput) })
+  @ApiResponse({ status: 200, schema: openApiSchema(organizationOutput) })
+  @ApiResponse({ status: 409, schema: openApiSchema(errorOutput) })
+  update(
+    @CurrentUser() user: string,
+    @Param("org") org: string,
+    @Body() body: unknown,
+  ) {
+    return this.service.update(user, org, parse(organizationUpdateInput, body));
   }
   @Get("organizations/:org/members")
   @ApiParam({ name: "org", format: "uuid" })

@@ -14,6 +14,7 @@ import { featureEnabled } from "./features";
 import { publicUser } from "../common";
 import { tokenHash } from "../auth/auth.service";
 import { audit } from "../events";
+import type { OrganizationUpdate } from "@nodra/contracts";
 import {
   OBJECT_STORAGE,
   type ObjectStorageProvider,
@@ -88,6 +89,35 @@ export class OrganizationsService {
       });
       await audit(tx, org.id, userId, "ORGANIZATION_CREATED", org.id);
       return org;
+    });
+  }
+  update(userId: string, organizationId: string, input: OrganizationUpdate) {
+    return this.db.atomic(async (tx) => {
+      await this.policy.require(userId, organizationId, "settings", tx);
+      const current = await tx.organization.findUniqueOrThrow({
+        where: { id: organizationId },
+      });
+      if (
+        current.name !== input.expected.name ||
+        current.timezone !== input.expected.timezone
+      )
+        throw new ConflictException(
+          "La organización ha cambiado. Actualiza la página antes de guardar.",
+        );
+      if (current.name === input.name && current.timezone === input.timezone)
+        return current;
+      const updated = await tx.organization.update({
+        where: { id: organizationId },
+        data: { name: input.name, timezone: input.timezone },
+      });
+      await audit(
+        tx,
+        organizationId,
+        userId,
+        "ORGANIZATION_UPDATED",
+        organizationId,
+      );
+      return updated;
     });
   }
   async members(

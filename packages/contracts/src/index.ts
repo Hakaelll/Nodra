@@ -9,24 +9,45 @@ export const registration = credentials.extend({
   firstName: z.string().trim().min(1).max(80),
   lastName: z.string().trim().min(1).max(80),
 });
-export const organizationInput = z
+const organizationTimezone = z
+  .string()
+  .trim()
+  .min(1)
+  .max(100)
+  .refine((value) => {
+    if (/^[+-]/.test(value)) return false;
+    try {
+      new Intl.DateTimeFormat("es", { timeZone: value });
+      return true;
+    } catch {
+      return false;
+    }
+  }, "Selecciona una zona horaria válida.")
+  .transform(
+    (value) =>
+      new Intl.DateTimeFormat("es", { timeZone: value }).resolvedOptions()
+        .timeZone,
+  );
+const organizationDetailsInput = z
   .object({
     name: z.string().trim().min(2).max(120),
+    timezone: organizationTimezone,
+  })
+  .strict();
+export const organizationUpdateInput = organizationDetailsInput.extend({
+  expected: organizationDetailsInput.extend({
+    timezone: z.string().min(1).max(100),
+  }),
+});
+export type OrganizationUpdate = z.infer<typeof organizationUpdateInput>;
+export const organizationInput = z
+  .object({
+    name: organizationDetailsInput.shape.name,
     slug: z
       .string()
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
       .max(64),
-    timezone: z
-      .string()
-      .default("Europe/Madrid")
-      .refine((v) => {
-        try {
-          new Intl.DateTimeFormat("es", { timeZone: v });
-          return true;
-        } catch {
-          return false;
-        }
-      }, "Invalid timezone"),
+    timezone: organizationTimezone.default("Europe/Madrid"),
   })
   .strict();
 export const serviceInput = z

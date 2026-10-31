@@ -32,6 +32,7 @@ import { Dashboard } from "./dashboard";
 import { ChatScreen } from "./chat-screen";
 import { RoleManager } from "./role-manager";
 import { NoticeComposer } from "./notice-composer";
+import { OrganizationDetails } from "./organization-details";
 import { ServiceFilters } from "./service-filters";
 import { RoleCatalogPicker } from "./role-catalog-picker";
 import { positionInput, roleInput } from "@nodra/contracts";
@@ -1520,6 +1521,13 @@ function OrganizationWorkspace({
           <JoinOrganization refresh={refreshMemberships} onError={setError} />
         </div>
         <PasswordForm onError={setError} onChanged={logout} />
+        {["OWNER", "ADMIN"].includes(membership.permissionRole) && (
+          <OrganizationDetails
+            key={membership.organization.id}
+            organization={membership.organization}
+            refresh={refreshMemberships}
+          />
+        )}
       </>
     );
   if (view === "Perfil")
