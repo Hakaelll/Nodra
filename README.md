@@ -135,7 +135,7 @@ flutter analyze
 flutter test
 ```
 
-See [testing](docs/TESTING.md) for evidence, optional transport tests, restore verification, and coverage limits.
+The suite keeps essential checks for authentication, tenant isolation, invitations, service capacity, confirmations, chat privacy, notice audiences, audit rollback, request origins, and mobile session recovery. Extended regression and transport suites have been removed at the project owner's request. See [testing](docs/TESTING.md) for the current scope and historical evidence.
 
 ## Current limits
 
@@ -143,7 +143,7 @@ See [testing](docs/TESTING.md) for evidence, optional transport tests, restore v
 - An Android debug APK has been built and its signature verified. An iOS build remains unverified.
 - Clients do not yet acquire device push tokens or deliver real mobile push notifications.
 - Advanced notice targeting, organization customization, and sector presets remain partial or planned.
-- CI is configured, but a successful remote run is not established by local test results.
+- Verification runs locally. GitHub Actions CI/CD has been removed at the project owner's request.
 - Production deployment, operational acceptance, and the full requirement audit remain open.
 
 ## Documentation
