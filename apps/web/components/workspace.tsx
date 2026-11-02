@@ -37,6 +37,7 @@ import { ServiceFilters } from "./service-filters";
 import { RoleCatalogPicker } from "./role-catalog-picker";
 import { positionInput, roleInput } from "@nodra/contracts";
 import { saveServiceChange } from "../lib/service-action";
+import { createSessionLoader } from "../lib/session-loader";
 import { CalendarView } from "./calendar-view";
 import { ConfirmLogout } from "./confirm-dialog";
 import { useConfirm } from "./confirmation-provider";
@@ -139,7 +140,7 @@ function ErrorMessage({
     </div>
   ) : null;
 }
-function Auth({ onLogin }: { onLogin: (u: PublicUser) => void }) {
+function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
   const [register, setRegister] = useState(false),
     [recover, setRecover] = useState(false),
     [busy, setBusy] = useState(false),
@@ -170,7 +171,7 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => void }) {
             : {}),
         },
       );
-      onLogin(result.user);
+      await onLogin(result.user);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -614,6 +615,7 @@ function Onboarding({
   );
 }
 export function Workspace() {
+  const [sessionLoader] = useState(createSessionLoader);
   const route = useWorkspaceRoute();
   const orgId = route?.orgId ?? "";
   const view = route?.view ?? "Inicio";
@@ -634,6 +636,9 @@ export function Workspace() {
     [memberships, setMemberships] = useState<Membership[]>([]),
     [initial, setInitial] = useState(true),
     [error, setError] = useState("");
+  const updateUser = useCallback((next: ProfileUser) => {
+    setUser((current) => (current?.id === next.id ? next : current));
+  }, []);
   const [unreadState, setUnreadState] = useState({
     orgId: "",
     userId: "",
@@ -715,13 +720,15 @@ export function Workspace() {
     const kind = accountLink?.kind;
     setAccountLink(null);
     if (completed && kind === "reset") {
+      sessionLoader.reset(false);
       setUser(null);
       setMemberships([]);
     }
     if (completed && kind === "verify" && user) {
       try {
-        setUser(await api<ProfileUser>("auth/me"));
+        await refresh();
       } catch {
+        sessionLoader.reset(false);
         setUser(null);
         setMemberships([]);
       }
@@ -789,13 +796,30 @@ export function Workspace() {
     previousScreen.current = screen;
   }, [orgId, view, route?.serviceId, route?.creating]);
   const refresh = useCallback(async () => {
-    const data = await api<Membership[]>("organizations");
-    setMemberships(data);
-    const current = readWorkspaceRoute(window.location.search);
-    if (current && !current.orgId && data[0]) {
-      navigateWorkspace({ ...current, orgId: data[0].organization.id }, true);
-    }
-  }, []);
+    await sessionLoader.load(
+      async () => {
+        const [profile, data] = await Promise.all([
+          api<ProfileUser>("auth/me"),
+          api<Membership[]>("organizations"),
+        ]);
+        if (data.some((member) => member.user.id !== profile.id)) {
+          throw new Error("La sesión ha cambiado. Actualiza la página.");
+        }
+        return { profile, data };
+      },
+      ({ profile, data }) => {
+        setUser(profile);
+        setMemberships(data);
+        const current = readWorkspaceRoute(window.location.search);
+        if (current && !current.orgId && data[0]) {
+          navigateWorkspace(
+            { ...current, orgId: data[0].organization.id },
+            true,
+          );
+        }
+      },
+    );
+  }, [sessionLoader]);
   useEffect(() => {
     if (route && !orgId && memberships[0]) {
       navigateWorkspace(
@@ -818,18 +842,23 @@ export function Workspace() {
       navigateWorkspace({ ...homeRoute, orgId }, true);
   }, [view, orgId, memberships]);
   useEffect(() => {
-    api<ProfileUser>("auth/me")
-      .then(async (u) => {
-        setUser(u);
-        await refresh();
-      })
+    let live = true;
+    sessionLoader.reset(true);
+    refresh()
       .catch(() => {})
-      .finally(() => setInitial(false));
-  }, [refresh]);
+      .finally(() => {
+        if (live) setInitial(false);
+      });
+    return () => {
+      live = false;
+      sessionLoader.reset(false);
+    };
+  }, [refresh, sessionLoader]);
   async function login(u: PublicUser) {
+    sessionLoader.reset(true);
+    setMemberships([]);
+    setError("");
     try {
-      const profile = await api<ProfileUser>("auth/me");
-      setUser(profile);
       await refresh();
     } catch (e) {
       setUser({ ...u, avatarUrl: null, emailVerifiedAt: null });
@@ -837,12 +866,14 @@ export function Workspace() {
     }
   }
   async function logout() {
+    sessionLoader.reset(false);
     try {
       await api("auth/logout", "POST", {});
       setUser(null);
       setMemberships([]);
       navigateWorkspace(homeRoute, true, false);
     } catch (e) {
+      sessionLoader.reset(true);
       setError((e as Error).message);
       throw e;
     }
@@ -862,7 +893,7 @@ export function Workspace() {
         onDone={(completed) => void dismissAccountLink(completed)}
       />
     );
-  if (!user) return <Auth onLogin={(u) => void login(u)} />;
+  if (!user) return <Auth onLogin={login} />;
   if (inviteToken)
     return (
       <main className="onboarding">
@@ -896,7 +927,7 @@ export function Workspace() {
             </Button>
             <Profile
               user={user}
-              onUser={setUser}
+              onUser={updateUser}
               onLogout={() => setLogoutOpen(true)}
             />
           </main>
@@ -1189,7 +1220,7 @@ export function Workspace() {
             setError={setError}
             refreshMemberships={refresh}
             logout={() => setLogoutOpen(true)}
-            onUser={setUser}
+            onUser={updateUser}
             refreshUnreadChats={refreshUnreadChats}
           />
         </main>
