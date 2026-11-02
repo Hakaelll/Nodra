@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 import {
   ApiBody,
+  ApiConsumes,
   ApiTags,
   ApiBearerAuth,
   ApiResponse,
@@ -145,6 +146,7 @@ export class AuthController {
   @ApiOperation({ summary: "Actualizar nombre y apellidos propios" })
   @ApiBody({ schema: openApiSchema(profileInput) })
   @ApiResponse({ status: 200, schema: openApiSchema(profileOutput) })
+  @ApiResponse({ status: 401, schema: openApiSchema(errorOutput) })
   updateProfile(@CurrentUser() userId: string, @Body() body: unknown) {
     return this.profile.updateProfile(userId, parse(profileInput, body));
   }
@@ -152,6 +154,8 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Obtener la foto de perfil propia" })
+  @ApiResponse({ status: 401, schema: openApiSchema(errorOutput) })
+  @ApiResponse({ status: 404, schema: openApiSchema(errorOutput) })
   @ApiResponse({
     status: 200,
     content: { "image/jpeg": { schema: { type: "string", format: "binary" } } },
@@ -170,7 +174,17 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: "Guardar una foto de perfil JPEG recortada" })
+  @ApiConsumes("image/jpeg")
+  @ApiResponse({ status: 413, schema: openApiSchema(errorOutput) })
+  @ApiResponse({ status: 415, schema: openApiSchema(errorOutput) })
+  @ApiBody({
+    required: true,
+    description:
+      "JPEG binario de 512×512 píxeles, máximo 524288 bytes. No multipart ni base64.",
+    schema: { type: "string", format: "binary" },
+  })
   @ApiResponse({ status: 201, schema: openApiSchema(profileOutput) })
+  @ApiResponse({ status: 401, schema: openApiSchema(errorOutput) })
   saveAvatar(@CurrentUser() userId: string, @Body() body: unknown) {
     return this.profile.saveAvatar(userId, body);
   }

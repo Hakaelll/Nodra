@@ -12,6 +12,14 @@ Comandos locales: `pnpm test`, `pnpm test:integration` y, desde apps/mobile, `fl
 
 Las regresiones específicas de calendarios, catálogo, perfil, worker, SMTP y almacenamiento ya no se ejecutan como suites dedicadas. La reducción disminuye la detección automática de regresiones en esos flujos. Reintroducir únicamente pruebas que resulten imprescindibles para un cambio concreto.
 
+## Verificar el contrato de la API
+
+Con PostgreSQL local de pruebas activo y `TEST_DATABASE_URL` apuntando a `nodra_test`, ejecuta `pnpm --filter @nodra/api build` y después `pnpm verify:api-contract`. El script rechaza entornos production y bases remotas o con otro nombre antes de crear la aplicación. No abre un puerto ni crea usuarios: compara decoradores del código con `/docs-json` y realiza peticiones sin credenciales o con entradas públicas inválidas. La sonda ready consulta la base dedicada.
+
+El 02/11 se verificaron 65 rutas, incluidos 56 rechazos sin sesión, schemas de éxito/cuerpo, parámetros UUID, queries declaradas, bearer, respuesta 429 y contrato binario del avatar. También se comprobaron los errores del parser 400/413/415 con envelope válido y mensaje español literal. Antes del cambio, la comprobación del JSON inválido falló por el texto en inglés; pasó tras corregir el filtro común. Lint, typecheck/build API, once integraciones PostgreSQL y dos pruebas web pasan. El primer intento unitario falló por permisos de caché temporal del sandbox; se repitió fuera del sandbox con éxito.
+
+Es un verificador manual y no amplía los dieciséis casos de la suite. No sustituye la validación de payloads válidos de cada recurso, autorización por rol, pruebas de dispositivos ni aceptación visual.
+
 ## Historial de verificaciones anteriores
 
 30/09 — Tras recuperar Docker y aplicar once migraciones a postgres-test tmpfs, pasan 57/57 integraciones focalizadas (vertical API, SMTP de cuentas y transporte Valkey/BullMQ/Mailpit) y la prueba de privacidad de ConsolePush. Web/API LAN 200; API PID 23884, web dev y worker PID 22532 activos. Intento Android APK falló por SDK ausente. No se afirma validación visual ni build móvil; auditoría individual §0–29 creada, §30–290 pendientes.

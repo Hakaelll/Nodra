@@ -34,6 +34,11 @@ export const publicUser = {
   firstName: true,
   lastName: true,
 } as const;
+const parserMessages: Partial<Record<number, string>> = {
+  400: "No se pudo leer la solicitud. Revisa el formato de los datos.",
+  413: "El archivo o la solicitud supera el tamaño permitido.",
+  415: "El formato de la solicitud no está admitido.",
+};
 @Catch()
 export class ApiErrors implements ExceptionFilter {
   catch(error: unknown, host: ArgumentsHost) {
@@ -46,7 +51,10 @@ export class ApiErrors implements ExceptionFilter {
       status = error.getStatus();
       if (status < 500) {
         code = error.name.replace(/Exception$/, "").toUpperCase();
-        message = error.message;
+        message =
+          code === "HTTP"
+            ? (parserMessages[status] ?? error.message)
+            : error.message;
       }
     } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {

@@ -69,7 +69,7 @@ Descripción: API Nest/Fastify con Prisma, configuración, logs y contratos.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: REVIEW
 
 Dependencias: NOD-002, NOD-003.
 
@@ -82,6 +82,8 @@ Archivos relacionados: apps/api, packages/config, docs/API.md.
 Tests requeridos: Typecheck, build, integración y contrato OpenAPI.
 
 Notas técnicas: Auth, catálogo, organizaciones y servicios documentan cuerpos/respuestas; /docs-json contrastado con payloads reales (20 tests de integración). Health/rate limit documentados y bloqueo auth real probado; 24 tests de integración pasan. Pendiente auditoría exhaustiva de errores y validación estructural OpenAPI. Respond idempotente devuelve estructura estable.
+
+02/11 — Verificación estructural reproducible en `pnpm verify:api-contract`: 65 rutas del código y OpenAPI coinciden; schemas de éxito/cuerpo, UUID de ruta, queries declaradas, bearer y 429 comprobados. Las 56 rutas protegidas rechazan peticiones sin sesión. Corregidas tres respuestas 401 del perfil y contrato JPEG binario con 413/415. Parser 400/413/415 conserva envelope y usa español. Pasan lint, tipos/build API, once integraciones y dos unitarios web. REVIEW: falta comprobar exhaustivamente payloads válidos de negocio y combinaciones de errores/permisos; este verificador no declara esa cobertura. No amplía la suite esencial de dieciséis casos.
 
 ## NOD-005 — Auth
 

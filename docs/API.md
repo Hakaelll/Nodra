@@ -22,6 +22,10 @@ Authorization: Bearer con JWT. Las rutas /organizations/:org exigen Membership a
 
 Errores tienen code, message y requestId. HTTP 400 para entrada inválida, 401 para sesión inválida, 403 para acceso no permitido, 404 para entidad ausente, 409 para conflicto de datos y 5xx con mensaje genérico, incluso cuando la causa es una HttpException de servidor. No se expone stack al cliente.
 
+Los errores genéricos del parser HTTP 400 (JSON ilegible), 413 (tamaño excedido) y 415 (formato no admitido) usan mensajes en español y conservan sus códigos HTTP. Los mensajes específicos de validación y negocio no se sustituyen por esos textos.
+
+`pnpm verify:api-contract` contrasta las 65 rutas del código con el documento generado y comprueba sus schemas de éxito, cuerpos, parámetros UUID, queries declaradas, bearer y respuesta 429. Comprueba también los 401 de las 56 rutas protegidas y las respuestas del parser 400/413/415 mediante solicitudes reales sin credenciales al servidor Fastify aislado. El contrato del avatar declara un cuerpo binario `image/jpeg` obligatorio, 512×512 píxeles y máximo 524288 bytes, con errores 413/415. Esta verificación estructural no valida cada payload válido de negocio ni todas las combinaciones de permisos.
+
 ## Rutas implementadas
 
 | Recurso                                    | Operaciones                                                                                                                                       |
@@ -57,7 +61,7 @@ El worker tiene endpoints separados de la API en `127.0.0.1:4100/health` y `/hea
 
 Web usa el BFF /api/* y cookies; móvil llama directamente a /api/v1 con bearer. Ver AUTH_AND_PERMISSIONS.md.
 
-La solicitud de recuperación (`POST /auth/reset/request`) acepta email y responde `{ok:true}` sin revelar si existe. `POST /auth/reset/complete` recibe token y nueva contraseña, consume una acción vigente y revoca sesiones. `POST /auth/verify/request` requiere bearer y encola un correo para la cuenta propia; `POST /auth/verify/complete` consume el token y fija emailVerifiedAt. El worker local entrega los enlaces; su SMTP real se comprobó con Mailpit local. El documento OpenAPI actual contiene 57 operaciones.
+La solicitud de recuperación (`POST /auth/reset/request`) acepta email y responde `{ok:true}` sin revelar si existe. `POST /auth/reset/complete` recibe token y nueva contraseña, consume una acción vigente y revoca sesiones. `POST /auth/verify/request` requiere bearer y encola un correo para la cuenta propia; `POST /auth/verify/complete` consume el token y fija emailVerifiedAt. El worker local entrega los enlaces; su SMTP real se comprobó con Mailpit local. El documento OpenAPI actual contiene 65 operaciones.
 
 El perfil propio admite PATCH /auth/me con firstName y lastName. GET /auth/me incluye avatarUrl opcional. POST /auth/me/avatar recibe sólo image/jpeg cuadrado de 512 × 512, hasta 512 KiB; el servidor decodifica y recodifica el contenido sin metadatos. GET /auth/me/avatar devuelve la foto propia con autenticación. GET /organizations/:org/users/:id/avatar permite consultar la foto propia dentro de una Membership activa o la de otra persona del mismo tenant si se dispone de permiso `operate`; un id externo o sin foto devuelve 404. Los ficheros se guardan en .local/avatars; la aplicación debe conservar esa carpeta si se despliega. No hay ruta pública para enumerar fotos.
 

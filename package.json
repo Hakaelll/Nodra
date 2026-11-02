@@ -23,6 +23,7 @@
     "db:seed": "tsx --tsconfig apps/api/tsconfig.json infrastructure/scripts/seed.ts",
     "db:studio": "prisma studio",
     "deps:inventory": "node infrastructure/scripts/inventory-dependencies.mjs",
+    "verify:api-contract": "node infrastructure/scripts/verify-api-contract.mjs",
     "format": "prettier --write apps packages docs"
   },
   "dependencies": {
