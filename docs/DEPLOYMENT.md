@@ -12,7 +12,9 @@ Antes de exponer: secretos nuevos, cookies seguras, orígenes reales, configurac
 
 ## Copias y recuperación pendientes
 
-Diseñar pg_dump con cifrado y retención, copia de objetos si se añade storage, y persistencia Valkey. Probar restauración en base separada antes de considerar la copia válida. Definir RPO/RTO, responsable y procedimiento; no existe tarea de backup automatizada actualmente.
+Diseñar pg_dump con cifrado y retención, copia de objetos del storage actual y persistencia Valkey. Con el provider local hay que conservar `avatars/` y `organizations/` bajo `LOCAL_OBJECT_STORAGE_ROOT`, incluidas las imágenes de logo referenciadas por PostgreSQL. No copiar toda `.local` indiscriminadamente: también contiene herramientas y cachés. Probar restauración en base separada antes de considerar la copia válida. Definir RPO/RTO, responsable y procedimiento; no existe tarea de backup automatizada actualmente.
+
+El simulacro de restore descrito a continuación cubre un avatar sintético. No verifica todavía un logo ni sustituye una copia coordinada de todos los objetos vigentes. Un cierre abrupto o fallo de limpieza puede dejar logos sin referencia; no borrarlos por antigüedad sin contrastar `Organization.logoKey` y las subidas activas.
 
 Ensayo local reproducible: `pnpm db:verify-restore` requiere Compose PostgreSQL en localhost:5432, Valkey en localhost:6379 y builds API/worker. Rechaza producción, hosts externos, parámetros de conexión y nombres ajenos al fixture. Crea dos bases `nodra_restore_<id>_source/target`; migra y genera datos sintéticos sólo en source. `pg_dump --format=custom` se cifra junto con un avatar usando AES-256-GCM; se comprueba que una alteración del archivo sea rechazada. `pg_restore --single-transaction --exit-on-error` carga target y se restaura el avatar en un directorio propio. No lee ni sobrescribe datos de desarrollo.
 

@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { organizationUpdateInput, type Organization } from "@nodra/contracts";
 import { api } from "../lib/api";
 import { Button, Card, Input } from "./ui";
+import { OrganizationLogo } from "./organization-logo";
 
 export function OrganizationDetails({
   organization,
@@ -105,6 +106,7 @@ export function OrganizationDetails({
   return (
     <Card>
       <h2>Datos de la organización</h2>
+      <OrganizationLogo organization={organization} refresh={refresh} />
       <form noValidate onSubmit={save} aria-busy={busy}>
         <Input
           label="Nombre de la organización"

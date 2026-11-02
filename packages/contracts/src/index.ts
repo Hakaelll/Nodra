@@ -114,6 +114,7 @@ export type Organization = {
   name: string;
   slug: string;
   timezone: string;
+  logoUrl: string | null;
   features: { groups: boolean; chat: boolean };
 };
 export type Membership = {

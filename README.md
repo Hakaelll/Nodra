@@ -8,7 +8,7 @@ Nodra helps organizations publish services, define positions, select participant
 
 ## Capabilities
 
-- **Organizations and access:** Membership-based permissions, invitation links and codes, editable organization details, job roles, and groups.
+- **Organizations and access:** Membership-based permissions, invitation links and codes, editable organization details, private logo uploads, job roles, and groups.
 - **Service coordination:** Drafts, positions, applications, participant selection, confirmation, cancellation, and completion.
 - **Schedules:** Organization time zones, daylight saving time handling, calendar views, and service filters.
 - **Communication:** Notices with recipient snapshots and read acknowledgements, persistent notifications, and chats with unread counts.

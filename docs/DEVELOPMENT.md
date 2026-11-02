@@ -72,3 +72,5 @@ Sin -AcceptSdkLicenses se preparan únicamente los archivos de herramientas y se
 ## Instalación limpia comprobada
 
 [Validación del 02/11](validation/2026-11-02-clean-install.md): copia aislada, pnpm 11.19.0, store vacío, generación, lint/tipos/tests/builds y bootstrap HTTP aprobados. No exportar NODE_ENV=development antes de pnpm build: dejar que Next elija su entorno de compilación. El desarrollo conserva el valor de .env. El informe diferencia esta comprobación de la validación física móvil y productiva.
+
+Logos privados: el provider local conserva los archivos en `organizations/<org>/logos/` bajo `LOCAL_OBJECT_STORAGE_ROOT` (por defecto `.local`). Aplicar la migración 13 con `pnpm db:migrate` antes de arrancar la API actualizada. Desde Perfil → Configuración, OWNER/ADMIN puede subir con recorte o quitar el logo; no acepta URLs externas. El mismo contrato funciona con el adapter S3 opcional, sin habilitarlo por defecto.

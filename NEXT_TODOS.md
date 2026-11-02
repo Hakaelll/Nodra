@@ -125,6 +125,8 @@ Tests requeridos: Integración multi-tenant, cambio de organización web/móvil.
 
 Notas técnicas: Creación/listado y edición de rol/estado con control optimista implementados. OWNER puede promover otro propietario; último owner protegido bajo carrera concurrente. Catorce tests integración pasan y editor revisado. Transferencia dedicada y suite E2E automatizada pendientes.
 
+02/11 — §61: logo privado implementado en API y web. OWNER/ADMIN añade, reemplaza o quita desde Perfil → Configuración, con recorte cuadrado reutilizado; Membership activa permite consultar. Migración 13 aditiva, normalización JPEG compartida con perfil, metadatos/auditoría transaccionales y archivos únicos con limpieza posterior. La nueva integración esencial comprueba roles, tenant ajeno, formatos inválidos, rollback y reemplazos concurrentes. Tipos/lint, builds API/worker/web, doce integraciones, dos unitarios, 68 contratos y bootstrap con seed repetido pasan; HTTP/BFF vertical pasa. Suite reducida: diecisiete casos totales, sin CI nuevo. No aceptación visual ni control de logo nativo Flutter; terminología/acento y limpieza automática de objetos huérfanos siguen pendientes.
+
 ## NOD-007 — Invitations
 
 Descripción: Crear, previsualizar, aceptar y revocar invitaciones.

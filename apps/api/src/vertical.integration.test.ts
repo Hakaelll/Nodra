@@ -5,10 +5,17 @@ import { unlink } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { NestFastifyApplication } from "@nestjs/platform-fastify";
 import type { Database } from "./database";
+import sharp from "sharp";
+import {
+  OBJECT_STORAGE,
+  type ObjectStorageProvider,
+} from "./storage/object-storage";
+import { organizationOutput } from "./organizations/organizations.schemas";
 import { testDatabaseUrl } from "../../../infrastructure/scripts/test-database.mjs";
 let app: NestFastifyApplication, db: Database;
 const ids: string[] = [],
   organizations: string[] = [];
+const logoKeys: string[] = [];
 let owner: { id: string; access: string },
   worker: { id: string; access: string },
   other: { id: string; access: string },
@@ -58,6 +65,10 @@ beforeAll(async () => {
   db = app.get(Database);
 });
 afterAll(async () => {
+  if (app) {
+    const storage = app.get<ObjectStorageProvider>(OBJECT_STORAGE);
+    await Promise.all(logoKeys.map((key) => storage.deleteObject(key)));
+  }
   await Promise.all(
     ids.map((id) =>
       unlink(resolve(process.cwd(), ".local", "avatars", `${id}.jpg`)).catch(
@@ -130,6 +141,185 @@ afterAll(async () => {
     });
   }
   if (app) await app.close();
+});
+
+it("protects private organization logos and rolls back failed audited uploads", async () => {
+  const owner = await register("LogoOwner");
+  const worker = await register("LogoMember");
+  const other = await register("LogoCoordinator");
+  const foreign = await db.organization.create({
+    data: {
+      name: "Private logo fixture",
+      slug: `foreign-logo-${randomUUID()}`,
+    },
+  });
+  const foreignOrg = foreign.id;
+  organizations.push(foreignOrg);
+  const fixture = await db.organization.create({
+    data: {
+      name: "Logo fixture",
+      slug: `logo-${randomUUID()}`,
+      memberships: {
+        create: [
+          { userId: owner.id, permissionRole: "OWNER" },
+          { userId: worker.id, permissionRole: "MEMBER" },
+          { userId: other.id, permissionRole: "COORDINATOR" },
+        ],
+      },
+    },
+  });
+  organizations.push(fixture.id);
+  const path = `organizations/${fixture.id}/logo`;
+  const storage = app.get<ObjectStorageProvider>(OBJECT_STORAGE);
+  const jpeg = await sharp({
+    create: { width: 512, height: 512, channels: 3, background: "#533afd" },
+  })
+    .jpeg()
+    .toBuffer();
+  const upload = (token: string | undefined, body = jpeg, target = path) =>
+    app.inject({
+      method: "POST",
+      url: `/api/v1/${target}`,
+      headers: {
+        "content-type": "image/jpeg",
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      },
+      payload: body,
+    });
+  expect((await upload(undefined)).statusCode).toBe(401);
+  for (const user of [worker, other]) {
+    expect((await upload(user.access)).statusCode).toBe(403);
+    expect((await request("DELETE", path, user.access)).statusCode).toBe(403);
+  }
+  expect(
+    (await upload(owner.access, jpeg, `organizations/${foreignOrg}/logo`))
+      .statusCode,
+  ).toBe(403);
+  expect(
+    (await request("GET", `organizations/${foreignOrg}/logo`, owner.access))
+      .statusCode,
+  ).toBe(403);
+  expect(
+    (await upload(owner.access, Buffer.from([255, 216, 255, 217]))).statusCode,
+  ).toBe(400);
+  const wrongSize = await sharp(jpeg).resize(256, 256).jpeg().toBuffer();
+  expect((await upload(owner.access, wrongSize)).statusCode).toBe(400);
+  const png = await sharp(jpeg).png().toBuffer();
+  expect((await upload(owner.access, png)).statusCode).toBe(400);
+  expect((await upload(owner.access, Buffer.alloc(524289))).statusCode).toBe(
+    413,
+  );
+  expect(
+    (await db.organization.findUniqueOrThrow({ where: { id: fixture.id } }))
+      .logoKey,
+  ).toBeNull();
+
+  const writes = vi.spyOn(storage, "putObject");
+  try {
+    const first = await upload(owner.access);
+    expect(first.statusCode).toBe(201);
+    organizationOutput.parse(first.json());
+    expect(first.json().logoKey).toBeUndefined();
+    const firstKey = (
+      await db.organization.findUniqueOrThrow({ where: { id: fixture.id } })
+    ).logoKey!;
+    logoKeys.push(firstKey);
+    const read = await request("GET", path, worker.access);
+    expect(read.statusCode).toBe(200);
+    expect(read.headers["content-type"]).toContain("image/jpeg");
+    expect(read.headers["cache-control"]).toContain("private");
+    expect(await sharp(read.rawPayload).metadata()).toMatchObject({
+      format: "jpeg",
+      width: 512,
+      height: 512,
+    });
+    const listed = (await request("GET", "organizations", owner.access))
+      .json()
+      .find((m: { organizationId: string }) => m.organizationId === fixture.id);
+    expect(listed.organization.logoUrl).toBe(first.json().logoUrl);
+    expect(listed.organization.logoKey).toBeUndefined();
+
+    await db.membership.update({
+      where: {
+        organizationId_userId: { organizationId: fixture.id, userId: other.id },
+      },
+      data: { permissionRole: "ADMIN" },
+    });
+    const second = await upload(other.access);
+    expect(second.statusCode).toBe(201);
+    expect(second.json().logoUrl).not.toBe(first.json().logoUrl);
+    const secondKey = (
+      await db.organization.findUniqueOrThrow({ where: { id: fixture.id } })
+    ).logoKey!;
+    logoKeys.push(secondKey);
+    expect(await storage.getObject(firstKey)).toBeNull();
+    const failedAudit = vi
+      .spyOn(auditEvents, "audit")
+      .mockRejectedValueOnce(new Error("Logo audit failure"));
+    try {
+      expect((await upload(owner.access)).statusCode).toBe(500);
+      const failedKey = writes.mock.calls.at(-1)![0].key;
+      logoKeys.push(failedKey);
+      expect(await storage.getObject(failedKey)).toBeNull();
+      expect(
+        (await db.organization.findUniqueOrThrow({ where: { id: fixture.id } }))
+          .logoKey,
+      ).toBe(secondKey);
+      expect(await storage.getObject(secondKey)).not.toBeNull();
+    } finally {
+      failedAudit.mockRestore();
+    }
+    const concurrent = await Promise.all([
+      upload(owner.access),
+      upload(other.access),
+    ]);
+    expect(concurrent.map((response) => response.statusCode)).toEqual([
+      201, 201,
+    ]);
+    const currentKey = (
+      await db.organization.findUniqueOrThrow({ where: { id: fixture.id } })
+    ).logoKey;
+    expect(currentKey).not.toBeNull();
+    for (const [write] of writes.mock.calls) {
+      const bytes = await storage.getObject(write.key);
+      if (write.key === currentKey) expect(bytes).not.toBeNull();
+      else expect(bytes).toBeNull();
+    }
+    const originalAtomic = db.atomic.bind(db);
+    const lostCommit = vi
+      .spyOn(db, "atomic")
+      .mockImplementationOnce(async (work) => {
+        await originalAtomic(work);
+        throw new Error("Commit acknowledged too late");
+      });
+    try {
+      expect((await upload(owner.access)).statusCode).toBe(500);
+      const committedKey = (
+        await db.organization.findUniqueOrThrow({ where: { id: fixture.id } })
+      ).logoKey;
+      expect(committedKey).not.toBeNull();
+      expect(await storage.getObject(committedKey!)).not.toBeNull();
+      expect((await request("GET", path, worker.access)).statusCode).toBe(200);
+    } finally {
+      lostCommit.mockRestore();
+    }
+    expect((await request("DELETE", path, other.access)).statusCode).toBe(200);
+    expect((await request("DELETE", path, other.access)).statusCode).toBe(200);
+    expect(await storage.getObject(secondKey)).toBeNull();
+    expect((await request("GET", path, worker.access)).statusCode).toBe(404);
+    const entries = await db.auditEvent.findMany({
+      where: { organizationId: fixture.id },
+    });
+    expect(entries.map((entry) => entry.action)).toEqual(
+      Array(6).fill("ORGANIZATION_UPDATED"),
+    );
+    expect(entries.map((entry) => entry.actorId).sort()).toEqual(
+      [owner.id, owner.id, owner.id, other.id, other.id, other.id].sort(),
+    );
+  } finally {
+    logoKeys.push(...writes.mock.calls.map(([write]) => write.key));
+    writes.mockRestore();
+  }
 });
 describe.sequential("real PostgreSQL coordination vertical", () => {
   it("registers accounts and creates independent organizations", async () => {

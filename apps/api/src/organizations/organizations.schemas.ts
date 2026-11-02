@@ -7,6 +7,7 @@ export const organizationOutput = z
     slug: z.string(),
     name: z.string(),
     timezone: z.string(),
+    logoUrl: z.string().nullable(),
     ...dates,
   })
   .strict();

@@ -33,6 +33,7 @@ import { ChatScreen } from "./chat-screen";
 import { RoleManager } from "./role-manager";
 import { NoticeComposer } from "./notice-composer";
 import { OrganizationDetails } from "./organization-details";
+import { OrganizationMark } from "./organization-logo";
 import { ServiceFilters } from "./service-filters";
 import { RoleCatalogPicker } from "./role-catalog-picker";
 import { positionInput, roleInput } from "@nodra/contracts";
@@ -1163,6 +1164,9 @@ export function Workspace() {
       <div className="workspace">
         <div className="topbar">
           <div className="topbar-route">
+            {membership.organization.logoUrl && (
+              <OrganizationMark organization={membership.organization} />
+            )}
             {memberships.length === 1 ? (
               <span className="topbar-org-name">
                 {membership.organization.name}
@@ -1554,7 +1558,7 @@ function OrganizationWorkspace({
         <PasswordForm onError={setError} onChanged={logout} />
         {["OWNER", "ADMIN"].includes(membership.permissionRole) && (
           <OrganizationDetails
-            key={membership.organization.id}
+            key={`${user.id}:${membership.organization.id}`}
             organization={membership.organization}
             refresh={refreshMemberships}
           />

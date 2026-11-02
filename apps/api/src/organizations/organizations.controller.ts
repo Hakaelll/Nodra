@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Query,
   UseGuards,
@@ -18,6 +19,7 @@ import {
   ApiParam,
   ApiQuery,
   ApiOperation,
+  ApiConsumes,
 } from "@nestjs/swagger";
 import {
   organizationInput,
@@ -30,6 +32,7 @@ import {
 import { AuthGuard, CurrentUser } from "../auth/auth.guard";
 import { parse, uuid, openApiSchema } from "../common";
 import { OrganizationsService } from "./organizations.service";
+import { OrganizationLogoService } from "./organization-logo.service";
 import {
   organizationOutput,
   organizationListOutput,
@@ -53,6 +56,8 @@ export class OrganizationsController {
   constructor(
     @Inject(OrganizationsService)
     private readonly service: OrganizationsService,
+    @Inject(OrganizationLogoService)
+    private readonly logos: OrganizationLogoService,
   ) {}
   @Get("organizations")
   @ApiOperation({
@@ -63,6 +68,53 @@ export class OrganizationsController {
   @ApiResponse({ status: 200, schema: openApiSchema(organizationListOutput) })
   list(@CurrentUser() user: string) {
     return this.service.list(user);
+  }
+  @Get("organizations/:org/logo")
+  @ApiParam({ name: "org", format: "uuid" })
+  @ApiOperation({ summary: "Consultar el logo privado de la organización" })
+  @ApiResponse({
+    status: 200,
+    content: { "image/jpeg": { schema: { type: "string", format: "binary" } } },
+  })
+  @ApiResponse({ status: 404, schema: openApiSchema(errorOutput) })
+  async logo(
+    @CurrentUser() user: string,
+    @Param("org") org: string,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const bytes = await this.logos.read(user, org);
+    reply
+      .type("image/jpeg")
+      .header("cache-control", "private, no-cache, max-age=0");
+    return bytes;
+  }
+  @Post("organizations/:org/logo")
+  @ApiParam({ name: "org", format: "uuid" })
+  @ApiOperation({ summary: "Cambiar logo, sólo OWNER o ADMIN" })
+  @ApiResponse({ status: 409, schema: openApiSchema(errorOutput) })
+  @ApiConsumes("image/jpeg")
+  @ApiBody({
+    required: true,
+    description: "JPEG binario de 512×512 píxeles, máximo 524288 bytes.",
+    schema: { type: "string", format: "binary" },
+  })
+  @ApiResponse({ status: 201, schema: openApiSchema(organizationOutput) })
+  @ApiResponse({ status: 413, schema: openApiSchema(errorOutput) })
+  @ApiResponse({ status: 415, schema: openApiSchema(errorOutput) })
+  saveLogo(
+    @CurrentUser() user: string,
+    @Param("org") org: string,
+    @Body() body: unknown,
+  ) {
+    return this.logos.save(user, org, body);
+  }
+  @Delete("organizations/:org/logo")
+  @ApiParam({ name: "org", format: "uuid" })
+  @ApiOperation({ summary: "Quitar logo, sólo OWNER o ADMIN; idempotente" })
+  @ApiResponse({ status: 409, schema: openApiSchema(errorOutput) })
+  @ApiResponse({ status: 200, schema: openApiSchema(okOutput) })
+  removeLogo(@CurrentUser() user: string, @Param("org") org: string) {
+    return this.logos.remove(user, org);
   }
   @Get("organizations/:org/users/:id/avatar")
   @ApiParam({ name: "org", format: "uuid" })

@@ -1,12 +1,7 @@
-import {
-  Injectable,
-  Inject,
-  BadRequestException,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, Inject, NotFoundException } from "@nestjs/common";
 import { Database } from "../database";
 import { publicUser } from "../common";
-import sharp from "sharp";
+import { normalizeSquareJpeg } from "../storage/square-jpeg";
 import {
   OBJECT_STORAGE,
   type ObjectStorageProvider,
@@ -61,31 +56,7 @@ export class ProfileService {
     return bytes;
   }
   async saveAvatar(userId: string, body: unknown) {
-    if (!Buffer.isBuffer(body) || body.length > 524288)
-      throw new BadRequestException(
-        "La imagen debe ser un JPEG cuadrado válido de hasta 512 KB.",
-      );
-    let normalized: Buffer;
-    try {
-      const image = sharp(body, {
-        failOn: "error",
-        limitInputPixels: 512 * 512,
-      });
-      const metadata = await image.metadata();
-      if (
-        metadata.format !== "jpeg" ||
-        metadata.width !== 512 ||
-        metadata.height !== 512
-      )
-        throw new Error("Invalid avatar dimensions or format");
-      normalized = await image.jpeg({ quality: 85 }).toBuffer();
-      if (normalized.length > 524288)
-        throw new Error("Normalized avatar exceeds the limit");
-    } catch {
-      throw new BadRequestException(
-        "La imagen debe ser un JPEG cuadrado válido de hasta 512 KB.",
-      );
-    }
+    const normalized = await normalizeSquareJpeg(body);
     const previous = await this.db.user.findUniqueOrThrow({
       where: { id: userId },
       select: { avatarUpdatedAt: true },

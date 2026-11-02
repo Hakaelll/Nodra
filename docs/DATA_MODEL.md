@@ -1,6 +1,8 @@
 # Modelo de datos
 
-Fuente ejecutable: infrastructure/database/schema.prisma y doce migraciones. Fechas persistidas con timestamptz; zona de organización para presentación. UUIDs identifican entidades.
+Fuente ejecutable: infrastructure/database/schema.prisma y trece migraciones. Fechas persistidas con timestamptz; zona de organización para presentación. UUIDs identifican entidades.
+
+`Organization.logoKey` es nullable y guarda la referencia privada al objeto vigente; las respuestas públicas la sustituyen por `logoUrl` nullable. La migración 13 sólo añade esa columna, sin modificar datos anteriores. OWNER/ADMIN pueden reemplazar o quitar el logo; la actualización y ORGANIZATION_UPDATED comparten transacción Serializable. Los objetos usan claves únicas para que la limpieza de un reemplazo no elimine la imagen vigente de otro cambio concurrente.
 
 ## Convenciones de nombres
 

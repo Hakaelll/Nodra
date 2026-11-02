@@ -15,6 +15,7 @@ import { publicUser } from "../common";
 import { tokenHash } from "../auth/auth.service";
 import { audit } from "../events";
 import type { OrganizationUpdate } from "@nodra/contracts";
+import { organizationView } from "./organization-output";
 import {
   OBJECT_STORAGE,
   type ObjectStorageProvider,
@@ -66,7 +67,7 @@ export class OrganizationsService {
       return {
         ...membership,
         organization: {
-          ...publicOrganization,
+          ...organizationView(publicOrganization),
           features: {
             groups: featureEnabled(settings?.features, "groups"),
             chat: featureEnabled(settings?.features, "chat"),
@@ -88,7 +89,7 @@ export class OrganizationsService {
         },
       });
       await audit(tx, org.id, userId, "ORGANIZATION_CREATED", org.id);
-      return org;
+      return organizationView(org);
     });
   }
   update(userId: string, organizationId: string, input: OrganizationUpdate) {
@@ -105,7 +106,7 @@ export class OrganizationsService {
           "La organización ha cambiado. Actualiza la página antes de guardar.",
         );
       if (current.name === input.name && current.timezone === input.timezone)
-        return current;
+        return organizationView(current);
       const updated = await tx.organization.update({
         where: { id: organizationId },
         data: { name: input.name, timezone: input.timezone },
@@ -117,7 +118,7 @@ export class OrganizationsService {
         "ORGANIZATION_UPDATED",
         organizationId,
       );
-      return updated;
+      return organizationView(updated);
     });
   }
   async members(
