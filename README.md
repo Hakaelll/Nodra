@@ -137,6 +137,8 @@ flutter test
 
 The suite keeps essential checks for authentication, tenant isolation, invitations, service capacity, confirmations, chat privacy, notice audiences, audit rollback, request origins, and mobile session recovery. Extended regression and transport suites have been removed at the project owner's request. See [testing](docs/TESTING.md) for the current scope and historical evidence.
 
+To inspect installed Node dependencies and license metadata, run `pnpm deps:inventory`. Use `node infrastructure/scripts/inventory-dependencies.mjs --json` for package details. This reads local manifests without installing packages or contacting external services. See [dependencies](docs/DEPENDENCIES.md) for scope and unresolved checks.
+
 ## Current limits
 
 - Full web DOM end-to-end coverage and physical mobile testing remain incomplete.

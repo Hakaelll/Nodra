@@ -22,6 +22,7 @@
     "db:dev": "prisma migrate dev",
     "db:seed": "tsx --tsconfig apps/api/tsconfig.json infrastructure/scripts/seed.ts",
     "db:studio": "prisma studio",
+    "deps:inventory": "node infrastructure/scripts/inventory-dependencies.mjs",
     "format": "prettier --write apps packages docs"
   },
   "dependencies": {
