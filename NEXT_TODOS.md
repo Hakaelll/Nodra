@@ -1,6 +1,6 @@
 # Próximas tareas de Nodra
 
-Actualizado: 02/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
+Actualizado: 03/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
 
 ## Prioridad de continuidad
 
@@ -124,6 +124,8 @@ Archivos relacionados: apps/api/src/organizations, docs/MULTI_TENANCY.md.
 Tests requeridos: Integración multi-tenant, cambio de organización web/móvil.
 
 Notas técnicas: Creación/listado y edición de rol/estado con control optimista implementados. OWNER puede promover otro propietario; último owner protegido bajo carrera concurrente. Catorce tests integración pasan y editor revisado. Transferencia dedicada y suite E2E automatizada pendientes.
+
+03/11 — NOD-006/014/019: transporte web ligado a una generación local de sesión y, en rutas tenant, al org activo de la URL. Reproducción controlada mostró un POST de Alice reintentado como Bob tras logout/login; ahora se descarta. Cambios de auth invalidan/abortan pendientes, esperan la renovación conocida y bloquean solapes en esa pestaña. JPEG comparte transporte/refresh y se conserva la renovación de contraseña y el DELETE sin cuerpo. Pasan tres pruebas web, lint y tipos; build registrado en estado. Una nueva regresión esencial deja el total en dieciocho. Cross-tab, orden de cookies BFF y E2E DOM siguen pendientes; no cerrar NOD-006 por esta comprobación de transporte.
 
 02/11 — §61: logo privado implementado en API y web. OWNER/ADMIN añade, reemplaza o quita desde Perfil → Configuración, con recorte cuadrado reutilizado; Membership activa permite consultar. Migración 13 aditiva, normalización JPEG compartida con perfil, metadatos/auditoría transaccionales y archivos únicos con limpieza posterior. La nueva integración esencial comprueba roles, tenant ajeno, formatos inválidos, rollback y reemplazos concurrentes. Tipos/lint, builds API/worker/web, doce integraciones, dos unitarios, 68 contratos y bootstrap con seed repetido pasan; HTTP/BFF vertical pasa. Suite reducida: diecisiete casos totales, sin CI nuevo. No aceptación visual ni control de logo nativo Flutter; terminología/acento y limpieza automática de objetos huérfanos siguen pendientes.
 

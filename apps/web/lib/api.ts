@@ -1,4 +1,38 @@
-let refreshing: Promise<boolean> | null = null;
+let session = new AbortController();
+let changingSession = false;
+let refreshing: {
+  session: AbortController;
+  promise: Promise<boolean>;
+} | null = null;
+const sessionActions = new Set([
+  "auth/login",
+  "auth/register",
+  "auth/logout",
+  "auth/password",
+  "auth/reset/complete",
+]);
+
+class SessionChangedError extends Error {
+  constructor() {
+    super("La sesión ha cambiado. Vuelve a intentarlo.");
+    this.name = "SessionChangedError";
+  }
+}
+
+function requireSession(expected: AbortController) {
+  if (expected !== session) throw new SessionChangedError();
+}
+
+function requireContext(path: string, expected: AbortController) {
+  requireSession(expected);
+  const organization = path.match(/^organizations\/([^/?]+)(?:[/?]|$)/)?.[1];
+  if (
+    organization &&
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("org") !== organization
+  )
+    throw new Error("La organización ha cambiado. Vuelve a intentarlo.");
+}
 
 const fallbackError: Record<number, string> = {
   400: "Revisa los datos e inténtalo de nuevo.",
@@ -10,8 +44,7 @@ const fallbackError: Record<number, string> = {
   429: "Demasiados intentos. Espera un momento y vuelve a probar.",
 };
 
-async function readResponse<T>(response: Response): Promise<T> {
-  const data: unknown = await response.json().catch(() => null);
+function readResponse<T>(response: Response, data: unknown): T {
   if (!response.ok) {
     const message =
       data && typeof data === "object" && "message" in data
@@ -30,24 +63,70 @@ async function readResponse<T>(response: Response): Promise<T> {
   return data as T;
 }
 
-export async function api<T>(
+async function send(
   path: string,
-  method = "GET",
-  body?: unknown,
-  retry = true,
-): Promise<T> {
-  let response: Response;
+  init: RequestInit,
+  expected: AbortController,
+) {
+  requireContext(path, expected);
+  const request = new AbortController();
+  const abort = () => request.abort();
+  expected.signal.addEventListener("abort", abort, { once: true });
+  const timeout = setTimeout(abort, 20000);
   try {
-    response = await fetch(`/api/${path}`, {
-      method,
-      headers:
-        body === undefined ? undefined : { "content-type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: AbortSignal.timeout(20000),
+    const response = await fetch(`/api/${path}`, {
+      ...init,
+      signal: request.signal,
     });
+    const data: unknown = await response.json().catch(() => null);
+    requireContext(path, expected);
+    if (request.signal.aborted) throw new Error("Request aborted");
+    return { response, data };
   } catch {
+    requireContext(path, expected);
     throw new Error("Sin conexión. Revisa tu red y vuelve a intentarlo.");
+  } finally {
+    clearTimeout(timeout);
+    expected.signal.removeEventListener("abort", abort);
   }
+}
+
+function refresh(expected: AbortController) {
+  requireSession(expected);
+  if (!refreshing || refreshing.session !== expected) {
+    const pending = {
+      session: expected,
+      promise: (async () => {
+        try {
+          return (
+            await fetch("/api/auth/refresh", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: "{}",
+              signal: AbortSignal.timeout(20000),
+            })
+          ).ok;
+        } catch {
+          return false;
+        }
+      })(),
+    };
+    refreshing = pending;
+    void pending.promise.then(() => {
+      if (refreshing === pending) refreshing = null;
+    });
+  }
+  return refreshing.promise;
+}
+
+async function request<T>(
+  path: string,
+  init: RequestInit,
+  expected: AbortController,
+  retry: boolean,
+): Promise<T> {
+  const { response, data } = await send(path, init, expected);
+  requireContext(path, expected);
   if (
     response.status === 401 &&
     retry &&
@@ -55,33 +134,59 @@ export async function api<T>(
       path,
     )
   ) {
-    refreshing ??= fetch("/api/auth/refresh", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: "{}",
-      signal: AbortSignal.timeout(20000),
-    })
-      .then((r) => r.ok)
-      .finally(() => {
-        refreshing = null;
-      });
-    if (await refreshing) return api<T>(path, method, body, false);
+    const renewed = await refresh(expected);
+    requireContext(path, expected);
+    if (renewed) return request<T>(path, init, expected, false);
   }
-  return readResponse<T>(response);
+  return readResponse<T>(response, data);
 }
-export async function apiFile<T>(path: string, method: string, body: Blob) {
-  let response: Response;
-  try {
-    response = await fetch(`/api/${path}`, {
+
+export async function api<T>(
+  path: string,
+  method = "GET",
+  body?: unknown,
+  retry = true,
+): Promise<T> {
+  if (changingSession) throw new SessionChangedError();
+  const init = {
+    method,
+    headers:
+      body === undefined ? undefined : { "content-type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  };
+  if (method.toUpperCase() === "POST" && sessionActions.has(path)) {
+    changingSession = true;
+    const previous = session;
+    session = new AbortController();
+    previous.abort();
+    const expected = session;
+    try {
+      // Let a known refresh apply its cookies before sending the auth change.
+      if (refreshing) await refreshing.promise;
+      return await request<T>(path, init, expected, retry);
+    } finally {
+      changingSession = false;
+    }
+  }
+  return request<T>(path, init, session, retry);
+}
+
+export async function apiFile<T>(
+  path: string,
+  method: string,
+  body: Blob,
+): Promise<T> {
+  if (changingSession) throw new SessionChangedError();
+  return request<T>(
+    path,
+    {
       method,
       headers: { "content-type": "image/jpeg" },
       body,
-      signal: AbortSignal.timeout(20000),
-    });
-  } catch {
-    throw new Error("Sin conexión. Revisa tu red y vuelve a intentarlo.");
-  }
-  return readResponse<T>(response);
+    },
+    session,
+    true,
+  );
 }
 export const statusLabel: Record<string, string> = {
   PERMANENT: "Permanente",

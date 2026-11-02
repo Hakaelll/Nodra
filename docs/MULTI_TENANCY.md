@@ -6,6 +6,8 @@ Todas las consultas a entidades privadas deben incluir organizationId, también 
 
 Las transacciones agrupan validación, cambios, auditoría y outbox. El worker comprueba nuevamente Membership activa y User activo antes de entregar. No mantener permisos en caché sin un plan explícito de invalidación.
 
+El transporte web comprueba que las rutas `organizations/:org` coinciden con el `org` activo de la URL antes de enviar, entregar una respuesta o reintentar tras renovar. Si cambia la organización durante la petición, descarta tanto éxito como error y no reenvía la operación desde el contexto anterior. Los endpoints globales, como el perfil propio y la lista de pertenencias, conservan su ámbito global. Esto evita aplicar resultados de otra organización en el cliente; no cancela una escritura ya aceptada por el servidor ni reemplaza Policy.
+
 ## Evidencia
 
 vertical.integration.test.ts crea organizaciones independientes y rechaza lecturas/escrituras sin Membership y referencias cruzadas de los escenarios cubiertos. También prueba permisos y consumo concurrente de invitaciones. No equivale a cobertura exhaustiva de todos los endpoints.
