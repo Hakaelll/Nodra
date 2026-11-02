@@ -68,3 +68,7 @@ Los scripts prepare-android.ps1 y build-android.ps1 guardan herramientas/cachés
 ```
 
 Sin -AcceptSdkLicenses se preparan únicamente los archivos de herramientas y se muestran las instrucciones; los paquetes del SDK no se instalan. El flag acepta las licencias solicitadas sólo para los paquetes necesarios. build-android comprueba herramientas, usa Flutter local y genera APK debug; caches Gradle y Android/debug keystore quedan en el directorio local. Gradle 9.3.1 tiene SHA-256 fijado en el wrapper. La API debe escuchar en LAN para teléfono físico; el valor predeterminado del script apunta a 10.0.2.2 para emulador. Este comando no publica ni firma una distribución productiva. Ver TESTING para resultados reales, no inferir build válido por la existencia de los scripts.
+
+## Instalación limpia comprobada
+
+[Validación del 02/11](validation/2026-11-02-clean-install.md): copia aislada, pnpm 11.19.0, store vacío, generación, lint/tipos/tests/builds y bootstrap HTTP aprobados. No exportar NODE_ENV=development antes de pnpm build: dejar que Next elija su entorno de compilación. El desarrollo conserva el valor de .env. El informe diferencia esta comprobación de la validación física móvil y productiva.

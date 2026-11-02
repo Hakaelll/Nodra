@@ -139,6 +139,8 @@ The suite keeps essential checks for authentication, tenant isolation, invitatio
 
 To inspect installed Node dependencies and license metadata, run `pnpm deps:inventory`. Use `node infrastructure/scripts/inventory-dependencies.mjs --json` for package details. This reads local manifests without installing packages or contacting external services. See [dependencies](docs/DEPENDENCIES.md) for scope and unresolved checks.
 
+The [clean Node installation validation](docs/validation/2026-11-02-clean-install.md) records the pinned toolchain, isolated setup, and passing checks.
+
 ## Current limits
 
 - Full web DOM end-to-end coverage and physical mobile testing remain incomplete.

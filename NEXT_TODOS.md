@@ -27,13 +27,15 @@ Notas técnicas: repositorio vacío; sin Docker ni Flutter.
 
 Descripción: definir límites, herramientas, contratos y decisiones.
 Prioridad: P0
-Estado: IN_PROGRESS
+Estado: DONE
 Dependencias: NOD-001.
 Objetivo: base mantenible de coste cero.
 Criterios de aceptación: workspaces y documentación coherentes.
 Archivos relacionados: package.json, apps, packages, docs.
 Tests requeridos: instalación, typecheck.
-Notas técnicas: monorepo y documentación inicial creados; 13 ADRs registrados. Pendiente auditoría final de versiones/licencias y coherencia con implementación. Priorizar vertical; no implementar roadmap futuro.
+Notas técnicas iniciales (históricas): monorepo y documentación inicial creados; 13 ADRs registrados. Pendiente auditoría final de versiones/licencias y coherencia con implementación. Priorizar vertical; no implementar roadmap futuro.
+
+02/11 — Cierre verificado: [instalación limpia](docs/validation/2026-11-02-clean-install.md). Se conserva el historial de las notas iniciales. NOD-002: siete workspaces, pnpm fijado, instalación congelada nueva y comprobaciones/builds aprobados. NOD-003: servicios estándar saludables, conexiones de API/worker, SMTP sin envío y bootstrap desde cero. No certifica producción ni distribución de binarios.
 
 ## Plan detallado NOD-003 a NOD-020
 
@@ -45,7 +47,7 @@ Descripción: Arranque local de PostgreSQL, Valkey, Mailpit y storage opcional.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: DONE
 
 Dependencias: NOD-002.
 
@@ -57,7 +59,9 @@ Archivos relacionados: docker-compose.yml, infrastructure.
 
 Tests requeridos: Compose config/up/health; PostgreSQL real.
 
-Notas técnicas: PostgreSQL fixture persistente operativo. Docker Desktop 29.8.0 y Compose v5.5.1 validaron Valkey 8.1, Mailpit v1.31.1 y postgres-test 17 healthy. El PostgreSQL principal de Compose 17 también arrancó healthy en 5432 con volumen propio: cuatro migraciones aplicadas, seed repetido y bootstrap aislado aprobado. El fixture persistente de 5433 se conserva. MinIO opcional se construyó, arrancó healthy y respondió 200 en health/live. El adapter S3 opcional pasó una integración real con bucket efímero; el upstream archivado no se propone para producción.
+Notas técnicas iniciales (históricas): PostgreSQL fixture persistente operativo. Docker Desktop 29.8.0 y Compose v5.5.1 validaron Valkey 8.1, Mailpit v1.31.1 y postgres-test 17 healthy. El PostgreSQL principal de Compose 17 también arrancó healthy en 5432 con volumen propio: cuatro migraciones aplicadas, seed repetido y bootstrap aislado aprobado. El fixture persistente de 5433 se conserva. MinIO opcional se construyó, arrancó healthy y respondió 200 en health/live. El adapter S3 opcional pasó una integración real con bucket efímero; el upstream archivado no se propone para producción.
+
+02/11 — Cierre verificado: [instalación limpia](docs/validation/2026-11-02-clean-install.md). Se conserva el historial de las notas iniciales. NOD-002: siete workspaces, pnpm fijado, instalación congelada nueva y comprobaciones/builds aprobados. NOD-003: servicios estándar saludables, conexiones de API/worker, SMTP sin envío y bootstrap desde cero. No certifica producción ni distribución de binarios.
 
 ## NOD-004 — Backend foundation
 
@@ -560,3 +564,5 @@ APK debug actualizado (build 31,7 s), firma v2 verificada; SHA-256 b4e30cb2f7c5f
 02/11 — NOD-002/020 (§284): añadido deps:inventory, comando local sin dependencias nuevas que recorre los siete manifests y el grafo Node instalado. Resultado: 477 instalaciones alcanzables, cero dependencias obligatorias ausentes, 152 referencias opcionales ausentes y una licencia no declarada en metadata (seq-queue con LICENSE MIT incluido). Documentado binario Sharp Apache/LGPL, pnpm ejecutado 11.25 frente al pin 11.19 y entrada S3 adicional no alcanzable en lock del store. No se afirma instalación limpia ni auditoría legal/de todas las plataformas. No cambian paquetes, lock, proveedores ni costes. Comprobación del grafo real, fixture aislado que falla ante dependencia obligatoria ausente y opción inválida verificadas; fixture sólo en .local. No se amplía la suite de dieciséis tests. Estados e historial DONE conservados y objetivo activo.
 
 02/11 — Verificación del inventario: pnpm deps:inventory aprobado (477 registros, cero obligatorias ausentes); node --check y pnpm lint aprobados. Comprobados conteos, metadatos presentes y resolución dentro del proyecto, además de códigos 1/2 en fixture aislado. No se reinstalan paquetes, no se ejecutan builds/suites de aplicación por este comando de sólo lectura y documentación. Licencias, integridad binaria y reinstalación limpia tienen los límites descritos en DEPENDENCIES.
+
+02/11 — NOD-002 y NOD-003 pasan a DONE con evidencia en docs/validation/2026-11-02-clean-install.md. Copia de git archive del commit 16e9c8c en temporal externo, Node 24.22.1 y pnpm 11.19.0 descargado del registro oficial con integridad comprobada. Store vacío: 479 paquetes descargados, ninguno reutilizado; lockfile fuente intacto. Generación Prisma, tres packages, lint, tipos, dos unitarios, builds API/worker/web, doce migraciones de test, once integraciones, bootstrap/seed repetido y HTTP/BFF aprobados. Las dos bases propias se eliminaron. Licencias de pnpm funcionan con los índices nuevos. Primer build falló por NODE_ENV=development forzado por el verificador y pasó al retirar esa sobreescritura, sin cambiar código. Servicios originales siguen saludables/HTTP 200; SMTP verify sin enviar mensajes. No reinstalación ni seed del entorno de usuario. El objetivo global sigue activo; límites de clientes, producción y licencias binarias siguen abiertos.
