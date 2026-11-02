@@ -27,8 +27,42 @@ class NodraApi {
   final FlutterSecureStorage storage;
   String? _access, _refresh;
   Future<void>? _refreshing;
+  int _generation = 0;
+  Future<void> _storageWrites = Future<void>.value();
+  static const _sessionChanged = ApiFailure(
+    'La sesión ha cambiado. Vuelve a intentarlo.',
+  );
+
+  void _requireGeneration(int generation) {
+    if (generation != _generation) throw _sessionChanged;
+  }
+
+  Future<void> _persist(
+    int generation,
+    String? encoded, {
+    String key = 'nodra_session',
+  }) {
+    final write = _storageWrites.then((_) async {
+      if (generation != _generation) return;
+      if (encoded == null) {
+        await storage.delete(key: key);
+      } else {
+        await storage.write(key: key, value: encoded);
+      }
+    });
+    // The caller receives the error; later writes can still use the queue.
+    _storageWrites = write.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stack) {},
+    );
+    return write;
+  }
+
   Future<bool> restore() async {
+    final generation = _generation;
+    await _storageWrites;
     final encoded = await storage.read(key: 'nodra_session');
+    _requireGeneration(generation);
     if (encoded == null) return false;
     final data = jsonDecode(encoded) as Json;
     _access = data['accessToken'] as String?;
@@ -36,13 +70,26 @@ class NodraApi {
     return _refresh != null;
   }
 
-  Future<void> _save(Json data) async {
+  Future<void> rememberOrganization(String id) =>
+      _persist(_generation, id, key: 'nodra_organization');
+
+  Future<String?> savedOrganization() async {
+    final generation = _generation;
+    await _storageWrites;
+    final saved = await storage.read(key: 'nodra_organization');
+    _requireGeneration(generation);
+    return saved;
+  }
+
+  Future<void> _save(Json data, int generation) async {
+    _requireGeneration(generation);
     _access = data['accessToken'] as String;
     _refresh = data['refreshToken'] as String;
-    await storage.write(
-      key: 'nodra_session',
-      value: jsonEncode({'accessToken': _access, 'refreshToken': _refresh}),
+    await _persist(
+      generation,
+      jsonEncode({'accessToken': _access, 'refreshToken': _refresh}),
     );
+    _requireGeneration(generation);
   }
 
   Future<Json> authenticate(
@@ -51,6 +98,13 @@ class NodraApi {
     String? firstName,
     String? lastName,
   }) async {
+    final generation = ++_generation;
+    _access = null;
+    _refresh = null;
+    _refreshing = null;
+    await _persist(generation, null);
+    await _persist(generation, null, key: 'nodra_organization');
+    _requireGeneration(generation);
     try {
       final response = await dio.post<Json>(
         firstName == null ? '/auth/login' : '/auth/register',
@@ -61,9 +115,11 @@ class NodraApi {
           'lastName': ?lastName,
         },
       );
-      await _save(response.data!);
+      await _save(response.data!, generation);
+      _requireGeneration(generation);
       return response.data!['user'] as Json;
     } on DioException catch (error) {
+      _requireGeneration(generation);
       throw ApiFailure.from(error);
     }
   }
@@ -102,15 +158,20 @@ class NodraApi {
     }
   }
 
-  Future<void> _rotate() async {
+  Future<void> _rotate(int generation) async {
+    _requireGeneration(generation);
     try {
       final result = await dio.post<Json>(
         '/auth/refresh',
         data: {'token': _refresh},
       );
-      await _save(result.data!);
+      await _save(result.data!, generation);
     } on DioException catch (error) {
-      if (error.response?.statusCode == 401) await clear();
+      _requireGeneration(generation);
+      if (error.response?.statusCode == 401) {
+        await clear();
+        _requireGeneration(generation + 1);
+      }
       rethrow;
     }
   }
@@ -123,8 +184,9 @@ class NodraApi {
     ResponseType responseType = ResponseType.json,
     bool retry = true,
   }) async {
+    final generation = _generation;
     try {
-      return (await dio.request<dynamic>(
+      final response = await dio.request<dynamic>(
         path,
         data: data,
         options: Options(
@@ -133,12 +195,20 @@ class NodraApi {
           contentType: contentType,
           responseType: responseType,
         ),
-      )).data;
+      );
+      _requireGeneration(generation);
+      return response.data;
     } on DioException catch (error) {
+      _requireGeneration(generation);
       if (error.response?.statusCode == 401 && retry && _refresh != null) {
         try {
-          _refreshing ??= _rotate().whenComplete(() => _refreshing = null);
-          await _refreshing;
+          final refreshing = _refreshing ??= _rotate(generation);
+          try {
+            await refreshing;
+          } finally {
+            if (identical(_refreshing, refreshing)) _refreshing = null;
+          }
+          _requireGeneration(generation);
           return await request(
             path,
             method: method,
@@ -173,20 +243,27 @@ class NodraApi {
   }
 
   Future<void> logout() async {
-    if (_refresh != null) {
-      try {
-        await dio.post('/auth/logout', data: {'token': _refresh});
-      } on DioException catch (error) {
-        throw ApiFailure.from(error);
+    final token = _refresh;
+    try {
+      await clear();
+    } finally {
+      if (token != null) {
+        try {
+          await dio.post('/auth/logout', data: {'token': token});
+        } on DioException {
+          // Local logout remains effective when remote revocation is unavailable.
+        }
       }
     }
-    await clear();
   }
 
   Future<void> clear() async {
+    final generation = ++_generation;
     _access = null;
     _refresh = null;
-    await storage.delete(key: 'nodra_session');
+    _refreshing = null;
+    await _persist(generation, null);
+    await _persist(generation, null, key: 'nodra_organization');
   }
 }
 

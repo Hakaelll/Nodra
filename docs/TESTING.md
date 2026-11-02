@@ -1,10 +1,10 @@
 # Pruebas y evidencia
 
-## Suite vigente desde el 31/10
+## Suite esencial vigente
 
 Por petición del propietario, la suite se reduce aproximadamente un 95% y se elimina `.github/workflows/ci.yml`. No hay CI/CD de GitHub configurado. Las cifras y referencias a suites extensas que aparecen más abajo son evidencia histórica, no archivos ni cobertura actuales.
 
-Se conservan tres archivos: `apps/api/src/vertical.integration.test.ts` con once casos PostgreSQL, `apps/web/lib/request-origin.test.ts` con un caso de protección de origen y `apps/mobile/test/session_network_test.dart` con un caso de recuperación de sesión sin conexión. No se agrupan tests eliminados dentro de casos nuevos ni se ocultan mediante skip.
+Se conservan tres archivos: `apps/api/src/vertical.integration.test.ts` con once casos PostgreSQL, `apps/web/lib/request-origin.test.ts` con un caso de protección de origen y `apps/mobile/test/session_network_test.dart` con tres casos: recuperación de sesión sin conexión, refresh tardío tras cambiar de cuenta y selección de organización con almacenamiento retrasado. El total actual es de quince pruebas, frente a las trece posteriores a la reducción inicial. Se añaden sólo estas dos regresiones de seguridad, sin restaurar las suites retiradas. No se agrupan tests eliminados dentro de casos nuevos ni se ocultan mediante skip.
 
 Las once integraciones cubren registro y organizaciones, lectura y escritura entre tenants, privacidad e idempotencia del chat, consumo concurrente de invitaciones, publicación y borradores, capacidad bajo concurrencia, confirmación y cancelación, rotación concurrente de refresh, audiencia privada de avisos y rollback de posiciones ante fallo de auditoría.
 
@@ -277,3 +277,7 @@ APK debug actualizado (build 31,7 s), firma v2 verificada; SHA-256 b4e30cb2f7c5f
 31/10 — Organización: recorrido manual con API compilada y PostgreSQL de pruebas verifica OWNER/ADMIN permitidos, COORDINATOR/MEMBER/ajeno/suspendido denegados, cuerpo estricto, nombre/zona inválidos, edición obsoleta, carrera de dos ediciones (200/409), no-op sin nueva auditoría, actor/tenant/entidad, slug e instantes UTC intactos, corrección de zona antigua y OpenAPI. Sólo elimina sus fixtures propios. Alias PST normalizado a America/Los_Angeles y snapshot antiguo +01:00 comprobados contra contrato compilado. La suite esencial permanece en trece pruebas.
 
 31/10 — Verificación de edición de organización: 11 integraciones PostgreSQL y 1 test web aprobados; lint global, typecheck web y builds contratos/API/web aprobados. La prueba Flutter anterior se conserva sin cambios y no se repite porque este cambio no modifica Dart. Recorrido manual de permisos, conflictos, aislamiento, auditoría y horarios aprobado en nodra_test con limpieza de fixtures. No se afirma inspección visual ni E2E DOM.
+
+02/11 — Flutter analyze --no-pub aprobado, tres pruebas Flutter aprobadas en revisión fresca. Las dos regresiones se observaron fallar antes del arreglo (Alice restaurada en vez de Bob; team-b en vez de la última selección team-a) y pasan tras él. APK Android debug recompilado con API_URL http://192.168.1.133:4000/api/v1 (Wi-Fi verificada), build 130,6 s y firma v2 verificada. SHA-256 6f671b3143a4816b9011e805a58ae89879509621f10b5fbb433c223d9a573324. Artefacto local apps/mobile/build/app/outputs/flutter-apk/app-debug.apk, excluido de Git. Persiste warning de metadatos SDK XML v3/v4 sin impedir el build. No ejecución física, build iOS ni Computer Use. Las doce pruebas JavaScript anteriores no se repiten por un cambio sólo Dart y documentación; el total vigente es quince.
+
+02/11 — Entorno local recuperado tras comprobar que Docker y puertos de aplicación estaban detenidos. Docker Desktop y Compose levantaron sólo postgres/valkey/mailpit, todos healthy, con sus volúmenes existentes. Prisma migrate status: doce migraciones, sin pendientes; no deploy/reset/seed. API sesión 49199, worker 65668 y Next dev 19996 arrancados sin duplicar procesos. Web LAN 192.168.1.133:3000 y readiness API LAN :4000/worker loopback :4100 devuelven 200 desde este ordenador. No prueba desde otro dispositivo.

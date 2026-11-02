@@ -30,13 +30,25 @@ final sessionProvider = AsyncNotifierProvider<SessionController, SessionState>(
 
 class SessionController extends AsyncNotifier<SessionState> {
   NodraApi get api => ref.read(apiProvider);
+  int _operation = 0;
+  bool _isCurrent(int operation) => ref.mounted && operation == _operation;
+  SessionState _snapshot() =>
+      ref.mounted ? state.value ?? const SessionState() : const SessionState();
+
   @override
   Future<SessionState> build() async {
-    if (!await api.restore()) return const SessionState();
+    final operation = ++_operation;
     try {
-      return await _load();
-    } on ApiFailure catch (e) {
-      if (e.unauthorized) return const SessionState();
+      if (!await api.restore()) {
+        return _isCurrent(operation) ? const SessionState() : _snapshot();
+      }
+      final loaded = await _load();
+      return _isCurrent(operation) ? loaded : _snapshot();
+    } catch (error) {
+      if (!_isCurrent(operation)) return _snapshot();
+      if (error is ApiFailure && error.unauthorized) {
+        return const SessionState();
+      }
       rethrow;
     }
   }
@@ -45,7 +57,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     final profile = await api.request('/auth/me') as Json;
     final memberships = (await api.request('/organizations') as List)
         .cast<Json>();
-    final saved = await api.storage.read(key: 'nodra_organization');
+    final saved = await api.savedOrganization();
     final id =
         memberships.any((m) => (m['organization'] as Json)['id'] == saved)
         ? saved
@@ -65,27 +77,43 @@ class SessionController extends AsyncNotifier<SessionState> {
     String? firstName,
     String? lastName,
   }) async {
-    await api.authenticate(
-      email,
-      password,
-      firstName: firstName,
-      lastName: lastName,
-    );
-    state = AsyncData(await _load());
+    final operation = ++_operation;
+    try {
+      await api.authenticate(
+        email,
+        password,
+        firstName: firstName,
+        lastName: lastName,
+      );
+      if (!_isCurrent(operation)) return;
+      final loaded = await _load();
+      if (_isCurrent(operation)) state = AsyncData(loaded);
+    } catch (_) {
+      if (_isCurrent(operation)) rethrow;
+    }
   }
 
   Future<void> reload() async {
-    state = AsyncData(await _load());
+    final operation = ++_operation;
+    try {
+      final loaded = await _load();
+      if (_isCurrent(operation)) state = AsyncData(loaded);
+    } catch (_) {
+      if (_isCurrent(operation)) rethrow;
+    }
   }
 
   Future<void> select(String id) async {
-    final current = state.requireValue;
-    if (!current.memberships.any(
-      (m) => (m['organization'] as Json)['id'] == id,
-    )) {
+    final current = state.value;
+    if (current == null ||
+        !current.memberships.any(
+          (m) => (m['organization'] as Json)['id'] == id,
+        )) {
       return;
     }
-    await api.storage.write(key: 'nodra_organization', value: id);
+    final operation = ++_operation;
+    await api.rememberOrganization(id);
+    if (!_isCurrent(operation)) return;
     state = AsyncData(
       SessionState(
         user: current.user,
@@ -96,7 +124,8 @@ class SessionController extends AsyncNotifier<SessionState> {
   }
 
   Future<void> logout() async {
-    await api.logout();
+    ++_operation;
     state = const AsyncData(SessionState());
+    await api.logout();
   }
 }

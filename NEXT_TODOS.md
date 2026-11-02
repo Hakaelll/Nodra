@@ -1,13 +1,13 @@
 # Próximas tareas de Nodra
 
-Actualizado: 31/10/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
+Actualizado: 02/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
 
 ## Prioridad de continuidad
 
 1. NOD-020: primer pase individual §0–290 completo; corregir discrepancias y verificar requisitos faltantes sin dar por completado el prompt por pruebas parciales.
 2. NOD-019/008: ampliar cobertura de acciones AuditEvent y permisos (§63); cancelaciones por lote y gestión JobRole API/web/Flutter implementadas. E2E web y aceptación siguen pendientes.
 3. NOD-014/015/017/022: completar pruebas de clientes y cambios de contexto; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
-4. NOD-013/016/020: adquisición push, build iOS y prueba física siguen sin demostrar. Android debug compilado y firma verificada el 02/10; SDK/JDK locales instalados. iOS requiere host compatible. No contratar servicios.
+4. NOD-013/016/020: adquisición push, build iOS y prueba física siguen sin demostrar. Android debug recompilado y firma verificada el 02/11 con la corrección de sesión; SDK/JDK locales instalados. iOS requiere host compatible. No contratar servicios.
 
 Resumen vigente en [PROJECT_STATE](PROJECT_STATE.md), evidencia detallada en [auditoría](docs/REQUIREMENTS_AUDIT.md). [Historial íntegro al 30/09](docs/history/NEXT_TODOS_2026_09_30.md) conserva notas de avance anteriores y los estados fechados. Las notas históricas de las tareas no sustituyen al resumen vigente.
 
@@ -546,3 +546,9 @@ APK debug actualizado (build 31,7 s), firma v2 verificada; SHA-256 b4e30cb2f7c5f
 31/10 — Edición de nombre y zona IANA implementada para OWNER/ADMIN desde Perfil → Configuración y PATCH organizations/:org. Contrato estricto compartido, snapshot expected para rechazar cambios obsoletos/concurrentes, permiso settings dentro de transacción Serializable y ORGANIZATION_UPDATED atómico. Zona nueva normalizada a nombre canónico; rechaza offsets fijos, pero permite corregir un valor antiguo mediante su snapshot. No modifica slug ni instantes UTC de servicios. Formulario con etiquetas, sugerencias IANA tras montar para evitar discrepancias de hidratación, validación propia, foco, estado busy y mensaje de guardado independiente del refresco. Sin migraciones, dependencias, pruebas permanentes adicionales, Computer Use ni subagentes. Logo/terminología/acento y demás requisitos pendientes siguen abiertos.
 
 31/10 — Verificación de edición de organización: 11 integraciones PostgreSQL y 1 test web aprobados; lint global, typecheck web y builds contratos/API/web aprobados. La prueba Flutter anterior se conserva sin cambios y no se repite porque este cambio no modifica Dart. Recorrido manual de permisos, conflictos, aislamiento, auditoría y horarios aprobado en nodra_test con limpieza de fixtures. No se afirma inspección visual ni E2E DOM.
+
+02/11 — NOD-006/016/019/020: se retoma la corrección local pausada. Dos regresiones esenciales reprodujeron que un refresh tardío restauraba Alice sobre la sesión nueva de Bob y que una escritura retrasada restauraba la organización anterior. NodraApi limita respuestas/reintentos/persistencia a su generación, serializa tokens y preferencia; SessionController descarta resultados obsoletos. Logout local precede a revocación remota, de mejor esfuerzo cuando la red falla. No se modifica autorización backend ni se añaden dependencias o CI. La suite permanece reducida con quince casos totales; builds, hardware y resultados de esta revisión se registran por separado. Estados e historial DONE conservados; objetivo activo.
+
+02/11 — Flutter analyze --no-pub aprobado, tres pruebas Flutter aprobadas en revisión fresca. Las dos regresiones se observaron fallar antes del arreglo (Alice restaurada en vez de Bob; team-b en vez de la última selección team-a) y pasan tras él. APK Android debug recompilado con API_URL http://192.168.1.133:4000/api/v1 (Wi-Fi verificada), build 130,6 s y firma v2 verificada. SHA-256 6f671b3143a4816b9011e805a58ae89879509621f10b5fbb433c223d9a573324. Artefacto local apps/mobile/build/app/outputs/flutter-apk/app-debug.apk, excluido de Git. Persiste warning de metadatos SDK XML v3/v4 sin impedir el build. No ejecución física, build iOS ni Computer Use. Las doce pruebas JavaScript anteriores no se repiten por un cambio sólo Dart y documentación; el total vigente es quince.
+
+02/11 — Entorno local recuperado tras comprobar que Docker y puertos de aplicación estaban detenidos. Docker Desktop y Compose levantaron sólo postgres/valkey/mailpit, todos healthy, con sus volúmenes existentes. Prisma migrate status: doce migraciones, sin pendientes; no deploy/reset/seed. API sesión 49199, worker 65668 y Next dev 19996 arrancados sin duplicar procesos. Web LAN 192.168.1.133:3000 y readiness API LAN :4000/worker loopback :4100 devuelven 200 desde este ordenador. No prueba desde otro dispositivo.

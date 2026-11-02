@@ -1,6 +1,6 @@
 # Estado de Nodra
 
-Última actualización: 31/10/2026. Objetivo bootstrap **activo**; primera vertical funcional, sin certificación de entrega completa ni despliegue productivo.
+Última actualización: 02/11/2026. Objetivo bootstrap **activo**; primera vertical funcional, sin certificación de entrega completa ni despliegue productivo.
 
 Revisión documental §146/149: resumen vigente separado del historial íntegro; conservados los IDs y estados, incluido DONE. Comprobados formato, enlaces locales editados y presencia de los 17 documentos obligatorios. README corrige el puerto del fixture anterior; ADRs actualizan storage y precedencia visual. No cambia runtime ni se repiten suites de aplicación por estos cambios. Auditoría §136–168 registrada; NOD-023 bloquea exclusivamente futuras integraciones externas. §136 reforzado: cuatro regresiones con secretos/stack canario; mensajes 5xx internos sanitizados; Calendario corregido: incluye cancelados como historial, sin incluirlos en próximos. Pasan 56 integraciones verticales, 35 unitarios, lint, typecheck y build API tras el cambio.
 
@@ -17,7 +17,7 @@ Revisión documental §146/149: resumen vigente separado del historial íntegro;
 
 Monorepo pnpm; monolito modular NestJS/Fastify, Prisma/PostgreSQL, worker BullMQ/Valkey, web Next.js con BFF y Flutter/Riverpod/Dio. Autorización backend por Membership activa; el contexto del cliente no concede acceso. Contratos y configuración compartidos en packages.
 
-Docker comprobado el 02/10: PostgreSQL principal (5432), postgres-test temporal (5433), Valkey (6379) y Mailpit (SMTP 1025/UI 8025) saludables. En la comprobación del 30/09, web escuchaba en 0.0.0.0:3000 y API en 0.0.0.0:4000; LAN 192.168.1.133 devolvía 200 en web, /health y /health/ready. Revalidar procesos antes de reiniciar; no usar PIDs históricos como prueba de actividad. No hay despliegue público.
+Comprobado el 02/11: PostgreSQL principal (5432), Valkey (6379) y Mailpit (1025/8025) saludables; doce migraciones principales sin pendientes. Web en 0.0.0.0:3000 y API en 0.0.0.0:4000; worker health en loopback:4100. HTTP desde este ordenador: web LAN 192.168.1.133:3000, API LAN :4000/health/ready y worker :4100/health/ready devuelven 200. Se preservan los volúmenes y datos existentes; no reset ni seed. El perfil postgres-test (5433) no se arrancó en esta revisión sólo Dart. Revalidar procesos antes de reiniciar; no usar PIDs históricos como prueba de actividad. No hay despliegue público.
 
 ## Modelo de datos y endpoints
 
@@ -29,7 +29,7 @@ REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Wor
 
 Web usa cookies HttpOnly, BFF con validación Origin y timeouts. Contexto y filtros navegables en URL. Cabecera de 52 px, lateral compacto, chat a altura disponible y contenido adaptado a 2K. Referencia clara [design.md](docs/design.md), con instrucciones posteriores del propietario sobre navegación, radios y estados. La revisión visual corresponde al propietario: no Computer Use ni subagentes.
 
-Flutter tiene sesión en secure storage, contexto tenant, servicios, calendario, avisos, perfil y chat. Inicio consulta resúmenes globales independientes; los fallos de red conservan sesión y permiten reintento. Android/iOS tienen scaffolds. El 05/10 se recompiló y verificó un APK Android debug con fechas IANA/DST y toolchain local; falta ejecución en dispositivo. iOS exige macOS/Xcode y su build sigue pendiente.
+Flutter tiene sesión en secure storage, contexto tenant, servicios, calendario, avisos, perfil y chat. Inicio consulta resúmenes globales independientes; los fallos de red conservan sesión y permiten reintento. Android/iOS tienen scaffolds. El 02/11 se recompiló y verificó un APK Android debug con aislamiento de sesiones concurrentes, fechas IANA/DST y toolchain local; falta ejecución en dispositivo. iOS exige macOS/Xcode y su build sigue pendiente.
 
 ## Integraciones y límites
 
@@ -37,7 +37,7 @@ Mailpit/SMTP local, ConsolePushProvider sin contenido sensible en logs, filesyst
 
 ## Evidencia de pruebas
 
-Suite vigente reducida por petición del propietario: once integraciones PostgreSQL, una prueba web de origen y una prueba Flutter de sesión. Los conteos superiores de las revisiones anteriores son históricos. El workflow GitHub Actions fue retirado. Consultar TESTING para cobertura conservada y retirada.
+Suite vigente reducida por petición del propietario: once integraciones PostgreSQL, una prueba web de origen y tres pruebas Flutter de sesión. Las dos últimas cubren carreras reales de cambio de cuenta y organización. Los conteos superiores de las revisiones anteriores son históricos. El workflow GitHub Actions fue retirado. Consultar TESTING para cobertura conservada y retirada.
 
 Resultados obtenidos en revisiones recientes, no una nueva ejecución de todas las suites:
 
@@ -166,3 +166,9 @@ API recargada tras validar commandline y propietario de puerto: nuevo PID 14292/
 31/10 — Edición de nombre y zona IANA implementada para OWNER/ADMIN desde Perfil → Configuración y PATCH organizations/:org. Contrato estricto compartido, snapshot expected para rechazar cambios obsoletos/concurrentes, permiso settings dentro de transacción Serializable y ORGANIZATION_UPDATED atómico. Zona nueva normalizada a nombre canónico; rechaza offsets fijos, pero permite corregir un valor antiguo mediante su snapshot. No modifica slug ni instantes UTC de servicios. Formulario con etiquetas, sugerencias IANA tras montar para evitar discrepancias de hidratación, validación propia, foco, estado busy y mensaje de guardado independiente del refresco. Sin migraciones, dependencias, pruebas permanentes adicionales, Computer Use ni subagentes. Logo/terminología/acento y demás requisitos pendientes siguen abiertos.
 
 31/10 — Verificación de edición de organización: 11 integraciones PostgreSQL y 1 test web aprobados; lint global, typecheck web y builds contratos/API/web aprobados. La prueba Flutter anterior se conserva sin cambios y no se repite porque este cambio no modifica Dart. Recorrido manual de permisos, conflictos, aislamiento, auditoría y horarios aprobado en nodra_test con limpieza de fixtures. No se afirma inspección visual ni E2E DOM.
+
+02/11 — NOD-006/016/019/020: se retoma la corrección local pausada. Dos regresiones esenciales reprodujeron que un refresh tardío restauraba Alice sobre la sesión nueva de Bob y que una escritura retrasada restauraba la organización anterior. NodraApi limita respuestas/reintentos/persistencia a su generación, serializa tokens y preferencia; SessionController descarta resultados obsoletos. Logout local precede a revocación remota, de mejor esfuerzo cuando la red falla. No se modifica autorización backend ni se añaden dependencias o CI. La suite permanece reducida con quince casos totales; builds, hardware y resultados de esta revisión se registran por separado. Estados e historial DONE conservados; objetivo activo.
+
+02/11 — Flutter analyze --no-pub aprobado, tres pruebas Flutter aprobadas en revisión fresca. Las dos regresiones se observaron fallar antes del arreglo (Alice restaurada en vez de Bob; team-b en vez de la última selección team-a) y pasan tras él. APK Android debug recompilado con API_URL http://192.168.1.133:4000/api/v1 (Wi-Fi verificada), build 130,6 s y firma v2 verificada. SHA-256 6f671b3143a4816b9011e805a58ae89879509621f10b5fbb433c223d9a573324. Artefacto local apps/mobile/build/app/outputs/flutter-apk/app-debug.apk, excluido de Git. Persiste warning de metadatos SDK XML v3/v4 sin impedir el build. No ejecución física, build iOS ni Computer Use. Las doce pruebas JavaScript anteriores no se repiten por un cambio sólo Dart y documentación; el total vigente es quince.
+
+02/11 — Entorno local recuperado tras comprobar que Docker y puertos de aplicación estaban detenidos. Docker Desktop y Compose levantaron sólo postgres/valkey/mailpit, todos healthy, con sus volúmenes existentes. Prisma migrate status: doce migraciones, sin pendientes; no deploy/reset/seed. API sesión 49199, worker 65668 y Next dev 19996 arrancados sin duplicar procesos. Web LAN 192.168.1.133:3000 y readiness API LAN :4000/worker loopback :4100 devuelven 200 desde este ordenador. No prueba desde otro dispositivo.
