@@ -4,6 +4,8 @@
 
 Seguir primero README. Mantener Node/pnpm y locks del repositorio; no actualizar dependencias en bloque sin motivo.
 
+El build web comprueba `public/session-coordinator.js` con TypeScript y prepara `public` y `.next/static` dentro del standalone. No modificar la copia generada. Tras cambiar el coordinador, cerrar y reabrir todas las pestañas existentes de Nodra para usar el script nuevo. La coordinación depende de SharedWorker; consultar el alcance y fallback en [WEB_APP](WEB_APP.md).
+
 ## Base y servicios
 
 Compose normal: postgres en 5432, Valkey en 6379 y Mailpit SMTP 1025/UI 8025. Perfil test añade postgres-test en 5433. `docker compose ps` y `docker compose logs` permiten revisar health/arranque. El 30/09 los cuatro contenedores estaban activos y healthy; hay once migraciones y `db:verify-bootstrap` comprobó el seed repetido en una base temporal separada. postgres-test usa tmpfs: después de recrearlo, aplicar `pnpm db:migrate:test` antes de integrar. No arrancar postgres-test y el fixture local simultáneamente en 5433.

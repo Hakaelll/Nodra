@@ -1,3 +1,5 @@
+import { sharedSession, SharedSessionError } from "./shared-session";
+
 let session = new AbortController();
 let changingSession = false;
 let refreshing: {
@@ -44,7 +46,10 @@ const fallbackError: Record<number, string> = {
   429: "Demasiados intentos. Espera un momento y vuelve a probar.",
 };
 
-function readResponse<T>(response: Response, data: unknown): T {
+function readResponse<T>(
+  response: Pick<Response, "ok" | "status">,
+  data: unknown,
+): T {
   if (!response.ok) {
     const message =
       data && typeof data === "object" && "message" in data
@@ -72,8 +77,28 @@ async function send(
   const request = new AbortController();
   const abort = () => request.abort();
   expected.signal.addEventListener("abort", abort, { once: true });
-  const timeout = setTimeout(abort, 20000);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
+    const shared = await sharedSession();
+    requireContext(path, expected);
+    if (shared) {
+      const result = await shared.request(
+        path,
+        init,
+        sessionActions.has(path) && init.method?.toUpperCase() === "POST",
+        request.signal,
+      );
+      requireContext(path, expected);
+      return {
+        response: {
+          ok: result.status >= 200 && result.status < 300,
+          status: result.status,
+        },
+        data: result.data,
+        revision: result.revision,
+      };
+    }
+    timeout = setTimeout(abort, 20000);
     const response = await fetch(`/api/${path}`, {
       ...init,
       signal: request.signal,
@@ -81,23 +106,32 @@ async function send(
     const data: unknown = await response.json().catch(() => null);
     requireContext(path, expected);
     if (request.signal.aborted) throw new Error("Request aborted");
-    return { response, data };
-  } catch {
+    return { response, data, revision: null };
+  } catch (error) {
     requireContext(path, expected);
-    throw new Error("Sin conexión. Revisa tu red y vuelve a intentarlo.");
+    if (error instanceof SharedSessionError) throw error;
+    throw new Error("Sin conexión. Revisa tu red y vuelve a intentarlo.", {
+      cause: error,
+    });
   } finally {
     clearTimeout(timeout);
     expected.signal.removeEventListener("abort", abort);
   }
 }
 
-function refresh(expected: AbortController) {
+function refresh(expected: AbortController, revision: number | null) {
   requireSession(expected);
   if (!refreshing || refreshing.session !== expected) {
     const pending = {
       session: expected,
       promise: (async () => {
         try {
+          if (revision !== null) {
+            const shared = await sharedSession();
+            if (!shared) return false;
+            const result = await shared.refresh(revision);
+            return result.status >= 200 && result.status < 300;
+          }
           return (
             await fetch("/api/auth/refresh", {
               method: "POST",
@@ -125,7 +159,7 @@ async function request<T>(
   expected: AbortController,
   retry: boolean,
 ): Promise<T> {
-  const { response, data } = await send(path, init, expected);
+  const { response, data, revision } = await send(path, init, expected);
   requireContext(path, expected);
   if (
     response.status === 401 &&
@@ -134,7 +168,7 @@ async function request<T>(
       path,
     )
   ) {
-    const renewed = await refresh(expected);
+    const renewed = await refresh(expected, revision);
     requireContext(path, expected);
     if (renewed) return request<T>(path, init, expected, false);
   }

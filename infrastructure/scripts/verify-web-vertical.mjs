@@ -4,7 +4,9 @@ import "dotenv/config";
 import assert from "node:assert/strict";
 import { execFileSync, spawn } from "node:child_process";
 import { randomBytes, randomUUID } from "node:crypto";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
+import { MessageChannel } from "node:worker_threads";
 import { createRequire } from "node:module";
 import net from "node:net";
 import { dirname, resolve } from "node:path";
@@ -127,6 +129,141 @@ function session(baseUrl) {
   };
 }
 
+async function verifySharedRefresh(origin, cookies, userId) {
+  const scriptResponse = await fetch(origin + "/session-coordinator.js");
+  assert.equal(
+    scriptResponse.status,
+    200,
+    "Standalone worker asset must be served",
+  );
+  assert.match(scriptResponse.headers.get("content-type") ?? "", /javascript/);
+  const script = await scriptResponse.text();
+  assert.equal(
+    script,
+    readFileSync(
+      resolve(root, "apps/web/public/session-coordinator.js"),
+      "utf8",
+    ),
+  );
+  let refreshes = 0;
+  const context = {
+    onconnect: null,
+    AbortController,
+    Blob,
+    setTimeout,
+    clearTimeout,
+    fetch: async (path, init) => {
+      if (path === "/api/auth/refresh") ++refreshes;
+      const headers = new Headers(init.headers);
+      headers.set("origin", origin);
+      headers.set(
+        "cookie",
+        [...cookies].map(([key, value]) => key + "=" + value).join("; "),
+      );
+      const response = await fetch(origin + path, { ...init, headers });
+      for (const raw of response.headers.getSetCookie()) {
+        const pair = raw.split(";", 1)[0],
+          separator = pair.indexOf("=");
+        const key = pair.slice(0, separator),
+          value = pair.slice(separator + 1);
+        if (value) cookies.set(key, value);
+        else cookies.delete(key);
+      }
+      return response;
+    },
+  };
+  runInNewContext(script, context);
+  const channels = [new MessageChannel(), new MessageChannel()];
+  const pending = new Set();
+  try {
+    const tabs = channels.map(({ port1, port2 }) => {
+      context.onconnect({ ports: [port2] });
+      let sequence = 0;
+      const requests = new Map();
+      port1.onmessage = ({ data }) => {
+        const operation = requests.get(data.id);
+        if (!operation) return;
+        clearTimeout(operation.timer);
+        pending.delete(operation.timer);
+        requests.delete(data.id);
+        if (data.type === "error") operation.reject(new Error(data.message));
+        else operation.resolve(data);
+      };
+      port1.start();
+      return (message) =>
+        new Promise((resolveReply, reject) => {
+          const id = ++sequence;
+          const timer = setTimeout(
+            () => reject(new Error("Shared HTTP verification timed out")),
+            20000,
+          );
+          pending.add(timer);
+          requests.set(id, { resolve: resolveReply, reject, timer });
+          port1.postMessage({ ...message, id });
+        });
+    });
+    const hello = await Promise.all(tabs.map((tab) => tab({ type: "hello" })));
+    assert.deepEqual(
+      hello.map((reply) => reply.protocol),
+      [1, 1],
+    );
+    cookies.delete("nodra_access");
+    const requests = hello.map((reply) => ({
+      type: "request",
+      path: "auth/me",
+      method: "GET",
+      auth: false,
+      generation: reply.generation,
+    }));
+    const expired = await Promise.all(
+      tabs.map((tab, index) => tab(requests[index])),
+    );
+    assert.deepEqual(
+      expired.map((reply) => reply.status),
+      [401, 401],
+    );
+    const refreshed = await Promise.all(
+      tabs.map((tab, index) =>
+        tab({
+          type: "refresh",
+          generation: expired[index].generation,
+          revision: expired[index].revision,
+        }),
+      ),
+    );
+    assert.deepEqual(
+      refreshed.map((reply) => reply.status),
+      [201, 201],
+    );
+    assert.equal(
+      refreshes,
+      1,
+      "Two expired tabs must share one real BFF refresh",
+    );
+    const profiles = await Promise.all(
+      tabs.map((tab, index) => tab(requests[index])),
+    );
+    assert.deepEqual(
+      profiles.map((reply) => reply.status),
+      [200, 200],
+    );
+    assert.deepEqual(
+      profiles.map((reply) => reply.data.id),
+      [userId, userId],
+    );
+    console.log(
+      "Shared worker HTTP passed: two expired tabs, one BFF refresh, both sessions still valid.",
+    );
+  } finally {
+    for (const timer of pending) clearTimeout(timer);
+    for (const { port1, port2 } of channels) {
+      port1.postMessage({ type: "close" });
+      port1.close();
+      port2.close();
+    }
+  }
+}
+
 async function stopChildren() {
   await Promise.all(
     children.reverse().map(async (child) => {
@@ -207,6 +344,11 @@ try {
     assert.ok(registration.cookies.has("nodra_access"));
     assert.ok(registration.cookies.has("nodra_refresh"));
   }
+  await verifySharedRefresh(
+    webOrigin,
+    ownerRegistration.cookies,
+    ownerRegistration.data.user.id,
+  );
   const organization = (
     await owner(
       "POST",

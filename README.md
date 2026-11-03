@@ -111,6 +111,8 @@ pnpm test
 pnpm build
 ```
 
+The web build checks the session coordinator and copies public assets and static bundles into the Next.js standalone output. Keep these files with the packaged server. After updating the coordinator, close and reopen existing Nodra tabs. See the [web guide](docs/WEB_APP.md) for browser coordination and fallback limits.
+
 Start and migrate the dedicated test database before integration tests:
 
 ```sh

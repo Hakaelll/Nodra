@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "tsc -p tsconfig.worker.json && next build && node ../../infrastructure/scripts/prepare-web-standalone.mjs",
     "start": "next start",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit && tsc -p tsconfig.worker.json"
   },
   "dependencies": {
     "@fontsource-variable/inter-tight": "^5.3.0",

@@ -34,6 +34,7 @@ it("keeps requests and retries bound to their session and organization", async (
         status: "CANCELLED",
       },
     ).catch((cause: unknown) => cause);
+    await vi.waitFor(() => expect(writes).toEqual(["Alice"]));
     await api("auth/logout", "POST", {});
     await api("auth/login", "POST", {
       email: "bob@nodra.test",
@@ -199,6 +200,7 @@ it("keeps requests and retries bound to their session and organization", async (
     const previousUnauthorized = api(
       "organizations/11111111-1111-4111-8111-111111111111/calendar",
     ).catch((cause: unknown) => cause);
+    await vi.waitFor(() => expect(transport.mock.calls).toHaveLength(2));
     location.search = "?org=22222222-2222-4222-8222-222222222222";
     await expect(
       api(

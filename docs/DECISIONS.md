@@ -1,5 +1,21 @@
 # Decisiones arquitectónicas
 
+## ADR-015 — Coordinación web entre pestañas
+
+Status: Accepted
+
+Context: Dos pestañas con cookies compartidas podían renovar el mismo refresh simultáneamente. La revocación estricta por reutilización es intencionada y se conserva. El acceso LAN de desarrollo usa HTTP; [Web Locks requiere un contexto seguro](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API).
+
+Decision: En navegadores con SharedWorker, enviar las peticiones del cliente por un coordinador del mismo origen, sin persistir credenciales. Generaciones invalidan operaciones anteriores y revisiones comparten una renovación o reconocen una ya completada. Las transiciones de autenticación esperan el refresh conocido, recargan los otros documentos y bloquean las cargas nuevas hasta terminar. El nombre `nodra-session-v1`, URL `/session-coordinator.js` y protocolo 1 identifican esta versión.
+
+Alternatives: Conservar sólo el bloqueo por pestaña; Web Locks con HTTPS local obligatorio; sustituir cookies JWT por sesiones web opacas gestionadas en servidor. Se evita cambiar el protocolo de autenticación o exigir infraestructura adicional para esta corrección.
+
+Consequences: La coordinación depende de pestañas participantes del mismo origen y partición, como exige el ámbito de [SharedWorker](https://developer.mozilla.org/en-US/docs/Web/API/SharedWorker). Ausencia de la API o fallo síncrono del constructor conserva el modo por pestaña; un fallo posterior de la conexión compartida exige recargar y no degrada silenciosamente. El reload puede descartar formularios abiertos de la cuenta anterior. Clientes antiguos o independientes y cierres abruptos no quedan certificados. Cerrar y reabrir todas las pestañas al actualizar el script; un cambio de protocolo necesitará una migración coordinada. No reemplaza Membership ni revierte escrituras aceptadas. El build copia los recursos al standalone y comprueba el worker con TypeScript.
+
+Evidence: Script real ejecutado mediante VM y MessagePorts; recorrido HTTP/BFF con cookies en una base efímera verifica dos 401, una renovación y dos lecturas autenticadas. No equivale a prueba de navegador o dispositivo. Ver [TESTING](TESTING.md).
+
+Fecha: 03/11/2026.
+
 ## ADR-014 — Contexto web en URL
 
 Status: Accepted

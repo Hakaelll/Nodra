@@ -2,7 +2,7 @@
 
 Estado: sólo desarrollo local. No existe despliegue público ni procedimiento productivo validado.
 
-Docker Compose actual levanta dependencias; API, worker y web se ejecutan en host. No confundir este archivo con una distribución completa de aplicaciones en contenedores. Next produce salida standalone; API y worker compilan con TypeScript.
+Docker Compose actual levanta dependencias; API, worker y web se ejecutan en host. No confundir este archivo con una distribución completa de aplicaciones en contenedores. Next produce salida standalone; API y worker compilan con TypeScript. El build web copia `public` y `.next/static` al árbol standalone, incluidos marca, estilos y `/session-coordinator.js`; conservarlos junto a `server.js`. No requiere CDN. Al actualizar el coordinador, cerrar y reabrir las pestañas existentes; ver [WEB_APP](WEB_APP.md).
 
 ## Futuro en un único servidor
 

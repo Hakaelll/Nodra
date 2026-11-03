@@ -129,6 +129,8 @@ Notas técnicas: Creación/listado y edición de rol/estado con control optimist
 
 02/11 — §61: logo privado implementado en API y web. OWNER/ADMIN añade, reemplaza o quita desde Perfil → Configuración, con recorte cuadrado reutilizado; Membership activa permite consultar. Migración 13 aditiva, normalización JPEG compartida con perfil, metadatos/auditoría transaccionales y archivos únicos con limpieza posterior. La nueva integración esencial comprueba roles, tenant ajeno, formatos inválidos, rollback y reemplazos concurrentes. Tipos/lint, builds API/worker/web, doce integraciones, dos unitarios, 68 contratos y bootstrap con seed repetido pasan; HTTP/BFF vertical pasa. Suite reducida: diecisiete casos totales, sin CI nuevo. No aceptación visual ni control de logo nativo Flutter; terminología/acento y limpieza automática de objetos huérfanos siguen pendientes.
 
+03/11 — NOD-006/014/019: SharedWorker coordina las pestañas participantes del mismo origen y partición. Dos 401 comparten renovación; los tardíos reconocen la revisión vigente. Cambios de auth esperan el refresh conocido, invalidan operaciones anteriores y recargan los otros documentos. Fallback inicial por pestaña; fallo de conexión establecida exige recargar. Cuatro pruebas web, lint, tipos, build y recorrido HTTP/BFF aprobados; suite esencial de diecinueve casos. El recurso se sirve en LAN como JavaScript y coincide con el fuente. No certifica dispositivos, DOM, clientes antiguos ni cierres abruptos. Mantener estados y aceptación pendientes; ver ADR-015/TESTING.
+
 ## NOD-007 — Invitations
 
 Descripción: Crear, previsualizar, aceptar y revocar invitaciones.

@@ -37,7 +37,7 @@ Mailpit/SMTP local, ConsolePushProvider sin contenido sensible en logs, filesyst
 
 ## Evidencia de pruebas
 
-Suite vigente reducida por petición del propietario: doce integraciones PostgreSQL, tres pruebas web (origen, snapshots y transporte por sesión/organización) y tres pruebas Flutter de sesión. La nueva integración cubre permisos, rollback y reemplazos concurrentes del logo privado; dieciocho casos en total. Las dos regresiones recientes de Flutter cubren carreras reales de cambio de cuenta y organización. Los conteos superiores de las revisiones anteriores son históricos. El workflow GitHub Actions fue retirado. Consultar TESTING para cobertura conservada y retirada.
+Suite vigente reducida por petición del propietario: doce integraciones PostgreSQL, cuatro pruebas web (origen, snapshots, transporte por sesión/organización y coordinación entre pestañas) y tres pruebas Flutter de sesión. La nueva integración cubre permisos, rollback y reemplazos concurrentes del logo privado; diecinueve casos en total. Las dos regresiones recientes de Flutter cubren carreras reales de cambio de cuenta y organización. Los conteos superiores de las revisiones anteriores son históricos. El workflow GitHub Actions fue retirado. Consultar TESTING para cobertura conservada y retirada.
 
 Resultados obtenidos en revisiones recientes, no una nueva ejecución de todas las suites:
 
@@ -57,9 +57,11 @@ Primer pase individual completo: 291 entradas únicas (§0–290), sin huecos ni
 
 Documentos obligatorios existentes: README, AGENTS, este estado y NEXT_TODOS; en docs, PRODUCT, ARCHITECTURE, DATA_MODEL, API, AUTH_AND_PERMISSIONS, MULTI_TENANCY, DESIGN_SYSTEM, WEB_APP, MOBILE_APP, NOTIFICATIONS, SECURITY, TESTING, DEPLOYMENT, DEVELOPMENT, DECISIONS, ROADMAP y DEPENDENCIES. Diseños futuros y auditorías se enlazan desde esos documentos; existencia no significa implementación completa.
 
-Catorce ADRs en [DECISIONS](docs/DECISIONS.md): monolito modular, PostgreSQL, Prisma, REST/OpenAPI, Flutter, Next.js, NestJS/Fastify, Valkey, BullMQ, tenancy, providers, coste cero, diseño claro y URL web. La referencia original oscura es histórica.
+Quince ADRs en [DECISIONS](docs/DECISIONS.md): monolito modular, PostgreSQL, Prisma, REST/OpenAPI, Flutter, Next.js, NestJS/Fastify, Valkey, BullMQ, tenancy, providers, coste cero, diseño claro, URL web y coordinación de sesión entre pestañas. La referencia original oscura es histórica.
 
 Siguiente objetivo NOD-020: resolver discrepancias concretas de los diez bloques revisados y verificar sus criterios de aceptación. [NEXT_TODOS](NEXT_TODOS.md) conserva tareas NOD-001–024 y estados; DONE no se elimina. Historial íntegro anterior: [estado](docs/history/PROJECT_STATE_2026_09_30.md) y [tareas](docs/history/NEXT_TODOS_2026_09_30.md). Sus notas son evidencia fechada, no descripción actual del entorno.
+
+03/11 — NOD-006/014/019/020: coordinación web entre pestañas mediante SharedWorker, sin cambiar BFF, cookies, API ni esquema. Revisiones comparten refresh y evitan repetirlo por un 401 tardío; generaciones invalidan peticiones antiguas, esperan la renovación conocida y recargan las otras pestañas al cambiar autenticación. Ausencia de la API o fallo del constructor conserva el modo por pestaña; una conexión compartida ya iniciada que falla exige recargar. La reproducción del commit 913f588 emitía dos renovaciones; el recorrido HTTP/BFF actual emite una y conserva ambas lecturas autenticadas. Pasan lint, tipos web/worker estático, cuatro unitarios web y build standalone con sus recursos copiados. El verificador HTTP usa una base efímera con trece migraciones, eliminada al terminar. Web y API LAN y worker loopback responden 200; el coordinador LAN devuelve JavaScript idéntico al fuente. Sin Computer Use, subagentes ni prueba física/DOM. Clientes que eludan el coordinador, compatibilidad real y cierres abruptos siguen pendientes; NOD-006 y el objetivo completo continúan abiertos. Detalles en TESTING y ADR-015.
 
 ## External dependencies
 
