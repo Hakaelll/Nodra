@@ -48,6 +48,7 @@ Los errores genéricos del parser HTTP 400 (JSON ilegible), 413 (tamaño excedid
 | organizations/:org/notifications           | GET paginado                                                                                                                                      |
 | organizations/:org/service-activity        | GET actividad de servicios propia, paginada                                                                                                       |
 | organizations/:org/settings                | GET (OWNER/ADMIN)                                                                                                                                 |
+| organizations/:org/settings/customization  | PATCH (OWNER/ADMIN), snapshot expected obligatorio                                                                                                |
 
 POST interest recibe interested boolean. Retirar interés devuelve 409 si la persona tiene una asignación activa en esa posición: debe declinar la selección pendiente o cancelar su participación confirmada antes de retirarse. Tras CANCELLED/DECLINED, la retirada vuelve a estar disponible si el servicio admite cambios de interés. POST assignments recibe userId, que siempre se valida en backend. POST refresh/logout recibe token. Ninguna de estas entradas permite saltarse autorización.
 
@@ -128,6 +129,14 @@ El selector de filtros de Servicios web usa este endpoint con búsqueda y págin
 02/10 — NOD-008/014/020 (§190): gestor de roles web migrado al catálogo paginado de diez elementos con búsqueda, carga/error/reintento y páginas. Incluye archivados para reactivar; conserva el editor ante fallo de escritura y valida nombre/descripción sin mensajes emergentes nativos. Edición bloquea búsqueda/paginación para no perder el formulario. Tras escritura reconocida, un fallo al refrescar servicio se comunica como recarga pendiente. ServiceDetail deja de consultar GET roles legacy y no depende de ese catálogo para cargar el servicio. Respuestas tardías del catálogo se descartan; roles de otro tenant siguen protegidos por API. Flutter legacy y E2E de clientes siguen pendientes; no se cambia esquema/backend.
 
 31/10 — POST /organizations/:org/services/:id/positions registra SERVICE_UPDATED para el servicio en la misma transacción que crea la posición. Si la escritura de auditoría falla, no se persiste la posición. No se auditan solicitudes rechazadas. El evento conserva actorId, organizationId, entityId, createdAt y metadata vacía, sin copiar datos privados del formulario.
+
+## Personalización limitada de organización
+
+`PATCH organizations/:org/settings/customization` requiere OWNER/ADMIN y devuelve settingsOutput. Cuerpo estricto: `terminology.service` y `terminology.jobRole`, cada uno con `singular`/`plural`; `accent` con `VIOLET`, `INDIGO` o `INK`; y `expected` con la configuración leída anteriormente. GET settings devuelve ese objeto en `customization`. No se aceptan organizationId ni CSS, colores libres o campos adicionales en el cuerpo.
+
+Las etiquetas nuevas se recortan y admiten 1–40 caracteres: letras/números Unicode, espacios, punto, apóstrofo y guion. `expected` conserva literalmente valores heredados para permitir su corrección. Estado obsoleto devuelve 409; permiso o tenant ajeno, 403; cuerpo inválido, 400. Un guardado idéntico no audita. La transacción Serializable registra ORGANIZATION_CUSTOMIZATION_UPDATED con metadata vacía y revierte los ajustes si falla la auditoría.
+
+GET organizations incluye `organization.customization` en las Membership activas propias; no requiere acceso a settings administrativos para renderizarlo. Defaults: Servicio/Servicios, Rol/Roles y VIOLET. Los campos serviceLabel/features de settings se conservan. Persistir la configuración no significa que los clientes ya cambien sus textos o color: su editor y consumo siguen pendientes en [CUSTOMIZATION](CUSTOMIZATION.md).
 
 ## Edición de organización
 

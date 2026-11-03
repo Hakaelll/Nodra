@@ -11,7 +11,15 @@ import { publicUser } from "../common";
 import { audit, event } from "../events";
 import { noticeInput } from "./catalog.schemas";
 import type { z } from "zod";
-import { roleCatalogInput } from "@nodra/contracts";
+import {
+  roleCatalogInput,
+  type OrganizationCustomizationUpdate,
+} from "@nodra/contracts";
+import {
+  customizationView,
+  sameCustomization,
+  settingsView,
+} from "../organizations/organization-customization";
 
 function ownNoticeAudience(user: string): Prisma.NoticeWhereInput {
   return {
@@ -468,8 +476,41 @@ export class CatalogService {
   }
   async settings(user: string, org: string) {
     await this.policy.require(user, org, "settings");
-    return this.db.organizationSettings.findUniqueOrThrow({
-      where: { organizationId: org },
+    return settingsView(
+      await this.db.organizationSettings.findUniqueOrThrow({
+        where: { organizationId: org },
+      }),
+    );
+  }
+
+  updateCustomization(
+    user: string,
+    org: string,
+    input: OrganizationCustomizationUpdate,
+  ) {
+    return this.db.atomic(async (tx) => {
+      await this.policy.require(user, org, "settings", tx);
+      const current = await tx.organizationSettings.findUniqueOrThrow({
+        where: { organizationId: org },
+      });
+      const customization = customizationView(current);
+      if (!sameCustomization(customization, input.expected))
+        throw new ConflictException(
+          "La personalización ha cambiado. Actualiza antes de guardar.",
+        );
+      if (sameCustomization(customization, input)) return settingsView(current);
+      const updated = await tx.organizationSettings.update({
+        where: { organizationId: org },
+        data: {
+          serviceLabel: input.terminology.service.singular,
+          servicePluralLabel: input.terminology.service.plural,
+          jobRoleLabel: input.terminology.jobRole.singular,
+          jobRolePluralLabel: input.terminology.jobRole.plural,
+          accentPreset: input.accent,
+        },
+      });
+      await audit(tx, org, user, "ORGANIZATION_CUSTOMIZATION_UPDATED", org);
+      return settingsView(updated);
     });
   }
 
@@ -493,7 +534,7 @@ export class CatalogService {
         data: { features },
       });
       await audit(tx, org, user, "ORG_FEATURES_UPDATED", org);
-      return updated;
+      return settingsView(updated);
     });
   }
 }

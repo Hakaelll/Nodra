@@ -1,5 +1,7 @@
 # Seguridad
 
+Personalización: sólo OWNER/ADMIN con Membership activa puede modificar terminología/acento. La API aplica un enum de tokens, etiquetas de texto acotadas y cuerpo estricto; no acepta HTML, CSS, URLs ni hex libre. Revalida permiso y snapshot esperado dentro de la transacción; auditoría sin etiquetas en metadata. Las Membership propias reciben sólo la configuración necesaria para presentarla. Las etiquetas heredadas se conservan como texto en lecturas/snapshot para corregirlas; los clientes deben renderizarlas como texto, nunca como HTML o CSS.
+
 Dispositivos: la API exige sesión activa y deriva userId de AuthGuard; no admite asignarlo en el cuerpo. Todas las lecturas/revocaciones se limitan a esa cuenta, incluso sin Membership. Devuelve únicamente metadatos. La unicidad del token protege frente a reasignación entre cuentas y las transacciones/constraints evitan registros duplicados. Los tokens permanecen en almacenamiento privado para un adapter futuro; no deben copiarse a logs, respuestas, URLs ni documentación. Registro no prueba entrega push ni propiedad externa del token: los clientes y providers reales aún no están conectados.
 
 Estado: protecciones iniciales implementadas; no es una certificación ni un lanzamiento productivo.

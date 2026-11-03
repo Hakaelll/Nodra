@@ -143,6 +143,219 @@ afterAll(async () => {
   if (app) await app.close();
 });
 
+it("protects organization customization and rejects stale audited changes", async () => {
+  const manager = await register("CustomOwner");
+  const administrator = await register("CustomAdmin");
+  const coordinator = await register("CustomCoordinator");
+  const member = await register("CustomMember");
+  const fixture = await db.organization.create({
+    data: {
+      name: "Customization fixture",
+      slug: `customization-${randomUUID()}`,
+      settings: { create: { serviceLabel: "Turno" } },
+      memberships: {
+        create: [
+          { userId: manager.id, permissionRole: "OWNER" },
+          { userId: administrator.id, permissionRole: "ADMIN" },
+          { userId: coordinator.id, permissionRole: "COORDINATOR" },
+          { userId: member.id, permissionRole: "MEMBER" },
+        ],
+      },
+    },
+  });
+  const foreign = await db.organization.create({
+    data: {
+      name: "Unrelated customization",
+      slug: `customization-other-${randomUUID()}`,
+      settings: { create: { serviceLabel: " Turno " } },
+      memberships: {
+        create: { userId: coordinator.id, permissionRole: "OWNER" },
+      },
+    },
+  });
+  organizations.push(fixture.id, foreign.id);
+  const path = `organizations/${fixture.id}/settings/customization`;
+  const initial = {
+    terminology: {
+      service: { singular: "Turno", plural: "Servicios" },
+      jobRole: { singular: "Rol", plural: "Roles" },
+    },
+    accent: "VIOLET",
+  };
+  const changed = {
+    terminology: {
+      service: { singular: "Actividad", plural: "Actividades" },
+      jobRole: { singular: "Puesto", plural: "Puestos" },
+    },
+    accent: "INDIGO",
+  };
+  const body = { ...changed, expected: initial };
+  expect((await request("PATCH", path, undefined, body)).statusCode).toBe(401);
+  for (const actor of [coordinator, member])
+    expect((await request("PATCH", path, actor.access, body)).statusCode).toBe(
+      403,
+    );
+  expect(
+    (
+      await request(
+        "PATCH",
+        `organizations/${foreign.id}/settings/customization`,
+        manager.access,
+        body,
+      )
+    ).statusCode,
+  ).toBe(403);
+  for (const invalid of [
+    { ...body, accent: "#533afd" },
+    { ...body, css: "body{display:none}" },
+    {
+      ...body,
+      terminology: {
+        ...changed.terminology,
+        service: { singular: "<script>", plural: "Actividades" },
+      },
+    },
+    {
+      ...body,
+      terminology: {
+        ...changed.terminology,
+        service: { singular: " ", plural: "Actividades" },
+      },
+    },
+    {
+      ...body,
+      terminology: {
+        ...changed.terminology,
+        service: { singular: "A".repeat(41), plural: "Actividades" },
+      },
+    },
+    { ...body, expected: undefined },
+  ])
+    expect(
+      (await request("PATCH", path, manager.access, invalid)).statusCode,
+    ).toBe(400);
+  expect(
+    (
+      await request("PATCH", path, manager.access, {
+        ...initial,
+        expected: initial,
+      })
+    ).statusCode,
+  ).toBe(200);
+  expect(
+    await db.auditEvent.count({ where: { organizationId: fixture.id } }),
+  ).toBe(0);
+  const failure = vi
+    .spyOn(auditEvents, "audit")
+    .mockRejectedValueOnce(new Error("Customization audit unavailable"));
+  try {
+    expect(
+      (await request("PATCH", path, administrator.access, body)).statusCode,
+    ).toBe(500);
+    expect(failure).toHaveBeenCalledOnce();
+    expect(
+      (
+        await request(
+          "GET",
+          `organizations/${fixture.id}/settings`,
+          manager.access,
+        )
+      ).json().customization,
+    ).toEqual(initial);
+  } finally {
+    failure.mockRestore();
+  }
+  const saved = await request("PATCH", path, administrator.access, body);
+  expect(saved.statusCode).toBe(200);
+  expect(saved.json().customization).toEqual(changed);
+  expect(saved.json().serviceLabel).toBe("Actividad");
+  expect(saved.json().features).toMatchObject({ groups: true, chat: true });
+  expect((await request("PATCH", path, manager.access, body)).statusCode).toBe(
+    409,
+  );
+  const competing = await Promise.all(
+    ["INK", "VIOLET"].map((accent) =>
+      request("PATCH", path, manager.access, {
+        ...changed,
+        accent,
+        expected: changed,
+      }),
+    ),
+  );
+  expect(competing.map((response) => response.statusCode).sort()).toEqual([
+    200, 409,
+  ]);
+  const successful = competing.find((response) => response.statusCode === 200);
+  if (!successful) throw new Error("No customization change succeeded.");
+  const winner = successful.json().customization;
+  const memberships = await request("GET", "organizations", member.access);
+  expect(
+    memberships
+      .json()
+      .find(
+        (item: { organizationId: string }) =>
+          item.organizationId === fixture.id,
+      ).organization.customization,
+  ).toEqual(winner);
+  const foreignSettings = await db.organizationSettings.findUniqueOrThrow({
+    where: { organizationId: foreign.id },
+  });
+  expect(foreignSettings.serviceLabel).toBe(" Turno ");
+  const entries = await db.auditEvent.findMany({
+    where: { organizationId: fixture.id },
+    orderBy: { createdAt: "asc" },
+  });
+  expect(entries).toHaveLength(2);
+  expect(
+    entries.map((entry) => ({
+      action: entry.action,
+      actor: entry.actorId,
+      entity: entry.entityId,
+      metadata: entry.metadata,
+    })),
+  ).toEqual([
+    {
+      action: "ORGANIZATION_CUSTOMIZATION_UPDATED",
+      actor: administrator.id,
+      entity: fixture.id,
+      metadata: {},
+    },
+    {
+      action: "ORGANIZATION_CUSTOMIZATION_UPDATED",
+      actor: manager.id,
+      entity: fixture.id,
+      metadata: {},
+    },
+  ]);
+  for (const entry of entries) expect(entry.createdAt).toBeInstanceOf(Date);
+  const inherited = {
+    ...initial,
+    terminology: {
+      ...initial.terminology,
+      service: { singular: " Turno ", plural: "Servicios" },
+    },
+  };
+  expect(
+    (
+      await request(
+        "GET",
+        `organizations/${foreign.id}/settings`,
+        coordinator.access,
+      )
+    ).json().customization,
+  ).toEqual(inherited);
+  expect(
+    (
+      await request(
+        "PATCH",
+        `organizations/${foreign.id}/settings/customization`,
+        coordinator.access,
+        { ...changed, expected: inherited },
+      )
+    ).statusCode,
+  ).toBe(200);
+});
+
 it("protects private organization logos and rolls back failed audited uploads", async () => {
   const owner = await register("LogoOwner");
   const worker = await register("LogoMember");

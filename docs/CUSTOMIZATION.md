@@ -1,6 +1,6 @@
 # Personalización y presets
 
-Diseño para §59/61/62 del [prompt](BOOTSTRAP_PROMPT.md). Distingue la edición disponible de los campos futuros. Organization permite corregir name y timezone; OrganizationSettings conserva serviceLabel y features. No hay logo organizativo, editor de terminología ni selector de accent. La foto personal no es un logo de organización.
+Alcance de §59/61/62 del [prompt](BOOTSTRAP_PROMPT.md). Nombre, zona horaria y logo privado se editan desde la web. Terminología y acento limitado tienen persistencia y API administrativa; su editor y aplicación visual en web/Flutter siguen pendientes. Los campos personalizados y presets permanecen como diseño futuro. La foto personal y el logo de organización usan recursos distintos.
 
 ## CustomFieldDefinition y CustomFieldValue
 
@@ -32,9 +32,17 @@ Antes de activar: migración aditiva con FKs/checks, validación Zod discriminad
 
 Implementado el 31/10: OWNER/ADMIN pueden editar nombre (2–120 caracteres) y zona IANA desde Perfil → Configuración. PATCH organizations/:org exige el par expected anterior, rechaza cambios obsoletos con 409 y registra ORGANIZATION_UPDATED en la misma transacción. No cambia slug ni instantes UTC de servicios. Los offsets fijos no son zonas IANA; un valor antiguo de ese tipo puede corregirse usando su snapshot esperado.
 
-Pendiente: añadir logo mediante upload autenticado OWNER/ADMIN, clave derivada del organizationId autorizado, recodificación raster y límites equivalentes al avatar; no aceptar SVG activo ni URL de terceros. Lectura requiere Membership. No reutilizar la ruta de foto personal ni exponer storage público.
+El logo privado se carga desde el dispositivo con recorte cuadrado, recodificación raster y límites equivalentes al avatar. OWNER/ADMIN puede sustituirlo o retirarlo; leerlo requiere Membership activa. Sus claves únicas bajo organizations/:org/logos evitan pisar otra subida. No se acepta SVG activo ni URL de terceros. Ver SECURITY y DEPLOYMENT para compensación, objetos huérfanos y restore.
 
-terminology será un objeto estricto para service singular/plural y jobRole singular/plural, con etiquetas acotadas, sin HTML ni CSS. Los identificadores internos, rutas y estados se mantienen neutrales y estables. accent será un enum pequeño de tokens contrastados del design system; no hex libre, no fuentes, layouts, CSS ni sombras configurables. La UI siempre conserva foco, estados de error y navegación coherentes. Estas opciones aún no están implementadas ni activables por settings/features.
+### Terminología y acento: API implementada
+
+`PATCH organizations/:org/settings/customization` requiere OWNER/ADMIN y un snapshot `expected`. El cuerpo estricto contiene `terminology.service` y `terminology.jobRole`, ambos con `singular` y `plural`, y `accent` con uno de `VIOLET`, `INDIGO` o `INK`. Nuevas etiquetas: texto recortado de 1–40 caracteres, letras/números/espacios, punto, apóstrofo y guion; no HTML, CSS ni colores libres. Los tokens se reservan para variantes limitadas dentro de la dirección índigo aprobada; no permiten fuentes, layouts o sombras configurables.
+
+La migración aditiva `20261103030000_organization_customization` conserva serviceLabel como singular canónico y añade tres etiquetas y un enum. No intenta adivinar plurales de nombres anteriores. Por defecto: Servicio/Servicios, Rol/Roles, VIOLET. El snapshot de lectura conserva las etiquetas heredadas literalmente, incluidos espacios, para poder corregirlas sin un conflicto artificial causado por normalizar expected.
+
+La transacción Serializable vuelve a comprobar permiso y snapshot antes de escribir. Un cambio obsoleto devuelve 409; un guardado idéntico no escribe auditoría. Los cambios aceptados registran ORGANIZATION_CUSTOMIZATION_UPDATED sin copiar etiquetas en metadata. GET settings conserva serviceLabel/features y añade customization; GET organizations entrega la configuración efectiva sólo dentro de las Membership activas propias, sin exponer ajustes administrativos completos.
+
+La API no modifica rutas, estados, contenido de servicios ni lógica sectorial. La aplicación visual y los textos todavía no consumen estas opciones: completar el editor y contexto de web/Flutter antes de declarar §61 terminado. Plan de continuidad en [organization customization](superpowers/plans/2026-11-03-organization-customization.md).
 
 ## Presets futuros
 

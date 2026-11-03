@@ -304,6 +304,28 @@ try {
         logoKey,
         new RegExp(`^organizations/${org.id}/logos/[a-f0-9-]+\\.jpg$`),
       );
+      stage = "populate-organization-customization";
+      const settings = await app.inject({
+        method: "GET",
+        url: `/api/v1/organizations/${org.id}/settings`,
+        headers: owner.headers,
+      });
+      assert.equal(settings.statusCode, 200);
+      const customization = {
+        terminology: {
+          service: { singular: "Actividad", plural: "Actividades" },
+          jobRole: { singular: "Puesto", plural: "Puestos" },
+        },
+        accent: "INK",
+      };
+      const customized = await app.inject({
+        method: "PATCH",
+        url: `/api/v1/organizations/${org.id}/settings/customization`,
+        headers: owner.headers,
+        payload: { ...customization, expected: settings.json().customization },
+      });
+      assert.equal(customized.statusCode, 200);
+      assert.deepEqual(customized.json().customization, customization);
       stage = "populate-notice-snapshot";
       const membership = await db.membership.findUniqueOrThrow({
         where: {
@@ -335,6 +357,7 @@ try {
         noticeId: targeted.json().id,
         logoKey,
         logoUrl: logoUpload.json().logoUrl,
+        customization,
       };
     },
   );
@@ -465,13 +488,13 @@ try {
       headers: member.headers,
     });
     assert.equal(memberships.statusCode, 200);
-    assert.equal(
-      memberships
-        .json()
-        .find((item) => item.organizationId === fixture.organizationId)
-        ?.organization.logoUrl,
-      fixture.logoUrl,
-    );
+    const publicOrganization = memberships
+      .json()
+      .find(
+        (item) => item.organizationId === fixture.organizationId,
+      )?.organization;
+    assert.deepEqual(publicOrganization?.customization, fixture.customization);
+    assert.equal(publicOrganization?.logoUrl, fixture.logoUrl);
     stage = "verify-restored-logo-binary";
     const logoPath = `/api/v1/organizations/${fixture.organizationId}/logo`;
     const restoredLogo = await app.inject({
@@ -552,6 +575,7 @@ try {
       "organization-logo-binary",
       "organization-logo-reference",
       "organization-logo-private",
+      "organization-customization",
       "api-login",
       "tenant-denied",
       "draft-hidden",

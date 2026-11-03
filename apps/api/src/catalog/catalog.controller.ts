@@ -19,7 +19,12 @@ import {
   ApiOperation,
 } from "@nestjs/swagger";
 import { z } from "zod";
-import { roleInput, pageInput, roleCatalogInput } from "@nodra/contracts";
+import {
+  roleInput,
+  pageInput,
+  roleCatalogInput,
+  organizationCustomizationUpdateInput,
+} from "@nodra/contracts";
 import { AuthGuard, CurrentUser } from "../auth/auth.guard";
 import { parse, uuid, openApiSchema } from "../common";
 import { CatalogService } from "./catalog.service";
@@ -370,6 +375,26 @@ export class CatalogController {
   ) {
     const p = parse(pageInput, q);
     return this.service.serviceActivity(u, o, p.page, p.limit);
+  }
+  @Patch("settings/customization")
+  @ApiOperation({
+    summary: "Cambiar terminología y acento limitado de la organización",
+    description:
+      "Sólo OWNER/ADMIN. Requiere el snapshot esperado; una edición obsoleta devuelve 409.",
+  })
+  @ApiBody({ schema: openApiSchema(organizationCustomizationUpdateInput) })
+  @ApiResponse({ status: 200, schema: openApiSchema(settingsOutput) })
+  @ApiResponse({ status: 409, schema: openApiSchema(errorOutput) })
+  updateCustomization(
+    @CurrentUser() u: string,
+    @Param("org") o: string,
+    @Body() b: unknown,
+  ) {
+    return this.service.updateCustomization(
+      u,
+      o,
+      parse(organizationCustomizationUpdateInput, b),
+    );
   }
   @Get("settings")
   @ApiResponse({ status: 200, schema: openApiSchema(settingsOutput) })

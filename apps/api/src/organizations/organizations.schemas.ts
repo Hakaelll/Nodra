@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { organizationCustomizationOutput } from "@nodra/contracts";
 import { publicUserOutput } from "../auth/auth.schemas";
 const dates = { createdAt: z.iso.datetime(), updatedAt: z.iso.datetime() };
 export const organizationOutput = z
@@ -26,6 +27,7 @@ export const memberOutput = membershipOutput.extend({ user: publicUserOutput });
 export const organizationListOutput = z.array(
   memberOutput.extend({
     organization: organizationOutput.extend({
+      customization: organizationCustomizationOutput,
       features: z.object({ groups: z.boolean(), chat: z.boolean() }).strict(),
     }),
   }),

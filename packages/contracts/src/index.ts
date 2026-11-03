@@ -40,6 +40,56 @@ export const organizationUpdateInput = organizationDetailsInput.extend({
   }),
 });
 export type OrganizationUpdate = z.infer<typeof organizationUpdateInput>;
+const terminologyLabel = z
+  .string()
+  .trim()
+  .min(1)
+  .max(40)
+  .regex(
+    /^[\p{L}\p{N}][\p{L}\p{N} .'-]*$/u,
+    "Usa una etiqueta de texto sin HTML ni símbolos de formato.",
+  );
+const terminologyPair = z
+  .object({ singular: terminologyLabel, plural: terminologyLabel })
+  .strict();
+export const organizationCustomizationInput = z
+  .object({
+    terminology: z
+      .object({ service: terminologyPair, jobRole: terminologyPair })
+      .strict(),
+    accent: z.enum(["VIOLET", "INDIGO", "INK"]),
+  })
+  .strict();
+export type OrganizationCustomization = z.infer<
+  typeof organizationCustomizationInput
+>;
+// Legacy labels must round-trip unchanged so an administrator can correct them.
+const terminologySnapshotPair = z
+  .object({ singular: z.string(), plural: z.string() })
+  .strict();
+export const organizationCustomizationOutput =
+  organizationCustomizationInput.extend({
+    terminology: z
+      .object({
+        service: terminologySnapshotPair,
+        jobRole: terminologySnapshotPair,
+      })
+      .strict(),
+  });
+export const defaultOrganizationCustomization: OrganizationCustomization = {
+  terminology: {
+    service: { singular: "Servicio", plural: "Servicios" },
+    jobRole: { singular: "Rol", plural: "Roles" },
+  },
+  accent: "VIOLET",
+};
+export const organizationCustomizationUpdateInput =
+  organizationCustomizationInput.extend({
+    expected: organizationCustomizationOutput,
+  });
+export type OrganizationCustomizationUpdate = z.infer<
+  typeof organizationCustomizationUpdateInput
+>;
 export const organizationInput = z
   .object({
     name: organizationDetailsInput.shape.name,
@@ -116,6 +166,7 @@ export type Organization = {
   timezone: string;
   logoUrl: string | null;
   features: { groups: boolean; chat: boolean };
+  customization: OrganizationCustomization;
 };
 export type Membership = {
   id: string;

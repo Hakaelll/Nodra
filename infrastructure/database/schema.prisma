@@ -150,7 +150,16 @@ model OrganizationSettings {
   organizationId String @id @db.Uuid
   organization Organization @relation(fields:[organizationId],references:[id])
   serviceLabel String @default("Servicio")
+  servicePluralLabel String @default("Servicios")
+  jobRoleLabel String @default("Rol")
+  jobRolePluralLabel String @default("Roles")
+  accentPreset OrganizationAccent @default(VIOLET)
   features Json @default("{\"groups\":true,\"availability\":false,\"customFields\":false,\"chat\":true}")
+}
+enum OrganizationAccent {
+  VIOLET
+  INDIGO
+  INK
 }
 model Membership {
   id String @id @default(uuid()) @db.Uuid

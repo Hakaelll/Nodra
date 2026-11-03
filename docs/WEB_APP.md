@@ -1,5 +1,7 @@
 # Aplicación web
 
+03/11 — Membership.organization incorpora customization con terminología y token de acento, persistidos por API OWNER/ADMIN. El editor y consumo visual/textual siguen pendientes en este cliente; la interfaz actual conserva su apariencia y etiquetas. Implementar el siguiente tramo del [plan](superpowers/plans/2026-11-03-organization-customization.md) reutilizando Perfil → Configuración, sin recuperar Configuración en el lateral.
+
 Si falla la carga inicial del detalle de un servicio, se muestra el mensaje local con Reintentar y regreso al listado, en lugar de conservar el skeleton indefinidamente. Reintentar limpia el error y vuelve a carga; una respuesta correcta presenta el detalle. La señal comparte el estilo de errores existente y no requiere recargar toda la sesión.
 
 El detalle de un servicio DRAFT ofrece «Editar borrador» para OWNER/ADMIN/COORDINATOR. Reutiliza el formulario de creación con nombre, ubicación, descripción y selector de fechas precargados; guardar llama a PATCH y vuelve al detalle actualizado. Conserva los instantes originales si no cambia el horario (incluidos segundos) y selecciona la ocurrencia correcta en horas repetidas por DST. La API sigue restringiendo edición a borradores: un servicio publicado devuelve 409, y la autorización depende de Membership. La edición no modifica posiciones ni asignaciones. No se ha realizado comprobación visual por petición del propietario.

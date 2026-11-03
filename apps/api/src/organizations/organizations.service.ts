@@ -14,7 +14,11 @@ import { featureEnabled } from "./features";
 import { publicUser } from "../common";
 import { tokenHash } from "../auth/auth.service";
 import { audit } from "../events";
-import type { OrganizationUpdate } from "@nodra/contracts";
+import {
+  defaultOrganizationCustomization,
+  type OrganizationUpdate,
+} from "@nodra/contracts";
+import { customizationView } from "./organization-customization";
 import { organizationView } from "./organization-output";
 import {
   OBJECT_STORAGE,
@@ -57,7 +61,7 @@ export class OrganizationsService {
     const memberships = await this.db.membership.findMany({
       where: { userId, status: "ACTIVE" },
       include: {
-        organization: { include: { settings: { select: { features: true } } } },
+        organization: { include: { settings: true } },
         user: { select: publicUser },
       },
       orderBy: { joinedAt: "asc" },
@@ -68,6 +72,9 @@ export class OrganizationsService {
         ...membership,
         organization: {
           ...organizationView(publicOrganization),
+          customization: settings
+            ? customizationView(settings)
+            : defaultOrganizationCustomization,
           features: {
             groups: featureEnabled(settings?.features, "groups"),
             chat: featureEnabled(settings?.features, "chat"),

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { organizationCustomizationOutput } from "@nodra/contracts";
 import { publicUserOutput } from "../auth/auth.schemas";
 export const roleUpdateInput = z
   .object({
@@ -205,6 +206,7 @@ export const settingsOutput = z
   .object({
     organizationId: z.uuid(),
     serviceLabel: z.string(),
+    customization: organizationCustomizationOutput,
     features: z.unknown(),
   })
   .strict();
