@@ -411,6 +411,8 @@ Tests requeridos: Gates monorepo, Flutter, infraestructura y E2E.
 
 Notas técnicas: 17 documentos requeridos ya creados. Una base local vacía recibió las migraciones vigentes; seed repetido sin duplicados y API real devolvió ready/login/organización/servicios esperados. El procedimiento está automatizado en `pnpm db:verify-bootstrap`, pasó dos veces en PostgreSQL local y una vez sobre PostgreSQL principal de Compose, y se añadió a CI tras el build; la ejecución remota de CI aún no se ha confirmado. Cada prueba elimina sólo la base temporal que creó y conserva desarrollo/test. Docker Compose validó PostgreSQL principal, Valkey, Mailpit, postgres-test y MinIO opcional; integraciones aisladas comprobaron BullMQ/SMTP y S3/MinIO con ruta real de avatar. No declarar objetivo completo: faltan recuperación del worker ante fallos, builds móviles nativos, E2E, inspección en segundo dispositivo y auditoría final requisito por requisito.
 
+03/11 — NOD-003/019/020 (§219): el simulacro de recuperación incluye el logo privado y conserva su referencia, bytes y permisos de lectura tras restaurar DB y objetos cifrados. Primer intento sin el archivo falló; con el paquete ampliado pasó `1ccf82101419c2ed`, incluidas 28 tablas y outbox. Bases de los tres intentos eliminadas. No se amplía la suite esencial ni se reintroduce CI; no es backup de desarrollo/productivo. Consultar DEPLOYMENT/TESTING. Continúan pendientes el resto de criterios; IDs y estados preservados.
+
 ## NOD-021 — Revisión visual solicitada por el propietario
 
 Descripción: aplicar UI UX Pro Max, hueyexe frontend skills, Emil y la skill universal/Impeccable al producto real.

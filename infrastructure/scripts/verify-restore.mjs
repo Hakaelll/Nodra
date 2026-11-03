@@ -282,6 +282,28 @@ try {
         payload: image,
       });
       assert.equal(uploaded.statusCode, 201);
+      stage = "populate-organization-logo";
+      const logoImage = await sharp({
+        create: { width: 512, height: 512, channels: 3, background: "#107e8a" },
+      })
+        .jpeg()
+        .toBuffer();
+      const logoUpload = await app.inject({
+        method: "POST",
+        url: `/api/v1/organizations/${org.id}/logo`,
+        headers: { ...owner.headers, "content-type": "image/jpeg" },
+        payload: logoImage,
+      });
+      assert.equal(logoUpload.statusCode, 201);
+      assert.equal(typeof logoUpload.json().logoUrl, "string");
+      const { logoKey } = await db.organization.findUniqueOrThrow({
+        where: { id: org.id },
+      });
+      assert.equal(typeof logoKey, "string");
+      assert.match(
+        logoKey,
+        new RegExp(`^organizations/${org.id}/logos/[a-f0-9-]+\\.jpg$`),
+      );
       stage = "populate-notice-snapshot";
       const membership = await db.membership.findUniqueOrThrow({
         where: {
@@ -311,6 +333,8 @@ try {
         memberId: member.user.id,
         chatId: chat.id,
         noticeId: targeted.json().id,
+        logoKey,
+        logoUrl: logoUpload.json().logoUrl,
       };
     },
   );
@@ -324,11 +348,15 @@ try {
   assert.equal(dump.subarray(0, 5).toString(), "PGDMP");
   const avatarKey = `avatars/${fixture.memberId}.jpg`;
   const avatar = await readFile(join(sourceStorage, avatarKey));
+  const logo = await readFile(join(sourceStorage, fixture.logoKey));
+  assert.notDeepEqual(logo, avatar);
   const payload = Buffer.from(
     JSON.stringify({
       dump: dump.toString("base64"),
       avatar: avatar.toString("base64"),
       avatarKey,
+      logo: logo.toString("base64"),
+      logoKey: fixture.logoKey,
     }),
   );
   const key = randomBytes(32),
@@ -360,6 +388,7 @@ try {
   assert.throws(() => decrypt(damaged));
   const recovered = JSON.parse(decrypt(stored).toString());
   assert.equal(recovered.avatarKey, avatarKey);
+  assert.equal(recovered.logoKey, fixture.logoKey);
   const restoredDump = Buffer.from(recovered.dump, "base64");
   assert.equal(digest(restoredDump), digest(dump));
   const restoreStart = performance.now();
@@ -381,8 +410,14 @@ try {
     Buffer.from(recovered.avatar, "base64"),
     { flag: "wx" },
   );
+  const restoredLogoPath = join(targetStorage, fixture.logoKey);
+  await mkdir(dirname(restoredLogoPath), { recursive: true });
+  await writeFile(restoredLogoPath, Buffer.from(recovered.logo, "base64"), {
+    flag: "wx",
+  });
   assert.deepEqual(await snapshot(targetName), before);
   assert.deepEqual(await readFile(join(targetStorage, avatarKey)), avatar);
+  assert.deepEqual(await readFile(restoredLogoPath), logo);
   stage = "verify-restored-application";
   await application(targetName, targetStorage, async (app, db) => {
     const member = await login(app, "worker1@nodra.local");
@@ -423,6 +458,50 @@ try {
     });
     assert.equal(photo.statusCode, 200);
     assert.deepEqual(photo.rawPayload, avatar);
+    stage = "verify-restored-logo-reference";
+    const memberships = await app.inject({
+      method: "GET",
+      url: "/api/v1/organizations",
+      headers: member.headers,
+    });
+    assert.equal(memberships.statusCode, 200);
+    assert.equal(
+      memberships
+        .json()
+        .find((item) => item.organizationId === fixture.organizationId)
+        ?.organization.logoUrl,
+      fixture.logoUrl,
+    );
+    stage = "verify-restored-logo-binary";
+    const logoPath = `/api/v1/organizations/${fixture.organizationId}/logo`;
+    const restoredLogo = await app.inject({
+      method: "GET",
+      url: logoPath,
+      headers: member.headers,
+    });
+    assert.equal(restoredLogo.statusCode, 200);
+    assert.match(restoredLogo.headers["content-type"], /^image\/jpeg/);
+    assert.equal(
+      restoredLogo.headers["cache-control"],
+      "private, no-cache, max-age=0",
+    );
+    assert.deepEqual(restoredLogo.rawPayload, logo);
+    stage = "verify-restored-logo-permissions";
+    assert.equal(
+      (await app.inject({ method: "GET", url: logoPath })).statusCode,
+      401,
+    );
+    assert.equal(
+      (
+        await app.inject({
+          method: "GET",
+          url: `/api/v1/organizations/${fixture.foreignId}/logo`,
+          headers: member.headers,
+        })
+      ).statusCode,
+      403,
+    );
+    stage = "verify-restored-history";
     assert.equal(
       await db.chatMessage.count({ where: { chatId: fixture.chatId } }),
       1,
@@ -435,6 +514,7 @@ try {
       ).processedAt,
       null,
     );
+    stage = "verify-restored-outbox";
     const { Queue } = workerRequire("bullmq");
     const { OutboxDispatcher } = require(outboxPath);
     const queue = new Queue(`nodra-restore-${runId}`, {
@@ -457,6 +537,7 @@ try {
     archiveSha256: digest(stored),
     dumpSha256: digest(dump),
     avatarSha256: digest(avatar),
+    logoSha256: digest(logo),
     restoreAndVerificationMs: Math.round(performance.now() - restoreStart),
     totalMs: Math.round(performance.now() - start),
     checks: [
@@ -468,6 +549,9 @@ try {
       "authenticated-encryption",
       "corruption-rejected",
       "avatar-binary",
+      "organization-logo-binary",
+      "organization-logo-reference",
+      "organization-logo-private",
       "api-login",
       "tenant-denied",
       "draft-hidden",

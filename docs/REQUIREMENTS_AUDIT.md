@@ -2,6 +2,8 @@
 
 Primer pase individual completo: [secciones 256–290](audit/SECTIONS_256_290.md). Hay 291 entradas únicas, §0–290, sin huecos ni duplicados. Esto demuestra cobertura de la revisión, **no finalización de los requisitos**. NOD-020 sigue abierto para corregir discrepancias y reunir evidencia de aceptación. Las notas anteriores se conservan como historial fechado.
 
+03/11 — §219: el simulacro existente incorpora el logo privado añadido en §61. Antes de copiarlo, la nueva comprobación falla; al incluirlo en el paquete AES-256-GCM pasan las 28 tablas, avatar/logo binarios, referencia y acceso privado vía API, además de outbox. Bases sintéticas de ambos intentos eliminadas; evidencia en TESTING/DEPLOYMENT. No se usa ni respalda la base del propietario; la estrategia productiva continúa documentada, sin scheduler ni copia externa contratada. Se conserva el historial de la revisión original.
+
 Noveno bloque: [secciones 226–255](audit/SECTIONS_226_255.md). NotificationPreference futura especificada; perfil web sin Membership detectado y registrado en NOD-024. Archivo de JobRole/UI y E2E cliente siguen pendientes. Continuar §256–290.
 
 Octavo bloque: [secciones 196–225](audit/SECTIONS_196_225.md). Convenciones DB documentadas y backups futuros completados con snapshots/copia separada/restore. Perfil todavía tiene lógica en controlador; ready sólo comprueba DB; no se certifican escala ni revisión transitiva exhaustiva. Continuar §226–290.
