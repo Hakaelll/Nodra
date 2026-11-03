@@ -9,7 +9,7 @@ Revisión documental §146/149: resumen vigente separado del historial íntegro;
 - API interna: registro/login/refresh/logout, recuperación y verificación de email, perfil propio, organizaciones, Membership, invitaciones por enlace/código, roles y grupos. OWNER/ADMIN pueden corregir nombre/zona horaria/logo y terminología/acento desde la web, con snapshot esperado al guardar. Web y Flutter consumen la terminología y el acento de su organización activa.
 - Servicios: borradores editables, posiciones, publicación, inscripción, selección, confirmación, cancelación y estados terminales. Constraints y transacciones protegen capacidad e invitaciones.
 - Avisos de organización con acuse y visibilidad de lectores según permiso; notificaciones persistidas y separación del evento y la entrega.
-- Chat manual o de servicio: mensajes cronológicos, no leídos, lectura, menú de tres puntos y borrado de la lista propia. Un mensaje nuevo recupera la conversación; no destruye el historial de los demás.
+- Chat manual o de servicio: mensajes cronológicos, no leídos, lectura, menú de tres puntos y borrado de la lista propia. Un mensaje nuevo recupera la conversación; no destruye el historial de los demás. Otro coordinador activo puede abrir desde el servicio un chat existente e incorporarse sin duplicarlo.
 - Perfil: nombre, apellidos y foto del dispositivo con recorte circular; almacenamiento local y adapter S3 opcional.
 - Dashboard y calendario con horarios de la organización, DST, pendientes propios y paginación antes de devolver resultados.
 

@@ -1485,6 +1485,92 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
     expect(confirmation.response).toBe("CONFIRMED");
     expect(confirmation.respondedAt).not.toBeNull();
     await expectAudit(org, worker.id, "ASSIGNMENT_CONFIRMED", assignment);
+    const chatBase = `organizations/${org}/chats`;
+    const serviceChat = await request("POST", chatBase, owner.access, {
+      kind: "SERVICE",
+      serviceId: service,
+    });
+    expect(serviceChat.statusCode).toBe(201);
+    expect(serviceChat.json().title).toBe("Updated coordination test");
+    await db.membership.create({
+      data: {
+        organizationId: org,
+        userId: other.id,
+        permissionRole: "COORDINATOR",
+      },
+    });
+    expect(
+      (
+        await request(
+          "GET",
+          `${chatBase}/${serviceChat.json().id}`,
+          other.access,
+        )
+      ).statusCode,
+    ).toBe(404);
+    const reopened = await request("POST", chatBase, other.access, {
+      kind: "SERVICE",
+      serviceId: service,
+    });
+    expect(reopened.statusCode).toBe(201);
+    expect(reopened.json().id).toBe(serviceChat.json().id);
+    expect(
+      reopened
+        .json()
+        .participants.map((p: { userId: string }) => p.userId)
+        .sort(),
+    ).toEqual([owner.id, worker.id, other.id].sort());
+    const coordinatorMessage = await request(
+      "POST",
+      `${chatBase}/${reopened.json().id}/messages`,
+      other.access,
+      { body: "Nota de coordinación", clientNonce: randomUUID() },
+    );
+    expect(coordinatorMessage.statusCode).toBe(201);
+    expect(
+      (
+        await request(
+          "DELETE",
+          `${chatBase}/${reopened.json().id}`,
+          other.access,
+        )
+      ).statusCode,
+    ).toBe(200);
+    expect(
+      (await request("GET", `${chatBase}/${reopened.json().id}`, other.access))
+        .statusCode,
+    ).toBe(404);
+    const restored = await request("POST", chatBase, other.access, {
+      kind: "SERVICE",
+      serviceId: service,
+    });
+    expect(restored.statusCode).toBe(201);
+    expect(restored.json().id).toBe(serviceChat.json().id);
+    expect(restored.json().participants).toHaveLength(3);
+    expect(
+      await db.chatThread.count({
+        where: { organizationId: org, serviceId: service },
+      }),
+    ).toBe(1);
+    expect(
+      (
+        await request(
+          "GET",
+          `${chatBase}/${restored.json().id}/messages`,
+          other.access,
+        )
+      )
+        .json()
+        .items.map((message: { id: string }) => message.id),
+    ).toEqual([coordinatorMessage.json().id]);
+    expect(
+      (
+        await request("POST", chatBase, worker.access, {
+          kind: "SERVICE",
+          serviceId: service,
+        })
+      ).statusCode,
+    ).toBe(403);
     expect(
       (
         await request(

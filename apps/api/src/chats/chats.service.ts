@@ -302,11 +302,13 @@ export class ChatsService {
         );
       if (existing) {
         await tx.chatParticipant.createMany({
-          data: active.map(({ userId }) => ({
-            chatId: existing.id,
-            organizationId: org,
-            userId,
-          })),
+          data: [...new Set([user, ...active.map(({ userId }) => userId)])].map(
+            (userId) => ({
+              chatId: existing.id,
+              organizationId: org,
+              userId,
+            }),
+          ),
           skipDuplicates: true,
         });
         await tx.chatParticipant.updateMany({
