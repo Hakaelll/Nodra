@@ -1,4 +1,5 @@
 "use client";
+import { useOrganizationText } from "./organization-customization-context";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -67,6 +68,7 @@ export function ChatScreen({
   onError: (message: string) => void;
   refreshUnreadChats: () => Promise<void>;
 }) {
+  const text = useOrganizationText();
   const [chats, setChats] = useState<Chat[]>([]);
   const [active, setActive] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -358,7 +360,7 @@ export function ChatScreen({
                     {chat.lastMessage
                       ? `${chat.lastMessage.senderId === userId ? "Tú: " : ""}${chat.lastMessage.body}`
                       : chat.kind === "SERVICE"
-                        ? "Chat del servicio"
+                        ? "Chat de coordinación"
                         : "Sin mensajes"}
                   </span>
                 </span>
@@ -405,7 +407,7 @@ export function ChatScreen({
               <div>
                 <strong>{displayTitle(active)}</strong>
                 <small>
-                  {active.kind === "SERVICE" ? "Servicio · " : ""}
+                  {active.kind === "SERVICE" ? text("Servicio · ") : ""}
                   {active.participants.length} participantes
                 </small>
               </div>

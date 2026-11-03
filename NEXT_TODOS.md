@@ -5,7 +5,7 @@ Actualizado: 03/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
 ## Prioridad de continuidad
 
 1. NOD-020: primer pase individual §0–290 completo; corregir discrepancias y verificar requisitos faltantes sin dar por completado el prompt por pruebas parciales.
-   Siguiente entrega concreta: editor de terminología/acento y consumo del contexto en web/Flutter (§61), sobre el backend verificado el 03/11. Mantener identidad y navegación aprobadas.
+   Siguiente entrega concreta: consumir terminología/acento en Flutter (§61), sobre backend y editor/contexto web verificados el 03/11. Mantener identidad, estados y navegación aprobados.
 2. NOD-019/008: ampliar cobertura de acciones AuditEvent y permisos (§63); cancelaciones por lote y gestión JobRole API/web/Flutter implementadas. E2E web y aceptación siguen pendientes.
 3. NOD-014/015/017/022: completar pruebas de clientes y cambios de contexto; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
 4. NOD-013/016/020: adquisición push, build iOS y prueba física siguen sin demostrar. Android debug recompilado y firma verificada el 02/11 con la corrección de sesión; SDK/JDK locales instalados. iOS requiere host compatible. No contratar servicios.
@@ -133,6 +133,8 @@ Notas técnicas: Creación/listado y edición de rol/estado con control optimist
 03/11 — NOD-006/014/019: SharedWorker coordina las pestañas participantes del mismo origen y partición. Dos 401 comparten renovación; los tardíos reconocen la revisión vigente. Cambios de auth esperan el refresh conocido, invalidan operaciones anteriores y recargan los otros documentos. Fallback inicial por pestaña; fallo de conexión establecida exige recargar. Cuatro pruebas web, lint, tipos, build y recorrido HTTP/BFF aprobados; suite esencial de diecinueve casos. El recurso se sirve en LAN como JavaScript y coincide con el fuente. No certifica dispositivos, DOM, clientes antiguos ni cierres abruptos. Mantener estados y aceptación pendientes; ver ADR-015/TESTING.
 
 03/11 — §61: backend de personalización con migración 14, labels singulares/plurales, enum de acento limitado, snapshot esperado y auditoría atómica. OWNER/ADMIN; miembros sólo reciben configuración efectiva en sus Membership. Rechazos de rol/tenant/HTML/hex libre, rollback, no-op, dos escritores y valores heredados probados en una nueva integración esencial. Trece integraciones y cuatro unitarios web pasan; veinte casos conservados. Builds/tipos/lint, 69 contratos, bootstrap/HTTP/restore aprobados; principal migrado sin perder serviceLabel/features. Faltan editor y aplicación de tokens/textos en web/Flutter, no se declara §61 completo. Plan en docs/superpowers/plans/2026-11-03-organization-customization.md.
+
+03/11 — §61 web: editor OWNER/ADMIN en Perfil → Configuración y provider por cuenta/organización. Copy de interfaz adaptado sin tocar contenido de personas, rutas o roles de permiso; radios nativos, errores y relectura tras conflicto, tokens limitados y restauración al desmontar. Lint/tipos, cuatro unitarios, build y HTTP/BFF aprobados; HTML estático/contraste comprobados, sin DOM ni aceptación visual. Suite de veinte casos conservada. Falta Flutter; continuar el plan existente sin crear otra dirección visual ni dar por terminado §61.
 
 ## NOD-007 — Invitations
 

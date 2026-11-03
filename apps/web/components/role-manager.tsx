@@ -1,4 +1,5 @@
 "use client";
+import { useOrganizationText } from "./organization-customization-context";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { roleInput, type JobRole, type Page } from "@nodra/contracts";
 import { api } from "../lib/api";
@@ -17,6 +18,7 @@ export function RoleManager({
   onChanged: () => Promise<void>;
   onError: (message: string) => void;
 }) {
+  const text = useOrganizationText();
   const [editing, setEditing] = useState<string>();
   const [busy, setBusy] = useState(false);
   const [search, setSearch] = useState("");
@@ -54,7 +56,7 @@ export function RoleManager({
           setCatalog(result);
         })
         .catch(() => {
-          if (live) setLoadError("No se pudieron cargar los roles.");
+          if (live) setLoadError("No se pudo cargar la lista de roles.");
         })
         .finally(() => {
           if (live) setLoading(false);
@@ -92,7 +94,7 @@ export function RoleManager({
         setReload((n) => n + 1);
         if (!refreshed)
           onError(
-            "El rol está guardado, pero no se pudo actualizar el servicio. Vuelve a abrirlo para verlo.",
+            "Cambios guardados. Vuelve a abrir el detalle para actualizarlo.",
           );
       }
     } catch (error) {
@@ -125,9 +127,9 @@ export function RoleManager({
   }
   return (
     <Card>
-      <h2>Roles laborales</h2>
+      <h2>{text("Roles")}</h2>
       <Input
-        label="Buscar roles"
+        label={text("Buscar roles")}
         type="search"
         value={search}
         maxLength={120}
@@ -144,11 +146,11 @@ export function RoleManager({
       )}
       {loading ? (
         <p role="status" className="muted">
-          Cargando roles…
+          {text("Cargando roles…")}
         </p>
       ) : loadError ? (
         <p className="inline-error" role="alert">
-          {loadError}{" "}
+          {text(loadError)}{" "}
           <button
             type="button"
             className="text-link"
@@ -160,7 +162,7 @@ export function RoleManager({
       ) : (
         <>
           {!catalog.items.length && (
-            <p className="muted">No hay roles que coincidan.</p>
+            <p className="muted">{text("No hay roles que coincidan.")}</p>
           )}
           <div className="stack">
             {catalog.items.map((role) => (
@@ -168,7 +170,7 @@ export function RoleManager({
                 {editing === role.id ? (
                   <form noValidate onSubmit={(event) => save(event, role)}>
                     <Input
-                      label="Nombre del rol"
+                      label={text("Rol: nombre")}
                       name="name"
                       defaultValue={role.name}
                       required
@@ -232,7 +234,7 @@ export function RoleManager({
                               title: `¿Archivar ${role.name}?`,
                               description:
                                 "Dejará de estar disponible para nuevas posiciones. El historial se conservará.",
-                              confirmLabel: "Archivar rol",
+                              confirmLabel: text("Archivar rol"),
                             }))
                           )
                             return;
@@ -250,7 +252,7 @@ export function RoleManager({
           {(catalog.total > catalog.limit || page > 1) && (
             <nav
               className="role-catalog-pages"
-              aria-label="Páginas de gestión de roles"
+              aria-label={text("Páginas de gestión de roles")}
             >
               <button
                 type="button"

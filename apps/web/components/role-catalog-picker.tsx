@@ -1,4 +1,5 @@
 "use client";
+import { useOrganizationText } from "./organization-customization-context";
 import { useEffect, useId, useState } from "react";
 import type { JobRole, Page } from "@nodra/contracts";
 import { api } from "../lib/api";
@@ -22,6 +23,7 @@ export function RoleCatalogPicker({
   disabled?: boolean;
   refreshKey?: number;
 }) {
+  const text = useOrganizationText();
   const id = useId();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -51,7 +53,7 @@ export function RoleCatalogPicker({
           if (live) setResult(data);
         })
         .catch(() => {
-          if (live) setError("No se pudieron cargar los roles.");
+          if (live) setError("No se pudo cargar la lista de roles.");
         })
         .finally(() => {
           if (live) setLoading(false);
@@ -66,7 +68,7 @@ export function RoleCatalogPicker({
     value && !result.items.some((role) => role.id === value);
   return (
     <div className="field role-catalog-picker">
-      <label htmlFor={`${id}-selected`}>Rol laboral</label>
+      <label htmlFor={`${id}-selected`}>{text("Rol laboral")}</label>
       <select
         id={`${id}-selected`}
         value={value}
@@ -80,11 +82,11 @@ export function RoleCatalogPicker({
         }}
       >
         <option value="">
-          {required ? "Selecciona un rol" : "Todos los roles"}
+          {required ? text("Seleccionar rol") : text("Sin filtro de rol")}
         </option>
         {missingSelection && (
           <option value={value}>
-            {selected?.id === value ? selected.name : "Rol seleccionado"}
+            {selected?.id === value ? selected.name : "Selección actual"}
             {selected?.id === value && !selected.active ? " · Archivado" : ""}
           </option>
         )}
@@ -96,7 +98,7 @@ export function RoleCatalogPicker({
         ))}
       </select>
       <label className="role-catalog-search-label" htmlFor={`${id}-search`}>
-        Buscar roles
+        {text("Buscar roles")}
       </label>
       <input
         id={`${id}-search`}
@@ -113,10 +115,10 @@ export function RoleCatalogPicker({
         }}
       />
       {loading ? (
-        <small role="status">Cargando roles…</small>
+        <small role="status">{text("Cargando roles…")}</small>
       ) : error ? (
         <p role="alert" className="inline-error">
-          {error}{" "}
+          {text(error)}{" "}
           <button
             className="text-link"
             type="button"
@@ -129,10 +131,13 @@ export function RoleCatalogPicker({
       ) : (
         <>
           {!result.items.length && (
-            <small role="status">No hay roles que coincidan.</small>
+            <small role="status">{text("No hay roles que coincidan.")}</small>
           )}
           {(result.total > result.limit || page > 1) && (
-            <div className="role-catalog-pages" aria-label="Páginas de roles">
+            <div
+              className="role-catalog-pages"
+              aria-label={text("Páginas de roles")}
+            >
               <button
                 type="button"
                 className="text-link"
@@ -169,7 +174,7 @@ export function RoleCatalogPicker({
             onChange("");
           }}
         >
-          Quitar rol
+          {text("Quitar rol")}
         </button>
       )}
     </div>

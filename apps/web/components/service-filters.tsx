@@ -1,4 +1,5 @@
 "use client";
+import { useOrganizationText } from "./organization-customization-context";
 import { useId, useRef, useState } from "react";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import { RoleCatalogPicker } from "./role-catalog-picker";
@@ -32,6 +33,7 @@ export function ServiceFilters({
   value: ServiceFiltersValue;
   onApply: (next: ServiceFiltersValue) => void;
 }) {
+  const text = useOrganizationText();
   const applied = Boolean(value.jobRoleId || value.from || value.to);
   return (
     <details
@@ -40,8 +42,8 @@ export function ServiceFilters({
       open={applied || undefined}
     >
       <summary>
-        <SlidersHorizontal size={17} aria-hidden="true" /> Fechas y rol{" "}
-        {applied && <span>· Aplicados</span>}
+        <SlidersHorizontal size={17} aria-hidden="true" />{" "}
+        {text("Fechas y rol")} {applied && <span>· Aplicados</span>}
         <ChevronDown size={16} aria-hidden="true" />
       </summary>
       <FilterForm
@@ -63,6 +65,7 @@ function FilterForm({
   value: ServiceFiltersValue;
   onApply: (next: ServiceFiltersValue) => void;
 }) {
+  const text = useOrganizationText();
   const id = useId();
   const [jobRoleId, setJobRoleId] = useState(value.jobRoleId);
   const initial = (iso: string) =>
@@ -191,8 +194,8 @@ function FilterForm({
         })}
       </div>
       <small className="muted">
-        Horario de {timezone}. Incluye los servicios que coinciden con el
-        intervalo.
+        Horario de {timezone}
+        {text(". Muestra servicios en el intervalo indicado.")}
       </small>
       {error && (
         <p

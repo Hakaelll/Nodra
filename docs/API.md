@@ -136,7 +136,7 @@ El selector de filtros de Servicios web usa este endpoint con búsqueda y págin
 
 Las etiquetas nuevas se recortan y admiten 1–40 caracteres: letras/números Unicode, espacios, punto, apóstrofo y guion. `expected` conserva literalmente valores heredados para permitir su corrección. Estado obsoleto devuelve 409; permiso o tenant ajeno, 403; cuerpo inválido, 400. Un guardado idéntico no audita. La transacción Serializable registra ORGANIZATION_CUSTOMIZATION_UPDATED con metadata vacía y revierte los ajustes si falla la auditoría.
 
-GET organizations incluye `organization.customization` en las Membership activas propias; no requiere acceso a settings administrativos para renderizarlo. Defaults: Servicio/Servicios, Rol/Roles y VIOLET. Los campos serviceLabel/features de settings se conservan. Persistir la configuración no significa que los clientes ya cambien sus textos o color: su editor y consumo siguen pendientes en [CUSTOMIZATION](CUSTOMIZATION.md).
+GET organizations incluye `organization.customization` en las Membership activas propias; no requiere acceso a settings administrativos para renderizarlo. Defaults: Servicio/Servicios, Rol/Roles y VIOLET. Los campos serviceLabel/features de settings se conservan. La edición y aplicación de la configuración están implementadas en web; el consumo en Flutter sigue pendiente. Alcance y límites en [CUSTOMIZATION](CUSTOMIZATION.md).
 
 ## Edición de organización
 

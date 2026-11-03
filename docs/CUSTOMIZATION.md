@@ -1,6 +1,6 @@
 # Personalización y presets
 
-Alcance de §59/61/62 del [prompt](BOOTSTRAP_PROMPT.md). Nombre, zona horaria y logo privado se editan desde la web. Terminología y acento limitado tienen persistencia y API administrativa; su editor y aplicación visual en web/Flutter siguen pendientes. Los campos personalizados y presets permanecen como diseño futuro. La foto personal y el logo de organización usan recursos distintos.
+Alcance de §59/61/62 del [prompt](BOOTSTRAP_PROMPT.md). Nombre, zona horaria, logo privado, terminología y acento limitado se editan desde la web. La web aplica su configuración; Flutter todavía debe consumir terminología y acento. Los campos personalizados y presets permanecen como diseño futuro. La foto personal y el logo de organización usan recursos distintos.
 
 ## CustomFieldDefinition y CustomFieldValue
 
@@ -42,7 +42,11 @@ La migración aditiva `20261103030000_organization_customization` conserva servi
 
 La transacción Serializable vuelve a comprobar permiso y snapshot antes de escribir. Un cambio obsoleto devuelve 409; un guardado idéntico no escribe auditoría. Los cambios aceptados registran ORGANIZATION_CUSTOMIZATION_UPDATED sin copiar etiquetas en metadata. GET settings conserva serviceLabel/features y añade customization; GET organizations entrega la configuración efectiva sólo dentro de las Membership activas propias, sin exponer ajustes administrativos completos.
 
-La API no modifica rutas, estados, contenido de servicios ni lógica sectorial. La aplicación visual y los textos todavía no consumen estas opciones: completar el editor y contexto de web/Flutter antes de declarar §61 terminado. Plan de continuidad en [organization customization](superpowers/plans/2026-11-03-organization-customization.md).
+La API no modifica rutas, estados, contenido de servicios ni lógica sectorial. La web aplica terminología a navegación, agenda, calendario, servicios y gestión de roles laborales. Títulos, mensajes y nombres escritos por personas no se sustituyen; tampoco los roles de permiso OWNER/ADMIN/COORDINATOR/MEMBER. Las frases de interfaz evitan artículos/adjetivos que contradigan el género de la nueva etiqueta.
+
+El editor web está en Perfil → Configuración para OWNER/ADMIN. Muestra singular/plural de ambos conceptos y tres radios nativos de acento; guardar confirma la escritura antes de refrescar el contexto. Errores conservan el formulario y permiten cargar la versión actual; una lectura fallida después de guardar bloquea repetir el envío hasta recargar la configuración. Valores de Nodra prepara los defaults en el formulario, sin escribir hasta guardar.
+
+Los tokens web son VIOLET #533afd, INDIGO #3448a8 e INK #182659, con hover y tintes acotados. El provider cambia únicamente sus propiedades CSS, incluidas las usadas por diálogos, y restaura los valores anteriores al desmontarse. Su identidad depende de cuenta y organización. No personaliza tipografía, layout ni colores semánticos de estados/eventos. Falta el consumo en Flutter y la aceptación visual del propietario; §61 sigue abierto. Plan en [organization customization](superpowers/plans/2026-11-03-organization-customization.md).
 
 ## Presets futuros
 

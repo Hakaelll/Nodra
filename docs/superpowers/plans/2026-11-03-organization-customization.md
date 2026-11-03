@@ -24,9 +24,10 @@ Publish each verified delivery with a short English commit, as authorized.
 
 ## Client delivery
 
-- [ ] Reuse the existing profile settings flow for an OWNER/ADMIN editor. Keep Configuration out of the sidebar. Use current controls and tokens with inline errors, preserved values and conflict recovery.
-- [ ] Apply the selected token and terminology through organization context in web and Flutter. Preserve neutral route IDs, states, API vocabulary, logo and layout. Clear organization-specific configuration when changing account or organization.
-- [ ] Keep the default appearance and labels identical for existing organizations. Offer a small set of indigo-family accents from the canonical design, with readable interaction states; no custom hex input.
-- [ ] Update client documentation and run applicable checks. Visual acceptance and physical-device testing remain with the owner; do not claim these checks from static analysis.
+- [x] Reuse the web profile settings flow for an OWNER/ADMIN editor with existing controls, visible errors, preserved values and conflict recovery. Keep Configuration out of the sidebar.
+- [x] Apply terminology and bounded accent tokens through web organization context. Preserve route IDs, states, permission roles and user content. Restore owned CSS tokens when leaving the account/organization context.
+- [x] Retain the default VIOLET accent and provide three controlled indigo-family options. Measure text contrast and allow long labels without widening the mobile navigation. No free hex input.
+- [ ] Consume terminology and accent in Flutter session/theme/screens, preserving context isolation, neutral route IDs and semantic colors. The web remains the administrative editor.
+- [x] Document and run the applicable web checks; static React markup and token checks are evidence only for their own scope.
 
-The backend commit alone does not complete section 61. Keep its client work explicitly pending until it is implemented and verified.
+Flutter delivery and owner visual acceptance remain pending. Do not claim browser interaction, effects cleanup or physical-device verification from lint, static rendering or builds. Section 61 remains open.

@@ -1,4 +1,5 @@
 "use client";
+import { useOrganizationText } from "./organization-customization-context";
 
 import { useEffect, useState } from "react";
 import {
@@ -53,6 +54,7 @@ export function CalendarView({
   route: WorkspaceRoute;
   openService: (id: string) => void;
 }) {
+  const text = useOrganizationText();
   const today = localDay(new Date(), timezone);
   const month = route.month ?? today.slice(0, 7);
   const selected =
@@ -127,11 +129,17 @@ export function CalendarView({
   }).format(new Date(`${selected}T12:00:00Z`));
 
   return (
-    <section className="calendar-screen" aria-label="Calendario de servicios">
+    <section
+      className="calendar-screen"
+      aria-label={text("Calendario de servicios")}
+    >
       <header className="calendar-heading">
         <div>
           <h1>Calendario</h1>
-          <p>Servicios y horarios en {timezone}.</p>
+          <p>
+            {text("Servicios y horarios en ")}
+            {timezone}.
+          </p>
         </div>
         <div className="calendar-controls">
           <Button
@@ -170,7 +178,8 @@ export function CalendarView({
           <h2>{monthTitle}</h2>
           {!loading && !error && (
             <span>
-              {events.length} {events.length === 1 ? "servicio" : "servicios"}
+              {events.length}{" "}
+              {events.length === 1 ? text("servicio") : text("servicios")}
             </span>
           )}
         </div>
@@ -204,7 +213,7 @@ export function CalendarView({
                     key={day}
                     className="calendar-day"
                     aria-pressed={selected === day}
-                    aria-label={`${new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T12:00:00Z`))}, ${forDay(day).length} servicios`}
+                    aria-label={`${new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T12:00:00Z`))}, ${forDay(day).length} ${text(forDay(day).length === 1 ? "servicio" : "servicios")}`}
                     onClick={() => navigateWorkspace({ ...route, month, day })}
                   >
                     <span className={day === today ? "is-today" : ""}>
@@ -244,7 +253,7 @@ export function CalendarView({
               <h2>{selectedTitle}</h2>
               <p>
                 {selectedEvents.length
-                  ? `${selectedEvents.length} ${selectedEvents.length === 1 ? "servicio" : "servicios"}`
+                  ? `${selectedEvents.length} ${selectedEvents.length === 1 ? text("servicio") : text("servicios")}`
                   : "Sin actividad programada"}
               </p>
             </div>
@@ -291,7 +300,7 @@ export function CalendarView({
           )}
           {upcoming.length > 0 && (
             <div className="calendar-upcoming">
-              <h3>Próximos servicios</h3>
+              <h3>{text("Agenda de servicios")}</h3>
               <p>Próximos y en curso este mes</p>
               <div className="calendar-upcoming-list">
                 {upcoming.map((event) => (

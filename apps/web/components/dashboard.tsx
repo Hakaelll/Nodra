@@ -1,4 +1,5 @@
 "use client";
+import { useOrganizationText } from "./organization-customization-context";
 import { useEffect, useState } from "react";
 import {
   ArrowRight,
@@ -42,6 +43,7 @@ export function Dashboard({
   browse: () => void;
   calendar: () => void;
 }) {
+  const text = useOrganizationText();
   const { filter, day: selectedDay, page } = route;
   const updateRoute = (changes: Partial<WorkspaceRoute>) =>
     navigateWorkspace({ ...route, ...changes });
@@ -100,7 +102,7 @@ export function Dashboard({
             manage ? (
               <Button onClick={create}>
                 <Plus size={17} />
-                Crear servicio
+                {text("Crear servicio")}
               </Button>
             ) : undefined
           }
@@ -181,7 +183,7 @@ export function Dashboard({
             <div className="schedule-toolbar">
               <div
                 className="segmented-control"
-                aria-label="Servicios del resumen"
+                aria-label={text("Resumen de servicios")}
               >
                 {(
                   [
@@ -280,14 +282,14 @@ export function Dashboard({
               <EmptyState
                 title={
                   pageBeyond
-                    ? "Esta página ya no tiene servicios"
+                    ? text("Esta página ya no tiene servicios")
                     : filter === "drafts"
                       ? "No hay borradores"
                       : filter === "attention"
-                        ? "No hay servicios pendientes"
+                        ? text("No hay servicios que requieran atención")
                         : selectedDay
-                          ? "No hay servicios este día"
-                          : "No hay servicios próximos"
+                          ? text("No hay servicios este día")
+                          : text("Sin servicios en la agenda")
                 }
                 action={
                   pageBeyond ? (
@@ -300,8 +302,12 @@ export function Dashboard({
                 {pageBeyond
                   ? "Vuelve al inicio de la lista."
                   : manage
-                    ? "Crea un servicio para añadir fechas y posiciones a la agenda."
-                    : "Los servicios aparecerán aquí cuando tu organización los publique."}
+                    ? text(
+                        "Añade fechas y plazas a la agenda desde «Crear servicio».",
+                      )
+                    : text(
+                        "Aquí podrás consultar servicios de tu organización.",
+                      )}
               </EmptyState>
             )}
             <div className="schedule-footer">
@@ -310,9 +316,10 @@ export function Dashboard({
                 {shown.length
                   ? Math.min(page * summary.limit, summary.total)
                   : 0}{" "}
-                de {summary.total} servicios · {timezone}
+                de {summary.total} {text("servicios · ")}
+                {timezone}
               </span>
-              <TextLink onClick={browse}>Todos los servicios</TextLink>
+              <TextLink onClick={browse}>{text("Ver servicios")}</TextLink>
             </div>
             {summary.total > summary.limit && (
               <div className="pagination">

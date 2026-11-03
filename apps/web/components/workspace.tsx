@@ -1,4 +1,5 @@
 "use client";
+import { useOrganizationText } from "./organization-customization-context";
 import {
   FormEvent,
   useCallback,
@@ -33,6 +34,12 @@ import { ChatScreen } from "./chat-screen";
 import { RoleManager } from "./role-manager";
 import { NoticeComposer } from "./notice-composer";
 import { OrganizationDetails } from "./organization-details";
+import { OrganizationCustomizationEditor } from "./organization-customization-editor";
+import { OrganizationCustomizationProvider } from "./organization-customization-context";
+import {
+  createOrganizationText,
+  resolveOrganizationCustomization,
+} from "../lib/organization-customization";
 import { OrganizationMark } from "./organization-logo";
 import { ServiceFilters } from "./service-filters";
 import { RoleCatalogPicker } from "./role-catalog-picker";
@@ -637,6 +644,14 @@ export function Workspace() {
     [memberships, setMemberships] = useState<Membership[]>([]),
     [initial, setInitial] = useState(true),
     [error, setError] = useState("");
+  const customization = useMemo(
+    () =>
+      resolveOrganizationCustomization(
+        memberships.find((m) => m.organization.id === orgId)?.organization
+          .customization,
+      ),
+    [memberships, orgId],
+  );
   const updateUser = useCallback((next: ProfileUser) => {
     setUser((current) => (current?.id === next.id ? next : current));
   }, []);
@@ -983,202 +998,124 @@ export function Workspace() {
         ))}
       </main>
     );
+  const organizationText = createOrganizationText(customization);
+  const navigationLabel = (destination: View) =>
+    destination === "Servicios"
+      ? organizationText(copy.views[destination])
+      : copy.views[destination];
   return (
-    <div className="shell">
-      <span
-        className="sr-only"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {unreadChats === 0
-          ? "No hay chats sin leer"
-          : `${unreadChats} ${unreadChats === 1 ? "chat sin leer" : "chats sin leer"}`}
-      </span>
-      <a className="skip-link" href="#main-content">
-        Saltar al contenido
-      </a>
-      <header className="mobile-header">
-        {profileSection ? (
-          <>
-            <button
-              className="mobile-header-action"
-              aria-label={
-                view === "Configuración" ? "Volver a Perfil" : "Volver a Inicio"
-              }
-              onClick={() =>
-                setView(view === "Configuración" ? "Perfil" : "Inicio")
-              }
-            >
-              <ArrowLeft size={21} />
-            </button>
-            <strong>{view}</strong>
-            {view === "Perfil" ? (
+    <OrganizationCustomizationProvider
+      key={`${user.id}:${membership.organization.id}`}
+      value={customization}
+    >
+      <div className="shell">
+        <span
+          className="sr-only"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {unreadChats === 0
+            ? "No hay chats sin leer"
+            : `${unreadChats} ${unreadChats === 1 ? "chat sin leer" : "chats sin leer"}`}
+        </span>
+        <a className="skip-link" href="#main-content">
+          Saltar al contenido
+        </a>
+        <header className="mobile-header">
+          {profileSection ? (
+            <>
               <button
                 className="mobile-header-action"
-                aria-label="Configuración"
-                onClick={() => setView("Configuración")}
-              >
-                <Settings size={21} />
-              </button>
-            ) : (
-              <span className="mobile-header-spacer" aria-hidden="true" />
-            )}
-          </>
-        ) : (
-          <>
-            <Brand />
-            <span className="mobile-organization">
-              {membership.organization.name}
-            </span>
-            <button
-              id="mobile-more"
-              className="mobile-more-button"
-              aria-label="Más opciones"
-              aria-expanded={menuOpen}
-              aria-controls="workspace-navigation"
-              onClick={() => setMenuOpen(!menuOpen)}
-            >
-              <Ellipsis size={21} />
-            </button>
-          </>
-        )}
-      </header>
-      {menuOpen && (
-        <button
-          type="button"
-          className="mobile-more-scrim"
-          aria-label="Cerrar opciones"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
-      <aside
-        id="workspace-navigation"
-        className={`sidebar ${menuOpen ? "is-open" : ""}`}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") {
-            setMenuOpen(false);
-            document.getElementById("mobile-more")?.focus();
-          }
-        }}
-      >
-        <div className="mobile-more-heading">
-          <h2>Tu espacio</h2>
-          <button
-            className="icon-button"
-            aria-label="Cerrar opciones"
-            onClick={() => {
-              setMenuOpen(false);
-              document.getElementById("mobile-more")?.focus();
-            }}
-          >
-            <X size={20} />
-          </button>
-        </div>
-        <div
-          className={`org-context ${memberships.length === 1 ? "is-single" : ""}`}
-        >
-          <span>ESPACIO ACTUAL</span>
-          {memberships.length === 1 ? (
-            <strong>{membership.organization.name}</strong>
-          ) : (
-            <label>
-              <span className="sr-only">Cambiar organización</span>
-              <select
-                value={membership.organization.id}
-                onChange={(e) => {
-                  navigateWorkspace({ ...homeRoute, orgId: e.target.value });
-                  setError("");
-                  setMenuOpen(false);
-                }}
-              >
-                {memberships.map((m) => (
-                  <option key={m.id} value={m.organization.id}>
-                    {m.organization.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </div>
-        <p className="nav-label">{copy.navigation.workspace}</p>
-        <nav aria-label={copy.navigation.primary}>
-          {navigation
-            .filter(
-              ([v]) =>
-                (v !== "Equipo" ||
-                  ["OWNER", "ADMIN"].includes(membership.permissionRole)) &&
-                (v !== "Grupos" ||
-                  membership.organization.features?.groups !== false) &&
-                (v !== "Chat" || chatEnabled),
-            )
-            .map(([v, Icon]) => (
-              <button
-                className={`nav-item ${view === v ? "active" : ""}`}
-                aria-current={view === v ? "page" : undefined}
                 aria-label={
-                  v === "Chat" && unreadChats
-                    ? `${copy.views[v]}, ${unreadChats} chats sin leer`
-                    : copy.views[v]
+                  view === "Configuración"
+                    ? "Volver a Perfil"
+                    : "Volver a Inicio"
                 }
-                key={v}
-                data-view={v}
-                data-tooltip={copy.views[v]}
-                onClick={() => {
-                  setView(v);
-                  setError("");
-                  setMenuOpen(false);
-                }}
+                onClick={() =>
+                  setView(view === "Configuración" ? "Perfil" : "Inicio")
+                }
               >
-                <Icon size={21} strokeWidth={1.65} aria-hidden="true" />
-                {v === "Chat" && unreadChats > 0 && (
-                  <span className="chat-nav-badge" aria-hidden="true">
-                    {unreadChats > 99 ? "99+" : unreadChats}
-                  </span>
-                )}
-                <span className="nav-item-label">{copy.views[v]}</span>
+                <ArrowLeft size={21} />
               </button>
-            ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <button
-            className="user-info"
-            aria-label={`${copy.navigation.openProfile}: ${user.firstName} ${user.lastName}`}
-            data-tooltip="Perfil"
-            onClick={() => {
-              setView("Perfil");
-              setError("");
-              setMenuOpen(false);
-            }}
-            aria-current={profileSection ? "page" : undefined}
-          >
-            <Avatar user={user} />
-            <div className="rail-user-details">
-              {user.firstName} {user.lastName}
-              <small>{statusLabel[membership.permissionRole]}</small>
-            </div>
-            <span className="sr-only">{copy.navigation.openProfile}</span>
-          </button>
-        </div>
-      </aside>
-      <div className="workspace">
-        <div className="topbar">
-          <div className="topbar-route">
-            {membership.organization.logoUrl && (
-              <OrganizationMark organization={membership.organization} />
-            )}
-            {memberships.length === 1 ? (
-              <span className="topbar-org-name">
+              <strong>{view}</strong>
+              {view === "Perfil" ? (
+                <button
+                  className="mobile-header-action"
+                  aria-label="Configuración"
+                  onClick={() => setView("Configuración")}
+                >
+                  <Settings size={21} />
+                </button>
+              ) : (
+                <span className="mobile-header-spacer" aria-hidden="true" />
+              )}
+            </>
+          ) : (
+            <>
+              <Brand />
+              <span className="mobile-organization">
                 {membership.organization.name}
               </span>
+              <button
+                id="mobile-more"
+                className="mobile-more-button"
+                aria-label="Más opciones"
+                aria-expanded={menuOpen}
+                aria-controls="workspace-navigation"
+                onClick={() => setMenuOpen(!menuOpen)}
+              >
+                <Ellipsis size={21} />
+              </button>
+            </>
+          )}
+        </header>
+        {menuOpen && (
+          <button
+            type="button"
+            className="mobile-more-scrim"
+            aria-label="Cerrar opciones"
+            onClick={() => setMenuOpen(false)}
+          />
+        )}
+        <aside
+          id="workspace-navigation"
+          className={`sidebar ${menuOpen ? "is-open" : ""}`}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setMenuOpen(false);
+              document.getElementById("mobile-more")?.focus();
+            }
+          }}
+        >
+          <div className="mobile-more-heading">
+            <h2>Tu espacio</h2>
+            <button
+              className="icon-button"
+              aria-label="Cerrar opciones"
+              onClick={() => {
+                setMenuOpen(false);
+                document.getElementById("mobile-more")?.focus();
+              }}
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <div
+            className={`org-context ${memberships.length === 1 ? "is-single" : ""}`}
+          >
+            <span>ESPACIO ACTUAL</span>
+            {memberships.length === 1 ? (
+              <strong>{membership.organization.name}</strong>
             ) : (
-              <label className="topbar-org-switch">
+              <label>
                 <span className="sr-only">Cambiar organización</span>
                 <select
                   value={membership.organization.id}
                   onChange={(e) => {
                     navigateWorkspace({ ...homeRoute, orgId: e.target.value });
                     setError("");
+                    setMenuOpen(false);
                   }}
                 >
                   {memberships.map((m) => (
@@ -1187,115 +1124,208 @@ export function Workspace() {
                     </option>
                   ))}
                 </select>
-                <ChevronDown size={15} aria-hidden="true" />
               </label>
             )}
-            <span className="topbar-divider" aria-hidden="true">
-              /
-            </span>
-            <span>{copy.views[view]}</span>
           </div>
-          <time
-            className="topbar-date"
-            dateTime={organizationToday(membership.organization.timezone)}
-          >
-            {new Intl.DateTimeFormat(defaultLocale, {
-              weekday: "long",
-              day: "numeric",
-              month: "short",
-              timeZone: membership.organization.timezone,
-            }).format(new Date())}
-          </time>
-        </div>
-        <main
-          ref={contentRef}
-          className={`content ${view === "Chat" ? "content-chat" : ""}`}
-          id="main-content"
-          tabIndex={-1}
-        >
-          <ErrorMessage message={error} clear={() => setError("")} />
-          <OrganizationWorkspace
-            key={membership.organization.id}
-            membership={membership}
-            user={user}
-            view={view}
-            route={route}
-            setView={setView}
-            setError={setError}
-            refreshMemberships={refresh}
-            logout={() => setLogoutOpen(true)}
-            onUser={updateUser}
-            refreshUnreadChats={refreshUnreadChats}
-          />
-        </main>
-      </div>
-      <nav
-        className="bottom-navigation"
-        aria-label={copy.navigation.mobile}
-        style={{
-          gridTemplateColumns: `repeat(${visibleMobileNavigation.length}, minmax(0, 1fr))`,
-        }}
-      >
-        <span
-          className="bottom-indicator"
-          aria-hidden="true"
-          style={{
-            opacity:
-              !menuOpen &&
-              (profileSection ||
-                visibleMobileNavigation.some(([v]) => v === view))
-                ? 1
-                : 0,
-            width: `calc((100% - 16px) / ${visibleMobileNavigation.length})`,
-            transform: `translateX(${
-              (profileSection
-                ? visibleMobileNavigation.findIndex(([v]) => v === "Perfil")
-                : Math.max(
-                    0,
-                    visibleMobileNavigation.findIndex(([v]) => v === view),
-                  )) * 100
-            }%)`,
-          }}
-        />
-        {visibleMobileNavigation.map(([v, Icon]) => (
-          <button
-            key={v}
-            aria-label={
-              v === "Chat" && unreadChats
-                ? `${copy.views[v]}, ${unreadChats} chats sin leer`
-                : copy.views[v]
-            }
-            aria-current={
-              !menuOpen && (view === v || (v === "Perfil" && profileSection))
-                ? "page"
-                : undefined
-            }
-            onClick={() => {
-              setView(v);
-              setError("");
-              setMenuOpen(false);
-            }}
-          >
-            <Icon size={22} strokeWidth={1.7} />
-            {v === "Chat" && unreadChats > 0 && (
-              <span className="chat-nav-badge" aria-hidden="true">
-                {unreadChats > 99 ? "99+" : unreadChats}
+          <p className="nav-label">{copy.navigation.workspace}</p>
+          <nav aria-label={copy.navigation.primary}>
+            {navigation
+              .filter(
+                ([v]) =>
+                  (v !== "Equipo" ||
+                    ["OWNER", "ADMIN"].includes(membership.permissionRole)) &&
+                  (v !== "Grupos" ||
+                    membership.organization.features?.groups !== false) &&
+                  (v !== "Chat" || chatEnabled),
+              )
+              .map(([v, Icon]) => (
+                <button
+                  className={`nav-item ${view === v ? "active" : ""}`}
+                  aria-current={view === v ? "page" : undefined}
+                  aria-label={
+                    v === "Chat" && unreadChats
+                      ? `${navigationLabel(v)}, ${unreadChats} chats sin leer`
+                      : navigationLabel(v)
+                  }
+                  key={v}
+                  data-view={v}
+                  data-tooltip={navigationLabel(v)}
+                  onClick={() => {
+                    setView(v);
+                    setError("");
+                    setMenuOpen(false);
+                  }}
+                >
+                  <Icon size={21} strokeWidth={1.65} aria-hidden="true" />
+                  {v === "Chat" && unreadChats > 0 && (
+                    <span className="chat-nav-badge" aria-hidden="true">
+                      {unreadChats > 99 ? "99+" : unreadChats}
+                    </span>
+                  )}
+                  <span className="nav-item-label">{navigationLabel(v)}</span>
+                </button>
+              ))}
+          </nav>
+          <div className="sidebar-bottom">
+            <button
+              className="user-info"
+              aria-label={`${copy.navigation.openProfile}: ${user.firstName} ${user.lastName}`}
+              data-tooltip="Perfil"
+              onClick={() => {
+                setView("Perfil");
+                setError("");
+                setMenuOpen(false);
+              }}
+              aria-current={profileSection ? "page" : undefined}
+            >
+              <Avatar user={user} />
+              <div className="rail-user-details">
+                {user.firstName} {user.lastName}
+                <small>{statusLabel[membership.permissionRole]}</small>
+              </div>
+              <span className="sr-only">{copy.navigation.openProfile}</span>
+            </button>
+          </div>
+        </aside>
+        <div className="workspace">
+          <div className="topbar">
+            <div className="topbar-route">
+              {membership.organization.logoUrl && (
+                <OrganizationMark organization={membership.organization} />
+              )}
+              {memberships.length === 1 ? (
+                <span className="topbar-org-name">
+                  {membership.organization.name}
+                </span>
+              ) : (
+                <label className="topbar-org-switch">
+                  <span className="sr-only">Cambiar organización</span>
+                  <select
+                    value={membership.organization.id}
+                    onChange={(e) => {
+                      navigateWorkspace({
+                        ...homeRoute,
+                        orgId: e.target.value,
+                      });
+                      setError("");
+                    }}
+                  >
+                    {memberships.map((m) => (
+                      <option key={m.id} value={m.organization.id}>
+                        {m.organization.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={15} aria-hidden="true" />
+                </label>
+              )}
+              <span className="topbar-divider" aria-hidden="true">
+                /
               </span>
-            )}
-            <span>{copy.views[v]}</span>
-          </button>
-        ))}
-      </nav>
-      {logoutOpen && (
-        <ConfirmLogout
-          onCancel={() => setLogoutOpen(false)}
-          onConfirm={async () => {
-            await logout();
-            setLogoutOpen(false);
+              <span>{navigationLabel(view)}</span>
+            </div>
+            <time
+              className="topbar-date"
+              dateTime={organizationToday(membership.organization.timezone)}
+            >
+              {new Intl.DateTimeFormat(defaultLocale, {
+                weekday: "long",
+                day: "numeric",
+                month: "short",
+                timeZone: membership.organization.timezone,
+              }).format(new Date())}
+            </time>
+          </div>
+          <main
+            ref={contentRef}
+            className={`content ${view === "Chat" ? "content-chat" : ""}`}
+            id="main-content"
+            tabIndex={-1}
+          >
+            <ErrorMessage message={error} clear={() => setError("")} />
+            <OrganizationWorkspace
+              key={membership.organization.id}
+              membership={membership}
+              user={user}
+              view={view}
+              route={route}
+              setView={setView}
+              setError={setError}
+              refreshMemberships={refresh}
+              logout={() => setLogoutOpen(true)}
+              onUser={updateUser}
+              refreshUnreadChats={refreshUnreadChats}
+            />
+          </main>
+        </div>
+        <nav
+          className="bottom-navigation"
+          aria-label={copy.navigation.mobile}
+          style={{
+            gridTemplateColumns: `repeat(${visibleMobileNavigation.length}, minmax(0, 1fr))`,
           }}
-        />
-      )}
-    </div>
+        >
+          <span
+            className="bottom-indicator"
+            aria-hidden="true"
+            style={{
+              opacity:
+                !menuOpen &&
+                (profileSection ||
+                  visibleMobileNavigation.some(([v]) => v === view))
+                  ? 1
+                  : 0,
+              width: `calc((100% - 16px) / ${visibleMobileNavigation.length})`,
+              transform: `translateX(${
+                (profileSection
+                  ? visibleMobileNavigation.findIndex(([v]) => v === "Perfil")
+                  : Math.max(
+                      0,
+                      visibleMobileNavigation.findIndex(([v]) => v === view),
+                    )) * 100
+              }%)`,
+            }}
+          />
+          {visibleMobileNavigation.map(([v, Icon]) => (
+            <button
+              key={v}
+              aria-label={
+                v === "Chat" && unreadChats
+                  ? `${navigationLabel(v)}, ${unreadChats} chats sin leer`
+                  : navigationLabel(v)
+              }
+              aria-current={
+                !menuOpen && (view === v || (v === "Perfil" && profileSection))
+                  ? "page"
+                  : undefined
+              }
+              onClick={() => {
+                setView(v);
+                setError("");
+                setMenuOpen(false);
+              }}
+            >
+              <Icon size={22} strokeWidth={1.7} />
+              {v === "Chat" && unreadChats > 0 && (
+                <span className="chat-nav-badge" aria-hidden="true">
+                  {unreadChats > 99 ? "99+" : unreadChats}
+                </span>
+              )}
+              <span>{navigationLabel(v)}</span>
+            </button>
+          ))}
+        </nav>
+        {logoutOpen && (
+          <ConfirmLogout
+            onCancel={() => setLogoutOpen(false)}
+            onConfirm={async () => {
+              await logout();
+              setLogoutOpen(false);
+            }}
+          />
+        )}
+      </div>
+    </OrganizationCustomizationProvider>
   );
 }
 type Context = {
@@ -1322,6 +1352,7 @@ function OrganizationWorkspace({
   onUser,
   refreshUnreadChats,
 }: Context) {
+  const text = useOrganizationText();
   const [services, setServices] = useState<Page<Service>>({
       items: [],
       page: 1,
@@ -1400,7 +1431,7 @@ function OrganizationWorkspace({
   )
     return (
       <EmptyState title="No tienes permiso para esta sección">
-        Vuelve a Inicio o consulta los servicios de tu organización.
+        {text("Vuelve a Inicio o consulta servicios de tu organización.")}
       </EmptyState>
     );
   if (selected && ["Inicio", "Servicios", "Calendario"].includes(view))
@@ -1557,11 +1588,18 @@ function OrganizationWorkspace({
         </div>
         <PasswordForm onError={setError} onChanged={logout} />
         {["OWNER", "ADMIN"].includes(membership.permissionRole) && (
-          <OrganizationDetails
-            key={`${user.id}:${membership.organization.id}`}
-            organization={membership.organization}
-            refresh={refreshMemberships}
-          />
+          <>
+            <OrganizationDetails
+              key={`${user.id}:${membership.organization.id}`}
+              organization={membership.organization}
+              refresh={refreshMemberships}
+            />
+            <OrganizationCustomizationEditor
+              key={`customization:${user.id}:${membership.organization.id}`}
+              organization={membership.organization}
+              refresh={refreshMemberships}
+            />
+          </>
         )}
       </>
     );
@@ -1599,12 +1637,12 @@ function OrganizationWorkspace({
       <div className="directory-hero">
         <PageHeader
           eyebrow="COORDINACIÓN"
-          title="Servicios"
+          title={text("Servicios")}
           action={
             manage ? (
               <Button onClick={() => setCreating(true)}>
                 <Plus size={16} />
-                Crear servicio
+                {text("Crear servicio")}
               </Button>
             ) : undefined
           }
@@ -1615,7 +1653,7 @@ function OrganizationWorkspace({
       {view === "Servicios" && (
         <div className="toolbar">
           <input
-            aria-label="Buscar servicios"
+            aria-label={text("Buscar servicios")}
             placeholder="Buscar por nombre…"
             maxLength={120}
             value={search}
@@ -1682,8 +1720,8 @@ function OrganizationWorkspace({
             pageBeyond
               ? "Esta página no tiene resultados"
               : filtered
-                ? "No encontramos servicios"
-                : "Todavía no hay servicios"
+                ? text("No encontramos servicios")
+                : text("Todavía no hay servicios")
           }
           icon={<CalendarDays size={30} strokeWidth={1.5} />}
           action={
@@ -1693,7 +1731,7 @@ function OrganizationWorkspace({
               </Button>
             ) : manage && !filtered ? (
               <Button onClick={() => setCreating(true)}>
-                <Plus size={17} /> Crear servicio
+                <Plus size={17} /> {text("Crear servicio")}
               </Button>
             ) : undefined
           }
@@ -1703,8 +1741,8 @@ function OrganizationWorkspace({
             : filtered
               ? "Prueba otra búsqueda o elimina los filtros."
               : manage
-                ? "Crea el primer servicio para empezar a organizar tu equipo."
-                : "Tu organización publicará aquí los próximos servicios. Vuelve pronto."}
+                ? "Organiza fechas, plazas y participantes desde aquí."
+                : text("Aquí podrás consultar servicios de tu organización.")}
         </EmptyState>
       ) : (
         <ServiceTable
@@ -1763,6 +1801,7 @@ function ServiceTable({
   userId: string;
   select: (id: string) => void;
 }) {
+  const text = useOrganizationText();
   const participation = (service: Service) => {
     if (service.status === "CANCELLED") return null;
     const assignments = service.positions
@@ -1829,7 +1868,7 @@ function ServiceTable({
         <table>
           <thead>
             <tr>
-              <th>Servicio</th>
+              <th>{text("Servicio")}</th>
               <th>Cuándo</th>
               <th>Equipo</th>
               <th>Estado</th>
@@ -1850,7 +1889,7 @@ function ServiceTable({
                   className="service-row"
                   data-status={s.status}
                   tabIndex={0}
-                  aria-label={`Abrir servicio ${s.title}`}
+                  aria-label={`${text("Abrir servicio")} ${s.title}`}
                   onClick={() => select(s.id)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
@@ -1913,6 +1952,7 @@ function CreateService({
   back: () => void;
   existing?: Service;
 }) {
+  const text = useOrganizationText();
   const initialStart = existing
     ? serviceScheduleFields(existing.startsAt, timezone)
     : { value: "", occurrence: null };
@@ -2000,7 +2040,7 @@ function CreateService({
       </Button>
       <PageHeader
         eyebrow="DE LA IDEA AL EQUIPO"
-        title={existing ? "Editar servicio" : "Crear servicio"}
+        title={existing ? text("Editar servicio") : text("Crear servicio")}
       >
         {existing
           ? "Actualiza los datos del borrador antes de publicarlo."
@@ -2009,7 +2049,7 @@ function CreateService({
       <Card>
         <form onSubmit={submit}>
           <Input
-            label="Nombre del servicio"
+            label={text("Servicio: nombre")}
             name="title"
             defaultValue={existing?.title}
             placeholder="¿Qué vais a hacer?"
@@ -2166,6 +2206,7 @@ function ServiceDetail({
   openChat: (id: string) => void;
   chatEnabled: boolean;
 }) {
+  const text = useOrganizationText();
   const [service, setService] = useState<Service | null>(null),
     [busy, setBusy] = useState(false);
   const confirm = useConfirm();
@@ -2203,11 +2244,11 @@ function ServiceDetail({
       );
       if (result.hasScheduleConflict)
         onError(
-          "La persona seleccionada tiene otro servicio confirmado que se solapa con este horario.",
+          "La persona seleccionada ya tiene una confirmación en ese horario.",
         );
       if (!refreshed)
         onError(
-          "El cambio está guardado, pero no se pudo actualizar el servicio. Vuelve a abrirlo para verlo.",
+          "Cambios guardados. Vuelve a abrir el detalle para actualizarlo.",
         );
       return true;
     } catch (e) {
@@ -2236,7 +2277,7 @@ function ServiceDetail({
       const field = input.error.issues[0].path[0];
       fail(
         field === "jobRoleId"
-          ? "Elige un rol laboral activo."
+          ? text("Selecciona rol disponible.")
           : field === "quantity"
             ? "Indica un número entero de personas entre 1 y 1000."
             : field === "description"
@@ -2261,14 +2302,14 @@ function ServiceDetail({
       <section className="service-load-error">
         <Button secondary onClick={back}>
           <ArrowLeft size={15} />
-          Servicios
+          {text("Servicios")}
         </Button>
         <div className="error" role="alert">
           <span className="error-icon">
             <CircleAlert size={18} aria-hidden="true" />
           </span>
           <div className="error-copy">
-            <strong>No se pudo cargar el servicio</strong>
+            <strong>{text("No se pudo abrir el detalle")}</strong>
             <p>{loadError}</p>
             <Button
               secondary
@@ -2317,7 +2358,7 @@ function ServiceDetail({
       <div className="back">
         <Button secondary onClick={back}>
           <ArrowLeft size={15} />
-          Servicios
+          {text("Servicios")}
         </Button>
         {manage && service.status === "DRAFT" && (
           <Button secondary onClick={() => setEditing(true)}>
@@ -2334,8 +2375,7 @@ function ServiceDetail({
       </div>
       {service.status === "CANCELLED" && (
         <p className="cancelled-service-note">
-          Este servicio se ha cancelado. Se conserva aquí para consultar su
-          historial.
+          {text("Registro cancelado. El historial se conserva para consulta.")}
         </p>
       )}
       <div className="detail-meta">
@@ -2374,7 +2414,7 @@ function ServiceDetail({
               }}
             >
               <MessageCircle size={17} />
-              Abrir chat del servicio
+              {text("Abrir chat")}
             </Button>
           </div>
         )}
@@ -2391,7 +2431,7 @@ function ServiceDetail({
           </div>
           {!service.positions.length && (
             <EmptyState title="Define las posiciones">
-              Añade un rol y el número de personas antes de publicar.
+              {text("Añade rol y número de personas antes de publicar.")}
             </EmptyState>
           )}
           {service.positions.map((p) => {
@@ -2695,7 +2735,7 @@ function ServiceDetail({
               <p className="muted">
                 {service.status === "DRAFT"
                   ? "Al publicar, las personas de tu organización podrán mostrar interés."
-                  : "Las confirmaciones y el historial quedan guardados en este servicio."}
+                  : "Las confirmaciones y el historial se conservan aquí."}
               </p>
               {next[service.status] && (
                 <Button
@@ -2707,7 +2747,7 @@ function ServiceDetail({
                   }
                 >
                   {service.status === "DRAFT"
-                    ? "Publicar servicio"
+                    ? text("Publicar servicio")
                     : `Pasar a ${statusLabel[next[service.status]].toLowerCase()}`}
                   <ArrowRight size={15} />
                 </Button>
@@ -2720,10 +2760,10 @@ function ServiceDetail({
                     onClick={async () => {
                       if (
                         await confirm({
-                          title: "¿Cancelar el servicio?",
+                          title: "¿Confirmas la cancelación?",
                           description:
                             "Se cancelarán sus asignaciones activas y se avisará al equipo. El historial se conservará.",
-                          confirmLabel: "Cancelar servicio",
+                          confirmLabel: text("Cancelar servicio"),
                           destructive: true,
                         })
                       )
@@ -2732,7 +2772,7 @@ function ServiceDetail({
                         });
                     }}
                   >
-                    Cancelar servicio
+                    {text("Cancelar servicio")}
                   </Button>
                 </div>
               )}
@@ -2748,6 +2788,7 @@ function RoleForm({
   onError,
   onCreated,
 }: ActionProps & { onCreated: () => Promise<void> }) {
+  const text = useOrganizationText();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const errorRef = useRef<HTMLParagraphElement>(null);
@@ -2772,7 +2813,7 @@ function RoleForm({
           requestAnimationFrame(() => errorRef.current?.focus());
         };
         if (!input.success) {
-          fail("El nombre del rol debe tener entre 2 y 80 caracteres.");
+          fail("El nombre debe tener entre 2 y 80 caracteres.");
           return;
         }
         pending.current = true;
@@ -2786,7 +2827,7 @@ function RoleForm({
           form.reset();
           if (!refreshed)
             onError(
-              "El rol está creado, pero no se pudo actualizar la lista. Vuelve a abrir el servicio.",
+              "Cambios guardados. Vuelve a abrir el detalle para actualizar la lista.",
             );
         } catch (e) {
           fail((e as Error).message);
@@ -2797,7 +2838,7 @@ function RoleForm({
       }}
     >
       <Input
-        label="Crear un nuevo rol laboral"
+        label={text("Crear rol")}
         name="name"
         placeholder="Nombre definido por tu organización"
         required
@@ -2811,7 +2852,7 @@ function RoleForm({
         </p>
       )}
       <Button secondary disabled={busy}>
-        Crear rol
+        {text("Crear rol")}
       </Button>
     </form>
   );
@@ -3516,13 +3557,13 @@ type ServiceActivity = {
   createdAt: string;
 };
 const activityLabel = (kind: string) => {
-  if (kind === "ServiceCANCELLED") return "Servicio cancelado";
-  if (kind === "ServiceOPEN") return "Servicio publicado";
-  if (kind === "AssignmentSelected") return "Selección para el servicio";
+  if (kind === "ServiceCANCELLED") return "Cancelación de servicio";
+  if (kind === "ServiceOPEN") return "Publicación de servicio";
+  if (kind === "AssignmentSelected") return "Selección de participantes";
   if (kind === "AssignmentCONFIRMED") return "Participación confirmada";
   if (kind === "AssignmentDECLINED") return "Participación declinada";
   if (kind === "AssignmentCANCELLED") return "Participación cancelada";
-  return "Actualización del servicio";
+  return "Cambios en la agenda";
 };
 function Notices({
   base,
@@ -3535,6 +3576,7 @@ function Notices({
   user: PublicUser;
   openService: (id: string) => void;
 }) {
+  const text = useOrganizationText();
   const [notices, setNotices] = useState<Page<Notice> | null>(null),
     [activity, setActivity] = useState<Page<ServiceActivity> | null>(null),
     [compose, setCompose] = useState(false),
@@ -3607,8 +3649,10 @@ function Notices({
         >
           <div className="section-heading">
             <div>
-              <h2 id="service-activity-heading">Actividad de servicios</h2>
-              <p>Selecciones y cambios de los servicios que te afectan.</p>
+              <h2 id="service-activity-heading">
+                {text("Novedades de servicios")}
+              </h2>
+              <p>{text("Selecciones y cambios que te afectan.")}</p>
             </div>
           </div>
           {!activity ? (
@@ -3626,7 +3670,7 @@ function Notices({
                   >
                     <span className="service-activity-copy">
                       <span className="service-activity-type">
-                        {activityLabel(item.kind)}
+                        {text(activityLabel(item.kind))}
                       </span>
                       <strong>{item.title}</strong>
                       <span className="service-activity-meta">
