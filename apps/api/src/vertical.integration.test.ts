@@ -2,6 +2,7 @@ import { beforeAll, afterAll, describe, it, expect, vi } from "vitest";
 import * as auditEvents from "./events";
 import type { AuditAction } from "./events";
 import { randomUUID } from "node:crypto";
+import { z } from "zod";
 import { unlink } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { NestFastifyApplication } from "@nestjs/platform-fastify";
@@ -599,27 +600,252 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
       }),
     ).toMatchObject({ permissionRole: "OWNER" });
   });
-  it("isolates every organization read route from non-members", async () => {
+  it("rejects every tenant operation without an active membership", async () => {
     const resourceId = randomUUID();
-    const routes = [
+    const reads = [
+      "logo",
+      `users/{id}/avatar`,
       "members",
       "dashboard",
+      "calendar",
       "services",
-      `services/${resourceId}`,
+      "services/{id}",
       "roles",
+      "roles/catalog",
       "groups",
-      `groups/${resourceId}/candidates`,
+      "groups/{id}/candidates",
       "notices",
+      "notices/candidates",
       "notifications",
+      "service-activity",
       "settings",
+      "chats",
+      "chats/unread-count",
+      "chats/candidates",
+      "chats/{id}",
+      "chats/{id}/messages",
     ];
-    for (const route of routes) {
-      const path = `organizations/${foreignOrg}/${route}`;
-      expect((await request("GET", path, owner.access)).statusCode, path).toBe(
-        403,
-      );
-      expect((await request("GET", path)).statusCode, path).toBe(401);
+    const serviceInput = {
+      title: "Denied service",
+      startsAt: "2027-10-01T12:00:00Z",
+      endsAt: "2027-10-01T16:00:00Z",
+    };
+    const terminology = {
+      service: { singular: "Servicio", plural: "Servicios" },
+      jobRole: { singular: "Rol", plural: "Roles" },
+    };
+    const operations: {
+      method: "GET" | "POST" | "PATCH" | "DELETE";
+      route: string;
+      body?: Record<string, unknown> | Buffer;
+      contentType?: string;
+    }[] = [
+      ...reads.map((route) => ({ method: "GET" as const, route })),
+      {
+        method: "PATCH",
+        route: "",
+        body: {
+          name: "Denied organization",
+          timezone: "Europe/Madrid",
+          expected: { name: "Foreign team", timezone: "Europe/Madrid" },
+        },
+      },
+      {
+        method: "POST",
+        route: "logo",
+        contentType: "image/jpeg",
+        body: await sharp({
+          create: {
+            width: 512,
+            height: 512,
+            channels: 3,
+            background: "#182659",
+          },
+        })
+          .jpeg()
+          .toBuffer(),
+      },
+      { method: "DELETE", route: "logo" },
+      { method: "POST", route: "invitations", body: { maxUses: 1 } },
+      { method: "POST", route: "invitations/{id}/revoke" },
+      {
+        method: "PATCH",
+        route: "members/{id}",
+        body: {
+          permissionRole: "MEMBER",
+          status: "SUSPENDED",
+          expectedPermissionRole: "MEMBER",
+          expectedStatus: "ACTIVE",
+        },
+      },
+      { method: "POST", route: "roles", body: { name: "Denied role" } },
+      {
+        method: "PATCH",
+        route: "roles/{id}",
+        body: { name: "Denied rename" },
+      },
+      { method: "POST", route: "groups", body: { name: "Denied group" } },
+      {
+        method: "PATCH",
+        route: "groups/{id}",
+        body: { name: "Denied rename" },
+      },
+      {
+        method: "POST",
+        route: "groups/{id}/members",
+        body: { membershipId: resourceId, add: true },
+      },
+      {
+        method: "POST",
+        route: "notices",
+        body: { title: "Denied notice", body: "Private content" },
+      },
+      { method: "POST", route: "notices/{id}/acknowledge" },
+      {
+        method: "PATCH",
+        route: "settings/features",
+        body: { groups: false, chat: false },
+      },
+      {
+        method: "PATCH",
+        route: "settings/customization",
+        body: {
+          terminology,
+          accent: "INDIGO",
+          expected: { terminology, accent: "VIOLET" },
+        },
+      },
+      { method: "POST", route: "services", body: serviceInput },
+      { method: "PATCH", route: "services/{id}", body: serviceInput },
+      {
+        method: "POST",
+        route: "services/{id}/positions",
+        body: { jobRoleId: resourceId, quantity: 1 },
+      },
+      {
+        method: "POST",
+        route: "services/{id}/status",
+        body: { status: "CANCELLED" },
+      },
+      {
+        method: "POST",
+        route: "positions/{id}/interest",
+        body: { interested: true },
+      },
+      {
+        method: "POST",
+        route: "positions/{id}/assignments",
+        body: { userId: owner.id },
+      },
+      {
+        method: "POST",
+        route: "assignments/{id}/respond",
+        body: { response: "CONFIRMED" },
+      },
+      {
+        method: "POST",
+        route: "chats",
+        body: {
+          kind: "MANUAL",
+          title: "Denied chat",
+          participantIds: [other.id],
+        },
+      },
+      { method: "POST", route: "chats/{id}/read" },
+      { method: "DELETE", route: "chats/{id}" },
+      {
+        method: "POST",
+        route: "chats/{id}/messages",
+        body: { body: "Denied message", clientNonce: randomUUID() },
+      },
+    ];
+    const document = await app.inject({ method: "GET", url: "/docs-json" });
+    expect(document.statusCode).toBe(200);
+    const { paths } = z
+      .object({
+        paths: z.record(z.string(), z.record(z.string(), z.unknown())),
+      })
+      .parse(document.json());
+    const prefix = "/api/v1/organizations/{org}";
+    const published = Object.entries(paths).flatMap(([path, methods]) =>
+      path === prefix || path.startsWith(`${prefix}/`)
+        ? Object.keys(methods)
+            .filter((method) =>
+              [
+                "get",
+                "post",
+                "put",
+                "patch",
+                "delete",
+                "head",
+                "options",
+              ].includes(method),
+            )
+            .map((method) => `${method.toUpperCase()} ${path}`)
+        : [],
+    );
+    const covered = operations.map(
+      ({ method, route }) => `${method} ${prefix}${route ? `/${route}` : ""}`,
+    );
+    expect(covered.sort()).toEqual(published.sort());
+    const inactive = await db.membership.create({
+      data: {
+        organizationId: foreignOrg,
+        userId: worker.id,
+        permissionRole: "ADMIN",
+        status: "SUSPENDED",
+      },
+    });
+    const before = await db.organization.findUniqueOrThrow({
+      where: { id: foreignOrg },
+      include: { settings: true, _count: true },
+    });
+    const auditsBefore = await db.auditEvent.count({
+      where: { organizationId: foreignOrg },
+    });
+    for (const status of ["SUSPENDED", "LEFT"] as const) {
+      await db.membership.update({
+        where: { id: inactive.id },
+        data: { status },
+      });
+      const actors =
+        status === "SUSPENDED"
+          ? [
+              { label: "anonymous", token: undefined, expected: 401 },
+              { label: "non-member", token: owner.access, expected: 403 },
+              { label: status, token: worker.access, expected: 403 },
+            ]
+          : [{ label: status, token: worker.access, expected: 403 }];
+      for (const actor of actors) {
+        for (const operation of operations) {
+          const path = `organizations/${foreignOrg}${operation.route ? `/${operation.route.replaceAll("{id}", resourceId)}` : ""}`;
+          const headers: Record<string, string> = {};
+          if (actor.token) headers.authorization = `Bearer ${actor.token}`;
+          if (operation.contentType)
+            headers["content-type"] = operation.contentType;
+          const result = await app.inject({
+            method: operation.method,
+            url: `/api/v1/${path}`,
+            headers,
+            payload: operation.body,
+          });
+          expect(
+            result.statusCode,
+            `${actor.label}: ${operation.method} ${path}`,
+          ).toBe(actor.expected);
+        }
+      }
     }
+    expect(
+      await db.organization.findUniqueOrThrow({
+        where: { id: foreignOrg },
+        include: { settings: true, _count: true },
+      }),
+    ).toEqual(before);
+    expect(
+      await db.auditEvent.count({ where: { organizationId: foreignOrg } }),
+    ).toBe(auditsBefore);
+    await db.membership.delete({ where: { id: inactive.id } });
   });
   it("does not resolve or mutate real resource IDs from another organization", async () => {
     const base = `organizations/${foreignOrg}`;

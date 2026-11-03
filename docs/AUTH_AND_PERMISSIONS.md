@@ -25,7 +25,7 @@ La fuente de verdad es packages/shared/src/index.ts (permits) y organizations/po
 | COORDINATOR     | ✓    | ✓       | —    | —        |
 | MEMBER          | ✓    | —       | —    | —        |
 
-La prueba unitaria recorre las 16 combinaciones role/permission y compara cada una con esta matriz.
+La matriz define las 16 combinaciones role/permission. La prueba unitaria que las recorría se retiró al reducir la suite; la evidencia histórica está en TESTING. El caso esencial actual contrasta las 47 operaciones tenant con OpenAPI y comprueba rechazo sin sesión o Membership activa, también para ADMIN suspendido/dado de baja. Los casos de personalización y logo conservan verificaciones de permisos activos en sus operaciones.
 
 Los acuses de lectura de Avisos se limitan a la Membership activa en la organización solicitada. OWNER, ADMIN y COORDINATOR reciben los nombres de quienes confirmaron dentro de ese tenant; MEMBER recibe exclusivamente su propio acuse, sin nombres ajenos. No se devuelven correos en el listado de acuses.
 

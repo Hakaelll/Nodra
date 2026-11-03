@@ -37,7 +37,7 @@ Mailpit/SMTP local, ConsolePushProvider sin contenido sensible en logs, filesyst
 
 ## Evidencia de pruebas
 
-Suite vigente reducida por petición del propietario: trece integraciones PostgreSQL, cuatro pruebas web (origen, snapshots, transporte por sesión/organización y coordinación entre pestañas) y tres pruebas Flutter de sesión. Las integraciones recientes cubren permisos/rollback de personalización y logo privado, además de sus cambios concurrentes; veinte casos en total. Las dos regresiones recientes de Flutter cubren carreras reales de cambio de cuenta y organización. Los conteos superiores de las revisiones anteriores son históricos. El workflow GitHub Actions fue retirado. Consultar TESTING para cobertura conservada y retirada.
+Suite vigente reducida por petición del propietario: trece integraciones PostgreSQL, cuatro pruebas web (origen, snapshots, transporte por sesión/organización y coordinación entre pestañas) y tres pruebas Flutter de sesión. Las integraciones recientes cubren permisos/rollback de personalización y logo privado, además de sus cambios concurrentes; veinte casos en total. El caso esencial de acceso contrasta con OpenAPI las 47 operaciones tenant y prueba 188 rechazos sin sesión o Membership activa, sin cambios en datos/auditoría. Las dos regresiones recientes de Flutter cubren carreras reales de cambio de cuenta y organización. Los conteos superiores de las revisiones anteriores son históricos. El workflow GitHub Actions fue retirado. Consultar TESTING para cobertura conservada y retirada.
 
 Resultados obtenidos en revisiones recientes, no una nueva ejecución de todas las suites:
 
