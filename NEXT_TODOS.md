@@ -4,7 +4,7 @@ Actualizado: 03/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
 
 ## Prioridad de continuidad
 
-1. NOD-020: primer pase individual §0–290 completo; corregir discrepancias y verificar requisitos faltantes sin dar por completado el prompt por pruebas parciales.
+1. NOD-025/020: consolidar los componentes web pendientes de §182 usando el diseño y comportamiento actuales. La revisión consolidada de gates pasa; [evidencia y límites](docs/validation/2026-11-03-bootstrap-gates.md). Primer pase individual §0–290 completo, sin confundir inventario con implementación.
    §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. Continuar revisión residual de permisos/logs y validación final, manteniendo pruebas físicas/aceptación visual pendientes.
 2. NOD-019/008: inventario de las 47 operaciones tenant contrastado con OpenAPI; 188 rechazos sin sesión o Membership activa verificados. Revisar combinaciones de roles activos, carreras de revocación y logs. Las acciones requeridas, cancelaciones por lote y JobRole tienen evidencia; E2E de clientes y aceptación siguen pendientes.
 3. NOD-014/015/017/022: completar pruebas de clientes y cambios de contexto; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
@@ -495,6 +495,18 @@ Criterios de aceptación: acceso Perfil desde onboarding; datos de cuenta reales
 Archivos relacionados: apps/web/components/workspace.tsx, apps/web/components/profile.tsx, docs/WEB_APP.md, docs/DESIGN_SYSTEM.md.
 Tests requeridos: contratos de perfil y typecheck/lint/build web; regresión de cliente sin Membership, sin solicitudes organization/undefined. No Computer Use; valoración visual del propietario.
 Notas técnicas: reutilizar edición/recorte actuales; props de contexto deben ser opcionales sin inventar una organización. Auth/me ya funciona sin Membership. No crear un perfil paralelo que diverja del existente.
+
+## NOD-025 — Componentes internos web de §182
+
+Descripción: consolidar controles y composición que todavía se repiten en pantallas, sin rediseño ni otra biblioteca.
+Prioridad: P1
+Estado: TODO
+Dependencias: NOD-014, NOD-021.
+Objetivo: contratos reutilizables para Textarea, Select, Checkbox, Dropdown, DataTable, SectionHeader y OrganizationSwitcher; migrar los consumidores existentes.
+Criterios de aceptación: componentes usados en pantallas reales, sin wrappers sin uso; conservar IDs/names/labels, validación, refs, teclado/foco, estados de carga y contexto tenant; reutilizar tokens/clases y los diálogos/estados/feedback actuales. No reintroducir burbujas, sidebar de ajustes ni textos rechazados. Sin dependencias ni presets nuevos.
+Archivos relacionados: apps/web/components/ui.tsx, apps/web/components/workspace.tsx, apps/web/components/chat-screen.tsx, apps/web/components/notice-composer.tsx, docs/DESIGN_SYSTEM.md.
+Tests requeridos: lint, tipos y build web; mantener las cuatro pruebas web esenciales. Revisar consumidores/markup con comprobación proporcionada; no Computer Use ni subagentes.
+Notas técnicas: revisar el mapa completo de consumidores y docs/design.md antes de editar. La lista funcional del prompt no obliga a duplicar componentes existentes de diálogo/estado/feedback ni a crear una UI library gigante. Aceptación visual del propietario.
 
 30/09 — NOD-020/§226–255: treinta secciones contrastadas; NOTIFICATIONS diseña NotificationPreference por Membership/canal/categoría con FKs, defaults y entrega SKIPPED futura sin tablas ficticias. NOD-024 TODO concreta acceso al perfil web sin Membership, actualmente ausente. JobRole tiene active pero no archivo API/UI. Formato/IDs/enlaces comprobados; sin runtime nuevo, Computer Use ni subagentes. Continuar §256–290 y resolver pendientes, objetivo activo.
 

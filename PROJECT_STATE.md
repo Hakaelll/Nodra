@@ -2,7 +2,7 @@
 
 Última actualización: 03/11/2026. Objetivo bootstrap **activo**; primera vertical funcional, sin certificación de entrega completa ni despliegue productivo.
 
-Revisión documental §146/149: resumen vigente separado del historial íntegro; conservados los IDs y estados, incluido DONE. Comprobados formato, enlaces locales editados y presencia de los 17 documentos obligatorios. README corrige el puerto del fixture anterior; ADRs actualizan storage y precedencia visual. No cambia runtime ni se repiten suites de aplicación por estos cambios. Auditoría §136–168 registrada; NOD-023 bloquea exclusivamente futuras integraciones externas. §136 reforzado: cuatro regresiones con secretos/stack canario; mensajes 5xx internos sanitizados; Calendario corregido: incluye cancelados como historial, sin incluirlos en próximos. Pasan 56 integraciones verticales, 35 unitarios, lint, typecheck y build API tras el cambio.
+Nota histórica del 30/09, revisión documental §146/149: resumen vigente separado del historial íntegro; conservados los IDs y estados, incluido DONE. Comprobados formato, enlaces locales editados y presencia de los 17 documentos obligatorios. README corrige el puerto del fixture anterior; ADRs actualizan storage y precedencia visual. No cambia runtime ni se repiten suites de aplicación por estos cambios. Auditoría §136–168 registrada; NOD-023 bloquea exclusivamente futuras integraciones externas. §136 reforzado: cuatro regresiones con secretos/stack canario; mensajes 5xx internos sanitizados; Calendario corregido: incluye cancelados como historial, sin incluirlos en próximos. Pasan 56 integraciones verticales, 35 unitarios, lint, typecheck y build API tras el cambio.
 
 ## Qué funciona
 
@@ -39,7 +39,9 @@ Mailpit/SMTP local, ConsolePushProvider sin contenido sensible en logs, filesyst
 
 Suite vigente reducida por petición del propietario: trece integraciones PostgreSQL, cuatro pruebas web (origen, snapshots, transporte por sesión/organización y coordinación entre pestañas) y tres pruebas Flutter de sesión. Las integraciones recientes cubren permisos/rollback de personalización y logo privado, además de sus cambios concurrentes; veinte casos en total. El caso esencial de acceso contrasta con OpenAPI las 47 operaciones tenant y prueba 188 rechazos sin sesión o Membership activa, sin cambios en datos/auditoría. Las dos regresiones recientes de Flutter cubren carreras reales de cambio de cuenta y organización. Los conteos superiores de las revisiones anteriores son históricos. El workflow GitHub Actions fue retirado. Consultar TESTING para cobertura conservada y retirada.
 
-Resultados obtenidos en revisiones recientes, no una nueva ejecución de todas las suites:
+Revisión consolidada del 03/11: lint, tipos y builds del monorepo, cuatro tests web, trece integraciones y analyze/tres tests Flutter aprobados. Bootstrap de catorce migraciones/seed doble, recorrido HTTP/BFF, contrato API e infraestructura verificados. Evidencia y límites en [bootstrap-gates](docs/validation/2026-11-03-bootstrap-gates.md). La revisión detecta §182 pendiente: consolidación de controles/componentes web, registrada en NOD-025; el objetivo sigue activo.
+
+Resultados históricos adicionales, sin repetir esas suites retiradas:
 
 - 121 pruebas unitarias JS, lint global, typecheck y build web aprobados en la última revisión del alta de posiciones/roles (02/10). La ampliación anterior del catálogo y filtros aprobó 62 integraciones verticales PostgreSQL y recorrido HTTP/BFF. La ejecución anterior de transportes completos aprobó 65 integraciones con PostgreSQL/Valkey/Mailpit y omitió dos opt-in; builds API/worker/contratos aprobados en los cambios correspondientes.
 - Flutter analyze --no-pub y 53 pruebas completas, incluidas sesión, catálogo de 105 roles, filtros/cambio de tenant y zona IANA/DST.
