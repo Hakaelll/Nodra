@@ -5,7 +5,7 @@ Actualizado: 03/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
 ## Prioridad de continuidad
 
 1. NOD-020: primer pase individual §0–290 completo; corregir discrepancias y verificar requisitos faltantes sin dar por completado el prompt por pruebas parciales.
-   Siguiente entrega concreta: consumir terminología/acento en Flutter (§61), sobre backend y editor/contexto web verificados el 03/11. Mantener identidad, estados y navegación aprobados.
+   §61 ya tiene backend, editor/contexto web y consumo en Flutter. Retomar los pendientes verificables de auditoría semántica §63 y validación final, manteniendo las pruebas físicas/aceptación visual explícitamente pendientes.
 2. NOD-019/008: ampliar cobertura de acciones AuditEvent y permisos (§63); cancelaciones por lote y gestión JobRole API/web/Flutter implementadas. E2E web y aceptación siguen pendientes.
 3. NOD-014/015/017/022: completar pruebas de clientes y cambios de contexto; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
 4. NOD-013/016/020: adquisición push, build iOS y prueba física siguen sin demostrar. Android debug recompilado y firma verificada el 02/11 con la corrección de sesión; SDK/JDK locales instalados. iOS requiere host compatible. No contratar servicios.
@@ -135,6 +135,8 @@ Notas técnicas: Creación/listado y edición de rol/estado con control optimist
 03/11 — §61: backend de personalización con migración 14, labels singulares/plurales, enum de acento limitado, snapshot esperado y auditoría atómica. OWNER/ADMIN; miembros sólo reciben configuración efectiva en sus Membership. Rechazos de rol/tenant/HTML/hex libre, rollback, no-op, dos escritores y valores heredados probados en una nueva integración esencial. Trece integraciones y cuatro unitarios web pasan; veinte casos conservados. Builds/tipos/lint, 69 contratos, bootstrap/HTTP/restore aprobados; principal migrado sin perder serviceLabel/features. Faltan editor y aplicación de tokens/textos en web/Flutter, no se declara §61 completo. Plan en docs/superpowers/plans/2026-11-03-organization-customization.md.
 
 03/11 — §61 web: editor OWNER/ADMIN en Perfil → Configuración y provider por cuenta/organización. Copy de interfaz adaptado sin tocar contenido de personas, rutas o roles de permiso; radios nativos, errores y relectura tras conflicto, tokens limitados y restauración al desmontar. Lint/tipos, cuatro unitarios, build y HTTP/BFF aprobados; HTML estático/contraste comprobados, sin DOM ni aceptación visual. Suite de veinte casos conservada. Falta Flutter; continuar el plan existente sin crear otra dirección visual ni dar por terminado §61.
+
+03/11 — §61 Flutter: modelo y contexto nativos consumen la configuración de su Membership; ThemeData limita acento/tinte y el helper sólo adapta copy. Se conservan rutas, estados, contenido de personas y roles de permiso. Analyze y las tres pruebas existentes pasan con nuevas aserciones de configuración/cambio de cuenta/org/logout, sin aumentar casos. APK debug actualizado y firma v2 verificada. Implementación disponible en ambos clientes; faltan hardware, build iOS y aceptación visual, sin declarar el objetivo completo. No Computer Use/subagentes ni dependencias nuevas.
 
 ## NOD-007 — Invitations
 

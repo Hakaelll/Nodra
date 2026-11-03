@@ -27,7 +27,7 @@ Publish each verified delivery with a short English commit, as authorized.
 - [x] Reuse the web profile settings flow for an OWNER/ADMIN editor with existing controls, visible errors, preserved values and conflict recovery. Keep Configuration out of the sidebar.
 - [x] Apply terminology and bounded accent tokens through web organization context. Preserve route IDs, states, permission roles and user content. Restore owned CSS tokens when leaving the account/organization context.
 - [x] Retain the default VIOLET accent and provide three controlled indigo-family options. Measure text contrast and allow long labels without widening the mobile navigation. No free hex input.
-- [ ] Consume terminology and accent in Flutter session/theme/screens, preserving context isolation, neutral route IDs and semantic colors. The web remains the administrative editor.
+- [x] Consume terminology and accent in Flutter session/theme/screens, preserving context isolation, neutral route IDs and semantic colors. The web remains the administrative editor.
 - [x] Document and run the applicable web checks; static React markup and token checks are evidence only for their own scope.
 
-Flutter delivery and owner visual acceptance remain pending. Do not claim browser interaction, effects cleanup or physical-device verification from lint, static rendering or builds. Section 61 remains open.
+Implementation is delivered in both clients. Flutter analyze, the three existing session tests and Android debug build/signature verification pass. Owner visual acceptance, physical-device execution and the iOS build remain unverified. Do not claim those checks from lint, static rendering or compilation; the overall bootstrap goal remains open.

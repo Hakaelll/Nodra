@@ -1,3 +1,5 @@
+import '../design/organization_presentation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -196,7 +198,7 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
           },
         ),
         section(
-          'Próximos servicios',
+          organizationText(context, "Agenda de servicios"),
           ref.watch(dashboardProvider(upcoming)),
           () => ref.invalidate(dashboardProvider(upcoming)),
           (data) {
@@ -204,9 +206,11 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
             return Column(
               children: [
                 if (items.isEmpty)
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('No hay servicios próximos.'),
+                    child: Text(
+                      organizationText(context, "Sin servicios en la agenda."),
+                    ),
                   ),
                 ...items.map((item) => serviceRow(item, attention: false)),
                 pages(

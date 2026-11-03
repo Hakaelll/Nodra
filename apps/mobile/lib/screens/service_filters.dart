@@ -1,3 +1,5 @@
+import '../design/organization_presentation.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -41,7 +43,7 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
     search.text = widget.initial.search;
     status = widget.initial.status;
     roleId = widget.initial.jobRoleId;
-    roleName = roleId.isEmpty ? '' : 'Rol seleccionado';
+    roleName = roleId.isEmpty ? '' : "Selección actual";
     from = widget.initial.from;
     to = widget.initial.to;
   }
@@ -104,15 +106,15 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
   Widget build(BuildContext context) {
     final query = (org: widget.org, page: rolePage, search: catalogSearch);
     return ExpansionTile(
-      title: const Text('Filtrar servicios'),
+      title: Text(organizationText(context, "Filtrar servicios")),
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 16),
       children: [
         TextField(
           controller: search,
           maxLength: 120,
-          decoration: const InputDecoration(
-            labelText: 'Buscar servicios',
+          decoration: InputDecoration(
+            labelText: organizationText(context, "Buscar servicios"),
             counterText: '',
           ),
           onSubmitted: (_) => apply(),
@@ -151,7 +153,9 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
                   NodraInlineError(message: failure.toString()),
                   TextButton(
                     onPressed: () => ref.invalidate(rolesProvider(query)),
-                    child: const Text('Reintentar roles'),
+                    child: Text(
+                      organizationText(context, "Volver a cargar roles"),
+                    ),
                   ),
                 ],
               ),
@@ -164,13 +168,15 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
                       key: ValueKey('role-$roleId-$rolePage-$catalogSearch'),
                       initialValue: roleId,
                       isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Rol laboral',
+                      decoration: InputDecoration(
+                        labelText: organizationText(context, "Rol"),
                       ),
                       items: [
-                        const DropdownMenuItem(
+                        DropdownMenuItem(
                           value: '',
-                          child: Text('Todos los roles'),
+                          child: Text(
+                            organizationText(context, "Sin filtro de rol"),
+                          ),
                         ),
                         if (roleId.isNotEmpty &&
                             !roles.any((role) => role['id'] == roleId))
@@ -208,14 +214,14 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
                             onPressed: rolePage == 1
                                 ? null
                                 : () => setState(() => rolePage--),
-                            child: const Text('Anterior rol'),
+                            child: const Text("Página anterior"),
                           ),
                           Text('Página $rolePage'),
                           TextButton(
                             onPressed: rolePage * 10 >= total
                                 ? null
                                 : () => setState(() => rolePage++),
-                            child: const Text('Siguiente rol'),
+                            child: const Text("Página siguiente"),
                           ),
                         ],
                       ),
@@ -227,8 +233,8 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
         TextField(
           controller: roleSearch,
           maxLength: 120,
-          decoration: const InputDecoration(
-            labelText: 'Buscar roles',
+          decoration: InputDecoration(
+            labelText: organizationText(context, "Buscar roles"),
             counterText: '',
           ),
           onChanged: (value) {
@@ -249,7 +255,7 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
               roleId = '';
               roleName = '';
             }),
-            child: const Text('Quitar rol'),
+            child: Text(organizationText(context, "Quitar rol")),
           ),
         const SizedBox(height: 12),
         ZonedDatePicker(

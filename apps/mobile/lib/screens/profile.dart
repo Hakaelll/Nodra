@@ -1,3 +1,5 @@
+import '../design/organization_presentation.dart';
+
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -312,7 +314,7 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
                 CircleAvatar(
                   radius: 43,
                   backgroundColor: const Color(0xffe8e9ff),
-                  foregroundColor: accentColor,
+                  foregroundColor: Theme.of(context).colorScheme.primary,
                   backgroundImage: avatar == null ? null : MemoryImage(avatar!),
                   child: avatar == null
                       ? Text(initials, style: const TextStyle(fontSize: 25))
@@ -486,7 +488,7 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
         if (widget.session.organizationId != null &&
             ['OWNER', 'ADMIN', 'COORDINATOR'].contains(role))
           ListTile(
-            title: const Text('Roles laborales'),
+            title: Text(organizationText(context, "Roles")),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(

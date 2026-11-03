@@ -32,9 +32,13 @@ La interfaz usa español como único idioma soportado por ahora. `lib/l10n/app_e
 
 ## Estado de validación
 
+03/11: Flutter aplica terminología/acento de la Membership activa y recupera defaults al salir o ante datos incompatibles. La edición administrativa está en la web. Analyze --no-pub y las tres pruebas esenciales pasan, con aserciones de configuración tras cambios de cuenta/organización. APK debug actualizado para la API LAN, firma v2 verificada; no ejecución física ni build iOS. Evidencia y hash en TESTING. No CI/CD de GitHub configurado.
+
+## Historial de validación
+
 El 02/10/2026 se compiló el primer APK **debug** en Windows con Flutter local, JDK 21 y Android SDK/NDK. `apksigner verify --verbose` comprobó su firma v2 y `aapt2 dump badging` confirmó paquete `dev.nodra.nodra`, Android mínimo 24, target 36 y arquitecturas arm64-v8a, armeabi-v7a y x86_64. El archivo queda en `build/app/outputs/flutter-apk/app-debug.apk` (ignorado por Git), configurado para `http://192.168.1.133:4000/api/v1`; no se ha instalado ni recorrido en un teléfono. Para reproducirlo, usar los scripts PowerShell de [DEVELOPMENT.md](../../docs/DEVELOPMENT.md).
 
-`flutter analyze` y 43 tests Flutter pasaron en la revisión anterior; no se repitieron por preparar el entorno de build. No se ha hecho un build iOS, que requiere macOS/Xcode, ni una distribución Android release. La CI ejecuta análisis y tests Flutter, pero no builds nativos. Las comprobaciones pendientes y sus límites están en [TESTING.md](../../docs/TESTING.md); el comportamiento móvil se documenta en [MOBILE_APP.md](../../docs/MOBILE_APP.md).
+`flutter analyze` y 43 tests Flutter pasaron en la revisión anterior; no se repitieron por preparar el entorno de build. No se ha hecho un build iOS, que requiere macOS/Xcode, ni una distribución Android release. El workflow de GitHub que ejecutaba análisis/tests fue retirado el 31/10 por instrucción del propietario; se conservan verificaciones locales. Las comprobaciones pendientes y sus límites están en [TESTING.md](../../docs/TESTING.md); el comportamiento móvil se documenta en [MOBILE_APP.md](../../docs/MOBILE_APP.md).
 Chat: acceso desde cabecera con contador de conversaciones sin leer, creación individual/grupo o desde servicio confirmado, historial cronológico y reintentos idempotentes. Sin push ni adjuntos; la prueba en dispositivo queda pendiente.
 
 El 02/11 se recompiló y verificó la firma del APK debug con la corrección de sesiones concurrentes. `flutter analyze --no-pub` y las tres pruebas esenciales Flutter pasaron. Se descartan respuestas antiguas al cambiar de cuenta y se ordena la persistencia de la organización seleccionada. Detalles y límites de cierre local/remoto en [MOBILE_APP](../../docs/MOBILE_APP.md). No se ha probado este APK en hardware ni se ha compilado iOS.

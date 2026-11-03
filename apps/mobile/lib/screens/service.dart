@@ -1,3 +1,5 @@
+import '../design/organization_presentation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -84,7 +86,9 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalle del servicio')),
+      appBar: AppBar(
+        title: Text(organizationText(context, "Detalle de servicio")),
+      ),
       body: ref
           .watch(serviceProvider(widget.id))
           .when(
@@ -120,7 +124,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                 if (service['status'] == 'CANCELLED') ...[
                   const SizedBox(height: 12),
                   const Text(
-                    'Este servicio se ha cancelado. Se conserva aquí para consultar su historial.',
+                    "Registro cancelado. El historial se conserva para consulta.",
                     style: TextStyle(color: mutedColor),
                   ),
                 ],
@@ -145,7 +149,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                   OutlinedButton.icon(
                     onPressed: busy ? null : openChat,
                     icon: const Icon(Icons.chat_bubble_outline),
-                    label: const Text('Abrir chat del servicio'),
+                    label: const Text("Abrir chat"),
                   ),
                   const SizedBox(height: 20),
                 ],

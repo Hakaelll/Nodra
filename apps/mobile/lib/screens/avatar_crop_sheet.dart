@@ -189,7 +189,10 @@ class _AvatarCropSheetState extends State<AvatarCropSheet> {
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: accentColor, width: 2),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
                         ),
                       ),
                     ),

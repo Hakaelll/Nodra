@@ -345,9 +345,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                               leading: CircleAvatar(
                                 backgroundColor: const Color(0xffebe9ff),
                                 child: chat['kind'] == 'SERVICE'
-                                    ? const Icon(
+                                    ? Icon(
                                         Icons.group_outlined,
-                                        color: accentColor,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       )
                                     : Text(_initials(name)),
                               ),
@@ -367,7 +369,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                                       label: Text(
                                         unread > 99 ? '99+' : '$unread',
                                       ),
-                                      backgroundColor: accentColor,
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
                                     ),
                               onTap: () => open(chat['id'] as String),
                             );
@@ -431,9 +435,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                                 children: [
                                   Text(
                                     name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 11,
-                                      color: accentColor,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api.dart';
+import 'organization_customization.dart';
 
 class SessionState {
   const SessionState({
@@ -14,6 +15,9 @@ class SessionState {
   bool get chatEnabled =>
       (organization?['features'] as Json?)?['chat'] != false;
   bool get signedIn => user != null;
+  OrganizationCustomization get customization => signedIn
+      ? OrganizationCustomization.fromJson(organization?['customization'])
+      : OrganizationCustomization.defaults;
   Json? get organization {
     for (final m in memberships) {
       if ((m['organization'] as Json)['id'] == organizationId) {

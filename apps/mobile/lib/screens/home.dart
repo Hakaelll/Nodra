@@ -1,3 +1,5 @@
+import '../design/organization_presentation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,13 +58,13 @@ String? serviceParticipation(Json service, String userId) {
 }
 
 String serviceActivityLabel(String kind) => switch (kind) {
-  'ServiceCANCELLED' => 'Servicio cancelado',
-  'ServiceOPEN' => 'Servicio publicado',
-  'AssignmentSelected' => 'Selección para el servicio',
+  'ServiceCANCELLED' => 'Cancelación de servicio',
+  'ServiceOPEN' => 'Publicación de servicio',
+  'AssignmentSelected' => 'Selección de participantes',
   'AssignmentCONFIRMED' => 'Participación confirmada',
   'AssignmentDECLINED' => 'Participación declinada',
   'AssignmentCANCELLED' => 'Participación cancelada',
-  _ => 'Actualización del servicio',
+  _ => 'Cambios en la agenda',
 };
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -186,7 +188,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           NavigationDestination(
             icon: const Icon(Icons.work_outline),
-            label: strings.navServices,
+            label: organizationText(context, strings.navServices),
           ),
           NavigationDestination(
             icon: const Icon(Icons.notifications_none_rounded),
@@ -281,12 +283,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Actividad de servicios',
+                organizationText(context, "Novedades de servicios"),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 4),
               Text(
-                'Selecciones y cambios de los servicios que te afectan.',
+                "Selecciones y cambios que te afectan.",
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 18),
@@ -306,10 +308,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           if (items.isEmpty)
-                            const Padding(
+                            Padding(
                               padding: EdgeInsets.symmetric(vertical: 20),
                               child: Text(
-                                'Los cambios de tus servicios aparecerán aquí.',
+                                organizationText(
+                                  context,
+                                  "Aquí aparecerán cambios de servicios.",
+                                ),
                               ),
                             ),
                           ...items.map((item) {
@@ -346,8 +351,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            serviceActivityLabel(
-                                              item['kind'] as String,
+                                            organizationText(
+                                              context,
+                                              serviceActivityLabel(
+                                                item['kind'] as String,
+                                              ),
                                             ),
                                             style: Theme.of(context)
                                                 .textTheme
@@ -567,14 +575,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Text(
                 tab == 0
                     ? 'Hola, ${session.user!['firstName']}.'
-                    : 'Tus servicios.',
+                    : organizationText(context, "Servicios."),
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               const SizedBox(height: 12),
               Text(
                 tab == 0
                     ? 'Tu próximo paso, sin perderte nada.'
-                    : 'Consulta los servicios de tu organización.',
+                    : organizationText(
+                        context,
+                        "Consulta servicios de tu organización.",
+                      ),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 28),
@@ -633,8 +644,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       serviceRole.isNotEmpty ||
                                       serviceFrom.isNotEmpty ||
                                       serviceTo.isNotEmpty
-                                  ? 'No hay servicios que coincidan.'
-                                  : 'Sin servicios por ahora.',
+                                  ? organizationText(
+                                      context,
+                                      "No hay servicios que coincidan.",
+                                    )
+                                  : organizationText(
+                                      context,
+                                      "Sin servicios por ahora.",
+                                    ),
                               message:
                                   serviceSearch.isNotEmpty ||
                                       serviceStatus.isNotEmpty ||
@@ -642,7 +659,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       serviceFrom.isNotEmpty ||
                                       serviceTo.isNotEmpty
                                   ? 'Prueba con otros filtros.'
-                                  : 'Cuando tu organización publique un servicio, podrás consultar sus detalles y apuntarte.',
+                                  : organizationText(
+                                      context,
+                                      "Consulta fechas y participa cuando haya servicios disponibles.",
+                                    ),
                             ),
                           ...visible.map(
                             (s) => Padding(

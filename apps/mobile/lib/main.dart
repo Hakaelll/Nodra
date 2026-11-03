@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'core/session.dart';
 import 'l10n/app_localizations.dart';
 import 'design/theme.dart';
+import 'core/organization_customization.dart';
+import 'design/organization_presentation.dart';
 import 'design/widgets.dart';
 import 'screens/auth.dart';
 import 'screens/home.dart';
@@ -43,15 +45,24 @@ final routerProvider = Provider<GoRouter>((ref) {
 class NodraApp extends ConsumerWidget {
   const NodraApp({super.key});
   @override
-  Widget build(BuildContext context, WidgetRef ref) => MaterialApp.router(
-    title: 'Nodra',
-    debugShowCheckedModeBanner: false,
-    theme: nodraTheme(),
-    locale: const Locale('es'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    routerConfig: ref.watch(routerProvider),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final customization =
+        ref.watch(sessionProvider).asData?.value.customization ??
+        OrganizationCustomization.defaults;
+    return MaterialApp.router(
+      title: 'Nodra',
+      debugShowCheckedModeBanner: false,
+      theme: nodraTheme(accent: customization.accent),
+      builder: (context, child) => OrganizationPresentation(
+        value: customization,
+        child: child ?? const SizedBox.shrink(),
+      ),
+      locale: const Locale('es'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      routerConfig: ref.watch(routerProvider),
+    );
+  }
 }
 
 class SessionGate extends ConsumerWidget {

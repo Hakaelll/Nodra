@@ -1,3 +1,5 @@
+import '../design/organization_presentation.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -118,7 +120,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Archivar rol'),
+              child: Text(organizationText(ctx, "Archivar rol")),
             ),
           ],
         ),
@@ -143,7 +145,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
     ref.watch(sessionProvider);
     if (!canManage) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Roles laborales')),
+        appBar: AppBar(title: Text(organizationText(context, "Roles"))),
         body: const Center(
           child: Text('No tienes acceso a esta organización.'),
         ),
@@ -152,10 +154,10 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
     final roles = ref.watch(rolesProvider(query));
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Roles laborales'),
+        title: Text(organizationText(context, "Roles")),
         actions: [
           IconButton(
-            tooltip: 'Crear rol',
+            tooltip: organizationText(context, "Crear rol"),
             onPressed: busy ? null : () => edit(null),
             icon: const Icon(Icons.add),
           ),
@@ -169,8 +171,8 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
               controller: searchController,
               enabled: !busy,
               maxLength: 120,
-              decoration: const InputDecoration(
-                labelText: 'Buscar roles',
+              decoration: InputDecoration(
+                labelText: organizationText(context, "Buscar roles"),
                 counterText: '',
                 prefixIcon: Icon(Icons.search),
               ),
@@ -236,8 +238,14 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                         padding: const EdgeInsets.all(24),
                         child: Text(
                           search.isEmpty
-                              ? 'Todavía no hay roles laborales.'
-                              : 'No hay roles que coincidan.',
+                              ? organizationText(
+                                  context,
+                                  "Todavía no hay roles disponibles.",
+                                )
+                              : organizationText(
+                                  context,
+                                  "No hay roles que coincidan.",
+                                ),
                         ),
                       ),
                     for (final role in items)
@@ -251,7 +259,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                         onTap: busy ? null : () => edit(role),
                         trailing: PopupMenuButton<String>(
                           enabled: !busy,
-                          tooltip: 'Opciones del rol',
+                          tooltip: organizationText(context, "Opciones de rol"),
                           onSelected: (action) =>
                               action == 'edit' ? edit(role) : toggle(role),
                           itemBuilder: (_) => [
@@ -330,7 +338,11 @@ class _RoleEditorState extends State<_RoleEditor> {
   Widget build(BuildContext context) => PopScope(
     canPop: !busy,
     child: AlertDialog(
-      title: Text(widget.role == null ? 'Crear rol' : 'Editar rol'),
+      title: Text(
+        widget.role == null
+            ? organizationText(context, "Crear rol")
+            : organizationText(context, "Editar rol"),
+      ),
       content: SingleChildScrollView(
         child: Form(
           key: form,
@@ -341,7 +353,9 @@ class _RoleEditorState extends State<_RoleEditor> {
                 controller: name,
                 enabled: !busy,
                 maxLength: 80,
-                decoration: const InputDecoration(labelText: 'Nombre del rol'),
+                decoration: InputDecoration(
+                  labelText: organizationText(context, "Rol: nombre"),
+                ),
                 validator: (value) => (value?.trim().length ?? 0) < 2
                     ? 'Escribe al menos dos caracteres.'
                     : null,

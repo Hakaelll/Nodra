@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nodra/core/api.dart';
 import 'package:nodra/core/session.dart';
+import 'package:nodra/core/organization_customization.dart';
 import 'package:nodra/design/theme.dart';
 import 'package:nodra/l10n/app_localizations.dart';
 import 'package:nodra/main.dart';
@@ -15,6 +16,20 @@ import 'package:nodra/main.dart';
 const savedTokens = {
   'accessToken': 'test-access-old',
   'refreshToken': 'test-refresh-old',
+};
+const inkCustomization = {
+  'terminology': {
+    'service': {'singular': 'Actividad', 'plural': 'Actividades'},
+    'jobRole': {'singular': 'Función', 'plural': 'Funciones'},
+  },
+  'accent': 'INK',
+};
+const indigoCustomization = {
+  'terminology': {
+    'service': {'singular': 'Turno', 'plural': 'Turnos'},
+    'jobRole': {'singular': 'Puesto', 'plural': 'Puestos'},
+  },
+  'accent': 'INDIGO',
 };
 void fail(
   RequestOptions options,
@@ -135,7 +150,12 @@ void main() {
               expect(options.path, '/organizations');
               succeed(options, handler, [
                 {
-                  'organization': {'id': isBob ? 'bob-team' : 'alice-team'},
+                  'organization': {
+                    'id': isBob ? 'bob-team' : 'alice-team',
+                    'customization': isBob
+                        ? indigoCustomization
+                        : inkCustomization,
+                  },
                 },
               ]);
             }
@@ -149,6 +169,14 @@ void main() {
       addTearDown(container.dispose);
       await container.read(sessionProvider.future);
       final session = container.read(sessionProvider.notifier);
+      expect(
+        container
+            .read(sessionProvider)
+            .requireValue
+            .customization
+            .text('Servicios'),
+        'Actividades',
+      );
       expireOldAccess = true;
       final staleLoad = session.reload().then<Object?>(
         (_) => null,
@@ -157,10 +185,26 @@ void main() {
       await entered.future;
       await session.logout();
       expect(container.read(sessionProvider).requireValue.signedIn, isFalse);
+      expect(
+        container.read(sessionProvider).requireValue.customization,
+        same(OrganizationCustomization.defaults),
+      );
       await session.login('bob@nodra.test', 'Local-test-password');
       release.complete();
       await staleLoad;
       expect(container.read(sessionProvider).requireValue.user?['id'], 'bob');
+      expect(
+        container
+            .read(sessionProvider)
+            .requireValue
+            .customization
+            .text('Servicios'),
+        'Turnos',
+      );
+      expect(
+        container.read(sessionProvider).requireValue.customization.accent,
+        OrganizationAccent.indigo,
+      );
       expect(
         container.read(sessionProvider).requireValue.organizationId,
         'bob-team',
@@ -187,10 +231,16 @@ void main() {
                   ? {'id': 'alice'}
                   : [
                       {
-                        'organization': {'id': 'team-a'},
+                        'organization': {
+                          'id': 'team-a',
+                          'customization': inkCustomization,
+                        },
                       },
                       {
-                        'organization': {'id': 'team-b'},
+                        'organization': {
+                          'id': 'team-b',
+                          'customization': indigoCustomization,
+                        },
                       },
                     ],
             );
@@ -215,6 +265,39 @@ void main() {
         'team-a',
       );
       expect(storage.values['nodra_organization'], 'team-a');
+      final a = container.read(sessionProvider).requireValue.customization;
+      expect(a.text('Crear servicio'), 'Crear actividad');
+      expect(a.text('Seleccionar rol'), 'Seleccionar función');
+      expect(a.text('Control del equipo'), 'Control del equipo');
+      expect(
+        nodraTheme(accent: a.accent).colorScheme.primary,
+        const Color(0xff182659),
+      );
+      await session.select('team-b');
+      final b = container.read(sessionProvider).requireValue.customization;
+      expect(b.text('Servicios'), 'Turnos');
+      expect(
+        nodraTheme(accent: b.accent).colorScheme.primary,
+        const Color(0xff3448a8),
+      );
+      expect(
+        OrganizationCustomization.fromJson({
+          ...inkCustomization,
+          'accent': '#123456',
+        }),
+        same(OrganizationCustomization.defaults),
+      );
+      expect(
+        OrganizationCustomization.fromJson(null),
+        same(OrganizationCustomization.defaults),
+      );
+      await session.logout();
+      final reset = container.read(sessionProvider).requireValue.customization;
+      expect(reset.text('Servicios'), 'Servicios');
+      expect(
+        nodraTheme(accent: reset.accent).colorScheme.primary,
+        const Color(0xff533afd),
+      );
     },
   );
 

@@ -1,3 +1,5 @@
+import '../design/organization_presentation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -205,7 +207,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                           button: true,
                           selected: selected == day,
                           label:
-                              '$number de ${_months[first.month - 1]}, ${dayEvents.length} servicios',
+                              '$number de ${_months[first.month - 1]}, ${dayEvents.length} ${organizationText(context, dayEvents.length == 1 ? 'servicio' : 'servicios')}',
                           child: InkWell(
                             borderRadius: BorderRadius.circular(14),
                             onTap: () => setState(() => selectedDay = day),
@@ -223,7 +225,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                   CircleAvatar(
                                     radius: 14,
                                     backgroundColor: today == day
-                                        ? accentColor
+                                        ? Theme.of(context).colorScheme.primary
                                         : Colors.transparent,
                                     child: Text(
                                       '$number',
@@ -272,9 +274,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               ),
               const SizedBox(height: 12),
               if (selectedEvents.isEmpty)
-                const NodraEmptyState(
+                NodraEmptyState(
                   title: 'Tu agenda está libre este día.',
-                  message: 'Elige otro día para consultar sus servicios.',
+                  message: organizationText(
+                    context,
+                    "Elige otro día para consultar sus servicios.",
+                  ),
                 ),
               ...selectedEvents.map(
                 (event) => Padding(
@@ -340,7 +345,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               if (upcoming.isNotEmpty) ...[
                 const SizedBox(height: 20),
                 Text(
-                  'Próximos servicios',
+                  organizationText(context, "Agenda de servicios"),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 10),

@@ -1,6 +1,6 @@
 # Personalización y presets
 
-Alcance de §59/61/62 del [prompt](BOOTSTRAP_PROMPT.md). Nombre, zona horaria, logo privado, terminología y acento limitado se editan desde la web. La web aplica su configuración; Flutter todavía debe consumir terminología y acento. Los campos personalizados y presets permanecen como diseño futuro. La foto personal y el logo de organización usan recursos distintos.
+Alcance de §59/61/62 del [prompt](BOOTSTRAP_PROMPT.md). Nombre, zona horaria, logo privado, terminología y acento limitado se editan desde la web. Web y Flutter consumen la terminología y el acento de la organización activa. Los campos personalizados y presets permanecen como diseño futuro. La foto personal y el logo de organización usan recursos distintos.
 
 ## CustomFieldDefinition y CustomFieldValue
 
@@ -46,7 +46,7 @@ La API no modifica rutas, estados, contenido de servicios ni lógica sectorial. 
 
 El editor web está en Perfil → Configuración para OWNER/ADMIN. Muestra singular/plural de ambos conceptos y tres radios nativos de acento; guardar confirma la escritura antes de refrescar el contexto. Errores conservan el formulario y permiten cargar la versión actual; una lectura fallida después de guardar bloquea repetir el envío hasta recargar la configuración. Valores de Nodra prepara los defaults en el formulario, sin escribir hasta guardar.
 
-Los tokens web son VIOLET #533afd, INDIGO #3448a8 e INK #182659, con hover y tintes acotados. El provider cambia únicamente sus propiedades CSS, incluidas las usadas por diálogos, y restaura los valores anteriores al desmontarse. Su identidad depende de cuenta y organización. No personaliza tipografía, layout ni colores semánticos de estados/eventos. Falta el consumo en Flutter y la aceptación visual del propietario; §61 sigue abierto. Plan en [organization customization](superpowers/plans/2026-11-03-organization-customization.md).
+Los tokens son VIOLET #533afd, INDIGO #3448a8 e INK #182659, con tintes acotados. En web, el provider cambia sólo sus propiedades CSS, incluidas las usadas por diálogos, y restaura los valores anteriores al desmontarse. En Flutter, OrganizationCustomization deriva del snapshot de sesión y alimenta ThemeData/OrganizationPresentation por encima del router. Configuración ausente, incompleta o con token desconocido vuelve a defaults; no se persiste otro tema global entre cuentas. No personaliza tipografía, layout ni colores semánticos de estados/eventos. Implementación disponible en ambos clientes; aceptación visual, ejecución física y build iOS siguen sin demostrarse. Plan en [organization customization](superpowers/plans/2026-11-03-organization-customization.md).
 
 ## Presets futuros
 
