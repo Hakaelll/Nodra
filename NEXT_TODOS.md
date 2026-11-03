@@ -5,10 +5,10 @@ Actualizado: 03/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
 ## Prioridad de continuidad
 
 1. NOD-020: primer pase individual §0–290 completo; corregir discrepancias y verificar requisitos faltantes sin dar por completado el prompt por pruebas parciales.
-   §61 ya tiene backend, editor/contexto web y consumo en Flutter. Retomar los pendientes verificables de auditoría semántica §63 y validación final, manteniendo las pruebas físicas/aceptación visual explícitamente pendientes.
-2. NOD-019/008: ampliar cobertura de acciones AuditEvent y permisos (§63); cancelaciones por lote y gestión JobRole API/web/Flutter implementadas. E2E web y aceptación siguen pendientes.
+   §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. Continuar revisión residual de permisos/logs y validación final, manteniendo pruebas físicas/aceptación visual pendientes.
+2. NOD-019/008: revisar combinaciones residuales de permisos por operación/tenant y logs. Las acciones requeridas, cancelaciones por lote y JobRole tienen evidencia; E2E de clientes y aceptación siguen pendientes.
 3. NOD-014/015/017/022: completar pruebas de clientes y cambios de contexto; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
-4. NOD-013/016/020: adquisición push, build iOS y prueba física siguen sin demostrar. Android debug recompilado y firma verificada el 02/11 con la corrección de sesión; SDK/JDK locales instalados. iOS requiere host compatible. No contratar servicios.
+4. NOD-013/016/020: adquisición push, build iOS y prueba física siguen sin demostrar. Android debug recompilado y firma verificada el 03/11 con sesión/personalización; SDK/JDK locales instalados. iOS requiere host compatible. No contratar servicios.
 
 Resumen vigente en [PROJECT_STATE](PROJECT_STATE.md), evidencia detallada en [auditoría](docs/REQUIREMENTS_AUDIT.md). [Historial íntegro al 30/09](docs/history/NEXT_TODOS_2026_09_30.md) conserva notas de avance anteriores y los estados fechados. Las notas históricas de las tareas no sustituyen al resumen vigente.
 
@@ -137,6 +137,8 @@ Notas técnicas: Creación/listado y edición de rol/estado con control optimist
 03/11 — §61 web: editor OWNER/ADMIN en Perfil → Configuración y provider por cuenta/organización. Copy de interfaz adaptado sin tocar contenido de personas, rutas o roles de permiso; radios nativos, errores y relectura tras conflicto, tokens limitados y restauración al desmontar. Lint/tipos, cuatro unitarios, build y HTTP/BFF aprobados; HTML estático/contraste comprobados, sin DOM ni aceptación visual. Suite de veinte casos conservada. Falta Flutter; continuar el plan existente sin crear otra dirección visual ni dar por terminado §61.
 
 03/11 — §61 Flutter: modelo y contexto nativos consumen la configuración de su Membership; ThemeData limita acento/tinte y el helper sólo adapta copy. Se conservan rutas, estados, contenido de personas y roles de permiso. Analyze y las tres pruebas existentes pasan con nuevas aserciones de configuración/cambio de cuenta/org/logout, sin aumentar casos. APK debug actualizado y firma v2 verificada. Implementación disponible en ambos clientes; faltan hardware, build iOS y aceptación visual, sin declarar el objetivo completo. No Computer Use/subagentes ni dependencias nuevas.
+
+03/11 — §63: las catorce acciones requeridas se verifican en recorridos esenciales existentes, incluidos MEMBER_REMOVED, ROLE_UPDATED y ASSIGNMENT_DECLINED. Helper de prueba compara actor/tenant/entidad/fecha/metadata y recuentos contra literales. AuditAction cierra nombres de nuevas escrituras sin migrar el historial; prueba de compilación rechaza SERVICE_OPEN y acepta SERVICE_PUBLISHED. Trece integraciones, lint y tipos/build API aprobados; suite de veinte casos conservada. No UI ni nuevas rutas/servicios. Mantener NOD-019/020 abiertos para el resto de seguridad/validación.
 
 ## NOD-007 — Invitations
 

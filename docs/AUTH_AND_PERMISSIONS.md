@@ -47,7 +47,7 @@ La rotación de refresh se ejecuta en una transacción serializable. Si se detec
 
 PATCH organizations/:org/members/:id recibe permissionRole, status, expectedPermissionRole y expectedStatus. OWNER puede gestionar todos los roles. ADMIN sólo COORDINATOR/MEMBER y no puede cambiar OWNER/ADMIN. Estado editable: ACTIVE/SUSPENDED/LEFT. El backend rechaza referencias de otro tenant, cambios basados en valores obsoletos y retirar al último propietario activo. No permite dar propiedad activa a una cuenta global desactivada. Cuenta propietarios activos dentro de transacción serializable; reintenta conflictos de Prisma y del adapter pg, también al commit.
 
-La edición web tiene etiquetas, estado busy y confirmación antes de guardar. Suspender o dar de baja retira acceso sin cancelar asignaciones ni borrar historial; la interfaz lo explica. La API comprueba Membership en cada petición posterior. Una actualización exitosa genera MEMBERSHIP_UPDATED en auditoría. No es una eliminación de cuenta.
+La edición web tiene etiquetas, estado busy y confirmación antes de guardar. Suspender o dar de baja retira acceso sin cancelar asignaciones ni borrar historial; la interfaz lo explica. La API comprueba Membership en cada petición posterior. Pasar a LEFT desde otro estado registra MEMBER_REMOVED; el resto de cambios genera MEMBERSHIP_UPDATED. No es una eliminación de cuenta.
 
 Privacidad de participación: MEMBER recibe únicamente sus propias asignaciones tanto en listado de servicios (incluido upcoming=true) como en detalle. La coordinación conserva las asignaciones del equipo. La cobertura del dashboard sigue siendo agregada. Prueba PostgreSQL verifica ausencia de UUID de otro usuario y su asignación, además de conservar ambos registros visibles para OWNER.
 

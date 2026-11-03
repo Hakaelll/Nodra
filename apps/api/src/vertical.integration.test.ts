@@ -1,5 +1,6 @@
 import { beforeAll, afterAll, describe, it, expect, vi } from "vitest";
 import * as auditEvents from "./events";
+import type { AuditAction } from "./events";
 import { randomUUID } from "node:crypto";
 import { unlink } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -24,6 +25,7 @@ let owner: { id: string; access: string },
   service: string,
   position: string,
   assignment: string;
+const auditStartedAt = Date.now();
 async function request(
   method: "GET" | "POST" | "PATCH" | "DELETE",
   path: string,
@@ -53,6 +55,42 @@ async function register(label: string) {
     refresh: data.refreshToken as string,
   };
 }
+async function expectAudit(
+  organizationId: string,
+  actorId: string,
+  action: AuditAction,
+  entityId: string,
+  count = 1,
+) {
+  const entries = await db.auditEvent.findMany({
+    where: { organizationId, action, entityId },
+    select: {
+      organizationId: true,
+      actorId: true,
+      action: true,
+      entityId: true,
+      metadata: true,
+      createdAt: true,
+    },
+  });
+  expect(entries).toEqual(
+    Array.from({ length: count }, () => ({
+      organizationId,
+      actorId,
+      action,
+      entityId,
+      metadata: {},
+      createdAt: expect.any(Date),
+    })),
+  );
+  for (const entry of entries) {
+    expect(entry.createdAt.getTime()).toBeGreaterThanOrEqual(
+      auditStartedAt - 2000,
+    );
+    expect(entry.createdAt.getTime()).toBeLessThanOrEqual(Date.now() + 2000);
+  }
+}
+
 beforeAll(async () => {
   const url = testDatabaseUrl(process.env.TEST_DATABASE_URL);
   process.env.DATABASE_URL = url;
@@ -552,6 +590,7 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
     });
     foreignOrg = b.json().id;
     organizations.push(foreignOrg);
+    await expectAudit(org, owner.id, "ORGANIZATION_CREATED", org);
     expect(
       await db.membership.findUnique({
         where: {
@@ -978,6 +1017,7 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
       where: { id: invited.json().id },
     });
     expect(stored.tokenHash).not.toBe(token);
+    await expectAudit(org, owner.id, "MEMBER_INVITED", stored.id);
     expect(
       (
         await request("POST", "invitations/preview", worker.access, { token })
@@ -1001,6 +1041,38 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
       (await request("POST", "invitations/accept", other.access, { token }))
         .statusCode,
     ).toBe(404);
+    const membership = await db.membership.findUniqueOrThrow({
+      where: {
+        organizationId_userId: { organizationId: org, userId: worker.id },
+      },
+    });
+    await expectAudit(org, worker.id, "MEMBER_JOINED", membership.id);
+    const accessPath = `organizations/${org}/members/${membership.id}`;
+    expect(
+      (
+        await request("PATCH", accessPath, owner.access, {
+          permissionRole: "MEMBER",
+          status: "LEFT",
+          expectedPermissionRole: "MEMBER",
+          expectedStatus: "ACTIVE",
+        })
+      ).statusCode,
+    ).toBe(200);
+    await expectAudit(org, owner.id, "MEMBER_REMOVED", membership.id);
+    expect(
+      (await request("GET", `organizations/${org}/services`, worker.access))
+        .statusCode,
+    ).toBe(403);
+    expect(
+      (
+        await request("PATCH", accessPath, owner.access, {
+          permissionRole: "MEMBER",
+          status: "ACTIVE",
+          expectedPermissionRole: "MEMBER",
+          expectedStatus: "LEFT",
+        })
+      ).statusCode,
+    ).toBe(200);
   });
   it("creates role, draft, position and publishes; hides drafts from members", async () => {
     const role = await request(
@@ -1010,6 +1082,18 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
       { name: "Support" },
     );
     expect(role.statusCode).toBe(201);
+    await expectAudit(org, owner.id, "ROLE_CREATED", role.json().id);
+    expect(
+      (
+        await request(
+          "PATCH",
+          `organizations/${org}/roles/${role.json().id}`,
+          owner.access,
+          { name: "Support updated" },
+        )
+      ).statusCode,
+    ).toBe(200);
+    await expectAudit(org, owner.id, "ROLE_UPDATED", role.json().id);
     const created = await request(
       "POST",
       `organizations/${org}/services`,
@@ -1021,7 +1105,25 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
         endsAt: "2027-10-01T16:00:00Z",
       },
     );
+    expect(created.statusCode).toBe(201);
     service = created.json().id;
+    await expectAudit(org, owner.id, "SERVICE_CREATED", service);
+    expect(
+      (
+        await request(
+          "PATCH",
+          `organizations/${org}/services/${service}`,
+          owner.access,
+          {
+            title: "Updated coordination test",
+            locationText: "Local",
+            startsAt: "2027-10-01T12:00:00Z",
+            endsAt: "2027-10-01T16:00:00Z",
+          },
+        )
+      ).statusCode,
+    ).toBe(200);
+    await expectAudit(org, owner.id, "SERVICE_UPDATED", service);
     expect(
       (
         await request(
@@ -1039,6 +1141,7 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
     );
     expect(pos.statusCode).toBe(201);
     position = pos.json().id;
+    await expectAudit(org, owner.id, "SERVICE_UPDATED", service, 2);
     const published = await request(
       "POST",
       `organizations/${org}/services/${service}/status`,
@@ -1046,6 +1149,7 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
       { status: "OPEN" },
     );
     expect(published.statusCode).toBe(201);
+    await expectAudit(org, owner.id, "SERVICE_PUBLISHED", service);
     expect(
       await db.auditEvent.count({
         where: {
@@ -1093,6 +1197,7 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
     ]);
     expect(results.map((r) => r.statusCode).sort()).toEqual([201, 409]);
     assignment = results.find((r) => r.statusCode === 201)!.json().id;
+    await expectAudit(org, owner.id, "ASSIGNMENT_CREATED", assignment);
     expect(
       (
         await request(
@@ -1153,6 +1258,7 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
     });
     expect(confirmation.response).toBe("CONFIRMED");
     expect(confirmation.respondedAt).not.toBeNull();
+    await expectAudit(org, worker.id, "ASSIGNMENT_CONFIRMED", assignment);
     expect(
       (
         await request(
@@ -1203,6 +1309,102 @@ describe.sequential("real PostgreSQL coordination vertical", () => {
     );
     expect(withdrawn.statusCode).toBe(201);
     expect(withdrawn.json().status).toBe("WITHDRAWN");
+    await expectAudit(org, worker.id, "ASSIGNMENT_CANCELLED", assignment);
+    expect(
+      (
+        await request(
+          "POST",
+          `organizations/${org}/positions/${position}/interest`,
+          worker.access,
+          { interested: true },
+        )
+      ).statusCode,
+    ).toBe(201);
+    const declined = await request(
+      "POST",
+      `organizations/${org}/positions/${position}/assignments`,
+      owner.access,
+      { userId: worker.id },
+    );
+    expect(declined.statusCode).toBe(201);
+    await expectAudit(org, owner.id, "ASSIGNMENT_CREATED", declined.json().id);
+    expect(
+      (
+        await request(
+          "POST",
+          `organizations/${org}/assignments/${declined.json().id}/respond`,
+          worker.access,
+          { response: "DECLINED" },
+        )
+      ).statusCode,
+    ).toBe(201);
+    await expectAudit(
+      org,
+      worker.id,
+      "ASSIGNMENT_DECLINED",
+      declined.json().id,
+    );
+    const pending = await request(
+      "POST",
+      `organizations/${org}/positions/${position}/assignments`,
+      owner.access,
+      { userId: worker.id },
+    );
+    expect(pending.statusCode).toBe(201);
+    await expectAudit(org, owner.id, "ASSIGNMENT_CREATED", pending.json().id);
+    expect(
+      (
+        await request(
+          "POST",
+          `organizations/${org}/services/${service}/status`,
+          worker.access,
+          { status: "CANCELLED" },
+        )
+      ).statusCode,
+    ).toBe(403);
+    expect(
+      (
+        await db.serviceAssignment.findUniqueOrThrow({
+          where: { id: pending.json().id },
+        })
+      ).status,
+    ).toBe("AWAITING_CONFIRMATION");
+    expect(
+      (
+        await request(
+          "POST",
+          `organizations/${org}/services/${service}/status`,
+          owner.access,
+          { status: "CANCELLED" },
+        )
+      ).statusCode,
+    ).toBe(201);
+    expect(
+      (
+        await request(
+          "POST",
+          `organizations/${org}/services/${service}/status`,
+          owner.access,
+          { status: "CANCELLED" },
+        )
+      ).statusCode,
+    ).toBe(409);
+    await expectAudit(org, owner.id, "SERVICE_CANCELLED", service);
+    await expectAudit(org, owner.id, "ASSIGNMENT_CANCELLED", pending.json().id);
+    expect(
+      (
+        await db.confirmation.findFirstOrThrow({
+          where: { assignmentId: pending.json().id },
+        })
+      ).response,
+    ).toBeNull();
+    expect(
+      (
+        await db.confirmation.findUniqueOrThrow({
+          where: { id: confirmation.id },
+        })
+      ).response,
+    ).toBe("CONFIRMED");
   });
   it("serializes concurrent refresh attempts and revokes the winning token family", async () => {
     const account = await register("ConcurrentRotation");

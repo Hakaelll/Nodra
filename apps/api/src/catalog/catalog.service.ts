@@ -8,7 +8,7 @@ import { Prisma, type ServiceStatus } from "@prisma/client";
 import { Database } from "../database";
 import { Policy } from "../organizations/policy";
 import { publicUser } from "../common";
-import { audit, event } from "../events";
+import { audit, event, type AuditAction } from "../events";
 import { noticeInput } from "./catalog.schemas";
 import type { z } from "zod";
 import {
@@ -243,7 +243,9 @@ export class CatalogService {
           data: {
             organizationId: org,
             actorId: user,
-            action: add ? "GROUP_MEMBER_ADDED" : "GROUP_MEMBER_REMOVED",
+            action: (add
+              ? "GROUP_MEMBER_ADDED"
+              : "GROUP_MEMBER_REMOVED") satisfies AuditAction,
             entityId: id,
             metadata: { membershipId },
           },

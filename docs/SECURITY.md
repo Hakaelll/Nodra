@@ -35,3 +35,28 @@ Recuperación de contraseña y verificación email usan tokens aleatorios con ha
 Pendientes: MFA si se decide, implementación de retención/anonimización y eliminación de cuenta, revisión de dependencias, respuesta a incidentes y restores. [ACCOUNT_LIFECYCLE.md](ACCOUNT_LIFECYCLE.md) recoge la estrategia futura y los límites del esquema actual. La aplicación no afirma cumplimiento normativo completo.
 
 La integración del logo también simula una transacción PostgreSQL confirmada cuya respuesta se pierde: la petición falla, pero la lectura posterior conserva el JPEG vigente. Antes de compensar una subida fallida, el servicio bloquea y comprueba la referencia actual; si no puede comprobarla, conserva el archivo. Así la limpieza no da por probado un rollback a partir de un error de transporte.
+
+## Auditoría de acciones (§63)
+
+AuditEvent conserva actorId, organizationId, action, entityId, createdAt y metadata. Las escrituras de la aplicación usan AuditAction en el helper y en los dos puntos directos de escritura por lote/grupo. Es protección de compilación, no autorización: el permiso se comprueba antes y dentro de las transacciones existentes. El campo Prisma sigue siendo String para conservar registros históricos; no se reetiquetan ni borran acciones antiguas.
+
+Las catorce acciones requeridas se comprueban mediante rutas reales y consultas PostgreSQL en los recorridos esenciales existentes. Se contrastan campos, fecha del servidor dentro de la ejecución, metadata exactamente vacía y recuento, sin derivar expectativas del registro encontrado.
+
+| Acción               | Actor                                                                    | Entidad           |
+| -------------------- | ------------------------------------------------------------------------ | ----------------- |
+| ORGANIZATION_CREATED | Creador autenticado                                                      | Organization      |
+| MEMBER_INVITED       | Operador que invita                                                      | Invitation        |
+| MEMBER_JOINED        | Persona que acepta                                                       | Membership        |
+| MEMBER_REMOVED       | Operador que retira acceso                                               | Membership        |
+| SERVICE_CREATED      | Operador creador                                                         | Service           |
+| SERVICE_UPDATED      | Operador que edita o añade posición                                      | Service           |
+| SERVICE_PUBLISHED    | Operador que publica                                                     | Service           |
+| SERVICE_CANCELLED    | Operador que cancela                                                     | Service           |
+| ASSIGNMENT_CREATED   | Operador que selecciona                                                  | ServiceAssignment |
+| ASSIGNMENT_CONFIRMED | Persona seleccionada                                                     | ServiceAssignment |
+| ASSIGNMENT_DECLINED  | Persona seleccionada                                                     | ServiceAssignment |
+| ASSIGNMENT_CANCELLED | Persona que cancela su participación, u operador al cancelar el servicio | ServiceAssignment |
+| ROLE_CREATED         | Operador creador                                                         | JobRole           |
+| ROLE_UPDATED         | Operador que modifica                                                    | JobRole           |
+
+Las demás acciones actuales también pertenecen al vocabulario tipado, pero esta verificación no certifica cada combinación de permiso/rechazo ni todos los logs. Metadata con membershipId en los cambios de grupo es un UUID interno controlado; no se incorpora texto/cuerpo del cliente al helper de auditoría. SERVICE_OPEN se rechaza como acción de auditoría nueva; el kind de dominio ServiceOPEN conserva su nombre porque alimenta notificaciones y no es AuditEvent.action.

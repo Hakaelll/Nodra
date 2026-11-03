@@ -10,7 +10,7 @@ import { activeAssignmentStatuses, serviceTransitions } from "@nodra/shared";
 import { Database } from "../database";
 import { Policy } from "../organizations/policy";
 import { publicUser } from "../common";
-import { audit, event } from "../events";
+import { audit, event, type AuditAction } from "../events";
 
 function localCalendarTime(value: Date, timezone: string) {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -575,7 +575,7 @@ export class ServicesService {
             data: cancelledAssignments.map((assignment) => ({
               organizationId: org,
               actorId: userId,
-              action: "ASSIGNMENT_CANCELLED",
+              action: "ASSIGNMENT_CANCELLED" satisfies AuditAction,
               entityId: assignment.id,
             })),
           });
