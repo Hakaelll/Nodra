@@ -8,7 +8,7 @@ Actualizado: 04/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
    §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. Continuar revisión residual de permisos/logs y validación final, manteniendo pruebas físicas/aceptación visual pendientes.
 2. NOD-019/008: inventario de las 47 operaciones tenant contrastado con OpenAPI; 188 rechazos sin sesión o Membership activa verificados. Revisar combinaciones de roles activos, carreras de revocación y logs. Las acciones requeridas, cancelaciones por lote y JobRole tienen evidencia; E2E de clientes y aceptación siguen pendientes.
 3. NOD-014/015/017/022: completar pruebas de clientes y cambios de contexto; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
-4. NOD-013/016/020: adquisición push, build iOS y prueba física siguen sin demostrar. Android debug recompilado y firma verificada el 03/11 con sesión/personalización; SDK/JDK locales instalados. iOS requiere host compatible. No contratar servicios.
+4. NOD-013/016/020: adquisición push, build iOS y prueba física siguen sin demostrar. Android debug recompilado y firma verificada el 04/11 con sesión/personalización/logo; SDK/JDK locales instalados. iOS requiere host compatible. No contratar servicios.
 
 Resumen vigente en [PROJECT_STATE](PROJECT_STATE.md), evidencia detallada en [auditoría](docs/REQUIREMENTS_AUDIT.md). [Historial íntegro al 30/09](docs/history/NEXT_TODOS_2026_09_30.md) conserva notas de avance anteriores y los estados fechados. Las notas históricas de las tareas no sustituyen al resumen vigente.
 
@@ -605,3 +605,5 @@ APK debug actualizado (build 31,7 s), firma v2 verificada; SHA-256 b4e30cb2f7c5f
 04/11 — NOD-025 DONE: Select/Textarea/Checkbox, DataTable, SectionHeader, OrganizationSwitcher y Dropdown usados por consumidores reales. SSR compara tres consumidores y ambos switchers con la versión previa; conserva props/refs y CSS. Lint, tipos y cuatro pruebas web aprobados. Marca SVG/PNG basada en N actual y metadata de iconos añadidas por petición del propietario. El resto de estados/IDs se conserva; aceptación visual y objetivo global pendientes.
 
 04/11 — NOD-016/020: corregida omisión de entitlements de Keychain en iOS siguiendo el plugin instalado. XML y enlaces de las tres configuraciones Runner verificados. Siguiente comprobación nativa: flutter build ios --no-codesign en macOS y lectura/escritura de sesión en simulador/dispositivo con firma apropiada. Sin nuevas suites, SDK, cuenta Apple ni cambio de estados/DONE.
+
+04/11 — NOD-016/020: sustituida marca Flutter de launcher por Nodra, cinco densidades Android y quince PNG iOS. Generador compartido reproducible, sin dependencia nueva. Criterios de firma/build Android se registran en TESTING; iOS requiere macOS/Xcode y permanece sin demostrar. IDs/estados conservados.

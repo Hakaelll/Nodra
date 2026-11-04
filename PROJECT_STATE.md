@@ -208,3 +208,7 @@ API recargada tras validar commandline y propietario de puerto: nuevo PID 14292/
 04/11 — Componentes web de §182 consolidados en pantallas reales y Nodra dispone de SVG/PNG basados en la N original, con favicon y Apple touch icon web. Comparación SSR de tres consumidores y dos switchers conserva HTML, props/refs nativos y CSS; alcance estático, sin aceptación visual. NOD-025 completado para consolidación; el objetivo bootstrap conserva sus demás pendientes.
 
 04/11 — Preparación nativa iOS corregida: los entitlements Keychain requeridos por el plugin instalado ya están enlazados a Runner Debug/Profile/Release. Validación estática de XML/configuración, sin compilación ni comprobación de persistencia en dispositivo. Build iOS continúa pendiente de macOS/Xcode.
+
+04/11 — Marca aplicada al launcher nativo: mipmap Android y catálogo AppIcon iOS generados desde la misma N de la web; tamaños y opacidad iOS comprobados. El catálogo conserva sus nombres y referencias. No ejecución física ni build iOS.
+
+04/11 — APK con marca Nodra compilado y firma v2 verificada. aapt2 confirma nombre e iconos; cinco imágenes empaquetadas coinciden con los píxeles fuente. SHA-256 y tamaño actualizados en TESTING. No prueba física ni compilación iOS.

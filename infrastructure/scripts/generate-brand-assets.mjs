@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
@@ -26,4 +26,44 @@ for (const [name, icon, size] of [
     image = image.flatten({ background: "#533afd" });
   await image.png().toFile(fileURLToPath(new URL(name, directory)));
 }
-console.log("Nodra SVG and PNG assets generated in apps/web/public/brand.");
+const android = new URL(
+  "../../apps/mobile/android/app/src/main/res/",
+  import.meta.url,
+);
+for (const [density, size] of [
+  ["mdpi", 48],
+  ["hdpi", 72],
+  ["xhdpi", 96],
+  ["xxhdpi", 144],
+  ["xxxhdpi", 192],
+]) {
+  const target = new URL(`mipmap-${density}/`, android);
+  await mkdir(target, { recursive: true });
+  await sharp(Buffer.from(svg(true)))
+    .resize(size, size)
+    .png()
+    .toFile(fileURLToPath(new URL("ic_launcher.png", target)));
+}
+const ios = new URL(
+  "../../apps/mobile/ios/Runner/Assets.xcassets/AppIcon.appiconset/",
+  import.meta.url,
+);
+const catalog = JSON.parse(
+  await readFile(new URL("Contents.json", ios), "utf8"),
+);
+const icons = new Map(
+  catalog.images.map(({ filename, size, scale }) => [
+    filename,
+    Number.parseFloat(size) * Number.parseFloat(scale),
+  ]),
+);
+for (const [filename, size] of icons) {
+  await sharp(Buffer.from(svg(true)))
+    .resize(size, size)
+    .flatten({ background: "#533afd" })
+    .png()
+    .toFile(fileURLToPath(new URL(filename, ios)));
+}
+console.log(
+  `Nodra web assets, five Android icons and ${icons.size} iOS icons generated.`,
+);
