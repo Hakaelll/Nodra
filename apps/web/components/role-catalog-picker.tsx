@@ -3,6 +3,7 @@ import { useOrganizationText } from "./organization-customization-context";
 import { useEffect, useId, useState } from "react";
 import type { JobRole, Page } from "@nodra/contracts";
 import { api } from "../lib/api";
+import { Select } from "./ui";
 
 export function RoleCatalogPicker({
   base,
@@ -69,7 +70,7 @@ export function RoleCatalogPicker({
   return (
     <div className="field role-catalog-picker">
       <label htmlFor={`${id}-selected`}>{text("Rol laboral")}</label>
-      <select
+      <Select
         id={`${id}-selected`}
         value={value}
         name={name}
@@ -96,7 +97,7 @@ export function RoleCatalogPicker({
             {!role.active ? " · Archivado" : ""}
           </option>
         ))}
-      </select>
+      </Select>
       <label className="role-catalog-search-label" htmlFor={`${id}-search`}>
         {text("Buscar roles")}
       </label>

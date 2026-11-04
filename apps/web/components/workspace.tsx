@@ -27,7 +27,6 @@ import {
   Ellipsis,
   CircleUserRound,
   CircleAlert,
-  ChevronDown,
 } from "lucide-react";
 import { Dashboard } from "./dashboard";
 import { ChatScreen } from "./chat-screen";
@@ -88,7 +87,11 @@ import {
   PageHeader,
   Skeleton,
   TextLink,
+  Select,
+  Textarea,
+  DataTable,
 } from "./ui";
+import { OrganizationSwitcher } from "./organization-switcher";
 
 const navigation: [View, typeof House][] = [
   ["Inicio", House],
@@ -1108,23 +1111,15 @@ export function Workspace() {
             {memberships.length === 1 ? (
               <strong>{membership.organization.name}</strong>
             ) : (
-              <label>
-                <span className="sr-only">Cambiar organización</span>
-                <select
-                  value={membership.organization.id}
-                  onChange={(e) => {
-                    navigateWorkspace({ ...homeRoute, orgId: e.target.value });
-                    setError("");
-                    setMenuOpen(false);
-                  }}
-                >
-                  {memberships.map((m) => (
-                    <option key={m.id} value={m.organization.id}>
-                      {m.organization.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <OrganizationSwitcher
+                memberships={memberships}
+                value={membership.organization.id}
+                onChange={(organizationId) => {
+                  navigateWorkspace({ ...homeRoute, orgId: organizationId });
+                  setError("");
+                  setMenuOpen(false);
+                }}
+              />
             )}
           </div>
           <p className="nav-label">{copy.navigation.workspace}</p>
@@ -1198,26 +1193,16 @@ export function Workspace() {
                   {membership.organization.name}
                 </span>
               ) : (
-                <label className="topbar-org-switch">
-                  <span className="sr-only">Cambiar organización</span>
-                  <select
-                    value={membership.organization.id}
-                    onChange={(e) => {
-                      navigateWorkspace({
-                        ...homeRoute,
-                        orgId: e.target.value,
-                      });
-                      setError("");
-                    }}
-                  >
-                    {memberships.map((m) => (
-                      <option key={m.id} value={m.organization.id}>
-                        {m.organization.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={15} aria-hidden="true" />
-                </label>
+                <OrganizationSwitcher
+                  className="topbar-org-switch"
+                  showChevron
+                  memberships={memberships}
+                  value={membership.organization.id}
+                  onChange={(organizationId) => {
+                    navigateWorkspace({ ...homeRoute, orgId: organizationId });
+                    setError("");
+                  }}
+                />
               )}
               <span className="topbar-divider" aria-hidden="true">
                 /
@@ -1661,7 +1646,7 @@ function OrganizationWorkspace({
               updateListing({ search: e.target.value, page: 1 }, true);
             }}
           />
-          <select
+          <Select
             aria-label="Filtrar por estado"
             value={status}
             onChange={(e) => {
@@ -1683,7 +1668,7 @@ function OrganizationWorkspace({
                 {statusLabel[s]}
               </option>
             ))}
-          </select>
+          </Select>
           {filtered && (
             <button
               className="text-link"
@@ -1864,77 +1849,73 @@ function ServiceTable({
           </button>
         ))}
       </div>
-      <div className="table-wrap desktop-services">
-        <table>
-          <thead>
-            <tr>
-              <th>{text("Servicio")}</th>
-              <th>Cuándo</th>
-              <th>Equipo</th>
-              <th>Estado</th>
-              <th>
-                <span className="sr-only">Abrir</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {services.map((s) => {
-              const required = s.positions.reduce((n, p) => n + p.quantity, 0),
-                confirmed = s.positions
-                  .flatMap((p) => p.assignments ?? [])
-                  .filter((a) => a.status === "CONFIRMED").length;
-              return (
-                <tr
-                  key={s.id}
-                  className="service-row"
-                  data-status={s.status}
-                  tabIndex={0}
-                  aria-label={`${text("Abrir servicio")} ${s.title}`}
-                  onClick={() => select(s.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      select(s.id);
-                    }
-                  }}
-                >
-                  <td>
-                    <div className="service-title">
-                      <ClipboardList size={20} strokeWidth={1} />
-                      <div>
-                        <strong className="service-row-title">{s.title}</strong>
-                        {participation(s) && (
-                          <small className="service-participation">
-                            <Check size={14} aria-hidden="true" />
-                            {participation(s)}
-                          </small>
-                        )}
-                        <small>
-                          {s.locationText || "Ubicación por definir"}
+      <DataTable label={text("Servicios")} className="desktop-services">
+        <thead>
+          <tr>
+            <th>{text("Servicio")}</th>
+            <th>Cuándo</th>
+            <th>Equipo</th>
+            <th>Estado</th>
+            <th>
+              <span className="sr-only">Abrir</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {services.map((s) => {
+            const required = s.positions.reduce((n, p) => n + p.quantity, 0),
+              confirmed = s.positions
+                .flatMap((p) => p.assignments ?? [])
+                .filter((a) => a.status === "CONFIRMED").length;
+            return (
+              <tr
+                key={s.id}
+                className="service-row"
+                data-status={s.status}
+                tabIndex={0}
+                aria-label={`${text("Abrir servicio")} ${s.title}`}
+                onClick={() => select(s.id)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    select(s.id);
+                  }
+                }}
+              >
+                <td>
+                  <div className="service-title">
+                    <ClipboardList size={20} strokeWidth={1} />
+                    <div>
+                      <strong className="service-row-title">{s.title}</strong>
+                      {participation(s) && (
+                        <small className="service-participation">
+                          <Check size={14} aria-hidden="true" />
+                          {participation(s)}
                         </small>
-                      </div>
+                      )}
+                      <small>{s.locationText || "Ubicación por definir"}</small>
                     </div>
-                  </td>
-                  <td>
-                    {date(s.startsAt, timezone)}
-                    <small>Hasta {date(s.endsAt, timezone)}</small>
-                  </td>
-                  <td>
-                    {confirmed} <span className="muted">/ {required}</span>
-                    <small>confirmados</small>
-                  </td>
-                  <td>
-                    <Badge status={s.status} />
-                  </td>
-                  <td>
-                    <ArrowUpRight size={18} aria-hidden="true" />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  </div>
+                </td>
+                <td>
+                  {date(s.startsAt, timezone)}
+                  <small>Hasta {date(s.endsAt, timezone)}</small>
+                </td>
+                <td>
+                  {confirmed} <span className="muted">/ {required}</span>
+                  <small>confirmados</small>
+                </td>
+                <td>
+                  <Badge status={s.status} />
+                </td>
+                <td>
+                  <ArrowUpRight size={18} aria-hidden="true" />
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </DataTable>
     </>
   );
 }
@@ -2167,7 +2148,7 @@ function CreateService({
           />
           <label className="field">
             <span>Información para el equipo</span>
-            <textarea
+            <Textarea
               name="description"
               defaultValue={existing?.description}
               placeholder="Todo lo que necesitan saber antes de apuntarse."
@@ -3021,46 +3002,44 @@ function Team({
         <Skeleton />
       ) : (
         <>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Persona</th>
-                  <th>Permisos</th>
-                  <th>Estado</th>
-                  <th>
-                    <span className="sr-only">Acciones</span>
-                  </th>
+          <DataTable label="Equipo">
+            <thead>
+              <tr>
+                <th>Persona</th>
+                <th>Permisos</th>
+                <th>Estado</th>
+                <th>
+                  <span className="sr-only">Acciones</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {members.items.map((m) => (
+                <tr key={m.id}>
+                  <td>
+                    {m.user.firstName} {m.user.lastName}
+                    <small>{m.user.email}</small>
+                  </td>
+                  <td>{statusLabel[m.permissionRole]}</td>
+                  <td>
+                    <Badge status={m.status} />
+                  </td>
+                  <td>
+                    {(actor.permissionRole === "OWNER" ||
+                      !["OWNER", "ADMIN"].includes(m.permissionRole)) && (
+                      <Button
+                        secondary
+                        onClick={() => setEditing(m)}
+                        aria-label={`Editar acceso de ${m.user.firstName} ${m.user.lastName}`}
+                      >
+                        Editar acceso
+                      </Button>
+                    )}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {members.items.map((m) => (
-                  <tr key={m.id}>
-                    <td>
-                      {m.user.firstName} {m.user.lastName}
-                      <small>{m.user.email}</small>
-                    </td>
-                    <td>{statusLabel[m.permissionRole]}</td>
-                    <td>
-                      <Badge status={m.status} />
-                    </td>
-                    <td>
-                      {(actor.permissionRole === "OWNER" ||
-                        !["OWNER", "ADMIN"].includes(m.permissionRole)) && (
-                        <Button
-                          secondary
-                          onClick={() => setEditing(m)}
-                          aria-label={`Editar acceso de ${m.user.firstName} ${m.user.lastName}`}
-                        >
-                          Editar acceso
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </DataTable>
           <Pagination
             page={page}
             total={members.total}
@@ -3138,7 +3117,7 @@ function MemberEditor({
         <form onSubmit={submit} aria-busy={busy}>
           <label className="field">
             Permisos
-            <select
+            <Select
               value={role}
               onChange={(e) =>
                 setRole(e.target.value as Membership["permissionRole"])
@@ -3153,11 +3132,11 @@ function MemberEditor({
                   {statusLabel[r]}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
           <label className="field">
             Estado
-            <select
+            <Select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               disabled={busy}
@@ -3167,7 +3146,7 @@ function MemberEditor({
                   {statusLabel[s]}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
           <p>
             Un propietario puede gestionar todos los accesos. Un administrador

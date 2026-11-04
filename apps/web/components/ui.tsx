@@ -1,6 +1,7 @@
 "use client";
 import {
   ButtonHTMLAttributes,
+  ComponentProps,
   InputHTMLAttributes,
   ReactNode,
   Ref,
@@ -62,6 +63,45 @@ export function Input({
           </button>
         )}
       </div>
+    </div>
+  );
+}
+export function Textarea(props: ComponentProps<"textarea">) {
+  return <textarea {...props} />;
+}
+export function Select(props: ComponentProps<"select">) {
+  return <select {...props} />;
+}
+export function Checkbox(props: Omit<ComponentProps<"input">, "type">) {
+  return <input {...props} type="checkbox" />;
+}
+export function DataTable({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={["table-wrap", className].filter(Boolean).join(" ")}>
+      <table aria-label={label}>{children}</table>
+    </div>
+  );
+}
+export function SectionHeader({
+  title,
+  action,
+  ...props
+}: Omit<ComponentProps<"div">, "title" | "children"> & {
+  title: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div {...props}>
+      <h2>{title}</h2>
+      {action}
     </div>
   );
 }

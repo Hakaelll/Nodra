@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Page, PublicUser } from "@nodra/contracts";
 import { api } from "../lib/api";
-import { Button, Input } from "./ui";
+import { Button, Input, Textarea, Checkbox } from "./ui";
 
 type Person = { id: string; user: PublicUser };
 export function NoticeComposer({
@@ -115,7 +115,7 @@ export function NoticeComposer({
       />
       <label className="field">
         <span>Mensaje</span>
-        <textarea name="body" maxLength={5000} required disabled={busy} />
+        <Textarea name="body" maxLength={5000} required disabled={busy} />
       </label>
       <fieldset disabled={busy} className="notice-audience">
         <legend>Destinatarios</legend>
@@ -206,8 +206,7 @@ export function NoticeComposer({
                       <span>
                         {person.user.firstName} {person.user.lastName}
                       </span>
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={selected.some((item) => item.id === person.id)}
                         disabled={
                           selected.length >= 100 &&
@@ -262,7 +261,7 @@ export function NoticeComposer({
         )}
       </fieldset>
       <label className="inline-check">
-        <input type="checkbox" name="ack" disabled={busy} />
+        <Checkbox name="ack" disabled={busy} />
         Solicitar confirmación de lectura
       </label>
       {error && (

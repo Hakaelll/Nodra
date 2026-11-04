@@ -1,10 +1,10 @@
 # Próximas tareas de Nodra
 
-Actualizado: 03/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
+Actualizado: 04/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
 
 ## Prioridad de continuidad
 
-1. NOD-025/020: consolidar los componentes web pendientes de §182 usando el diseño y comportamiento actuales. La revisión consolidada de gates pasa; [evidencia y límites](docs/validation/2026-11-03-bootstrap-gates.md). Primer pase individual §0–290 completo, sin confundir inventario con implementación.
+1. NOD-020: continuar revisión de cierre; NOD-025/§182 ya tiene componentes compartidos utilizados por las pantallas. La revisión consolidada de gates pasa; [evidencia y límites](docs/validation/2026-11-03-bootstrap-gates.md). Primer pase individual §0–290 completo, sin confundir inventario con implementación.
    §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. Continuar revisión residual de permisos/logs y validación final, manteniendo pruebas físicas/aceptación visual pendientes.
 2. NOD-019/008: inventario de las 47 operaciones tenant contrastado con OpenAPI; 188 rechazos sin sesión o Membership activa verificados. Revisar combinaciones de roles activos, carreras de revocación y logs. Las acciones requeridas, cancelaciones por lote y JobRole tienen evidencia; E2E de clientes y aceptación siguen pendientes.
 3. NOD-014/015/017/022: completar pruebas de clientes y cambios de contexto; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
@@ -500,7 +500,7 @@ Notas técnicas: reutilizar edición/recorte actuales; props de contexto deben s
 
 Descripción: consolidar controles y composición que todavía se repiten en pantallas, sin rediseño ni otra biblioteca.
 Prioridad: P1
-Estado: TODO
+Estado: DONE
 Dependencias: NOD-014, NOD-021.
 Objetivo: contratos reutilizables para Textarea, Select, Checkbox, Dropdown, DataTable, SectionHeader y OrganizationSwitcher; migrar los consumidores existentes.
 Criterios de aceptación: componentes usados en pantallas reales, sin wrappers sin uso; conservar IDs/names/labels, validación, refs, teclado/foco, estados de carga y contexto tenant; reutilizar tokens/clases y los diálogos/estados/feedback actuales. No reintroducir burbujas, sidebar de ajustes ni textos rechazados. Sin dependencias ni presets nuevos.
@@ -601,3 +601,5 @@ APK debug actualizado (build 31,7 s), firma v2 verificada; SHA-256 b4e30cb2f7c5f
 03/11 — NOD-008/019/020: la matriz esencial de acceso ya cubre 47 operaciones tenant publicadas y 188 rechazos anónimo/ajeno/ADMIN suspendido/LEFT. No cambia estado de organización/ajustes/recuentos/auditoría; UUID reales cruzados conservan su caso separado. Trece integraciones aprobadas sin ampliar los veinte casos totales. SECURITY/AUTH distinguen la cobertura conservada de las matrices y regresiones históricas retiradas. Roles activos, carreras y revisión global siguen pendientes; IDs y estados preservados.
 
 03/11 — NOD-022/019/020: reproducido 404 al abrir un chat de servicio existente desde otra cuenta COORDINATOR. La transacción incluía confirmados pero omitía al operador nuevo; ahora lo incorpora de forma idempotente antes de restaurar su visibilidad. El recorrido esencial confirma mismo chat/título, envío, ocultación/reapertura, mensaje conservado y MEMBER rechazado. Trece integraciones aprobadas, sin añadir casos ni modificar clientes/contrato/migraciones. IDs/estados conservados y objetivo global activo.
+
+04/11 — NOD-025 DONE: Select/Textarea/Checkbox, DataTable, SectionHeader, OrganizationSwitcher y Dropdown usados por consumidores reales. SSR compara tres consumidores y ambos switchers con la versión previa; conserva props/refs y CSS. Lint, tipos y cuatro pruebas web aprobados. Marca SVG/PNG basada en N actual y metadata de iconos añadidas por petición del propietario. El resto de estados/IDs se conserva; aceptación visual y objetivo global pendientes.

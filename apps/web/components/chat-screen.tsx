@@ -15,8 +15,9 @@ import {
 } from "lucide-react";
 import { api } from "../lib/api";
 import { clientNonce } from "../lib/client-nonce";
-import { Button } from "./ui";
+import { Button, Textarea, Checkbox } from "./ui";
 import { useConfirm } from "./confirmation-provider";
+import { Dropdown } from "./dropdown";
 
 type Person = { userId: string; firstName: string; lastName: string };
 type Message = {
@@ -88,28 +89,6 @@ export function ChatScreen({
   const endRef = useRef<HTMLDivElement>(null);
   const confirm = useConfirm();
   const [deleting, setDeleting] = useState(false);
-  const [actionsOpen, setActionsOpen] = useState(false);
-  const actionsRef = useRef<HTMLDivElement>(null);
-  const actionsTrigger = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (!actionsOpen) return;
-    const outside = (event: PointerEvent) => {
-      if (!actionsRef.current?.contains(event.target as Node))
-        setActionsOpen(false);
-    };
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setActionsOpen(false);
-        actionsTrigger.current?.focus();
-      }
-    };
-    document.addEventListener("pointerdown", outside);
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("pointerdown", outside);
-      document.removeEventListener("keydown", escape);
-    };
-  }, [actionsOpen]);
   async function deleteChat() {
     if (!active || deleting) return;
     const target = active.id;
@@ -411,35 +390,22 @@ export function ChatScreen({
                   {active.participants.length} participantes
                 </small>
               </div>
-              <div className="chat-actions" ref={actionsRef}>
-                <button
-                  className="chat-actions-trigger"
-                  ref={actionsTrigger}
-                  type="button"
-                  onClick={() => setActionsOpen((open) => !open)}
-                  disabled={deleting}
-                  aria-label="Opciones del chat"
-                  aria-expanded={actionsOpen}
-                  aria-controls="chat-actions-panel"
-                >
-                  <Ellipsis size={21} />
-                </button>
-                {actionsOpen && (
-                  <div className="chat-actions-panel" id="chat-actions-panel">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActionsOpen(false);
-                        actionsTrigger.current?.focus();
-                        void deleteChat();
-                      }}
-                    >
-                      <Trash2 size={17} aria-hidden="true" />
-                      Borrar de mi lista
-                    </button>
-                  </div>
-                )}
-              </div>
+              <Dropdown
+                key={active.id}
+                label="Opciones del chat"
+                icon={<Ellipsis size={21} />}
+                disabled={deleting}
+                className="chat-actions"
+                triggerClassName="chat-actions-trigger"
+                panelClassName="chat-actions-panel"
+                actions={[
+                  {
+                    label: "Borrar de mi lista",
+                    icon: <Trash2 size={17} aria-hidden="true" />,
+                    onSelect: deleteChat,
+                  },
+                ]}
+              />
             </header>
             <div className="chat-messages" aria-live="polite">
               {messages.length < totalMessages && (
@@ -493,7 +459,7 @@ export function ChatScreen({
               <label htmlFor="chat-draft" className="sr-only">
                 Mensaje
               </label>
-              <textarea
+              <Textarea
                 id="chat-draft"
                 value={draft}
                 maxLength={4000}
@@ -568,8 +534,7 @@ export function ChatScreen({
                       {initials(fullName(person))}
                     </span>
                     <span>{fullName(person)}</span>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={selected.includes(person.userId)}
                       onChange={(event) =>
                         setSelected(

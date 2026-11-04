@@ -20,6 +20,7 @@ import {
   PageHeader,
   Skeleton,
   TextLink,
+  SectionHeader,
 } from "./ui";
 
 export function Dashboard({
@@ -132,12 +133,15 @@ export function Dashboard({
       ) : (
         <div className="workspace-overview">
           <section className="schedule-panel" aria-busy={loading}>
-            <div className="week-heading">
-              <h2>Tu agenda</h2>
-              <button className="text-link" onClick={calendar}>
-                Ver calendario <ArrowUpRight size={16} />
-              </button>
-            </div>
+            <SectionHeader
+              className="week-heading"
+              title="Tu agenda"
+              action={
+                <button className="text-link" onClick={calendar}>
+                  Ver calendario <ArrowUpRight size={16} />
+                </button>
+              }
+            />
             <div className="week-strip" aria-label="Filtrar por día">
               {week.map((d) => {
                 const key = d.toISOString().slice(0, 10);
@@ -344,10 +348,13 @@ export function Dashboard({
             )}
           </section>
           <aside className="inbox-panel">
-            <div className="section-heading">
-              <h2>Pendiente</h2>
-              <span className="count-label">{summary.attention.total}</span>
-            </div>
+            <SectionHeader
+              className="section-heading"
+              title="Pendiente"
+              action={
+                <span className="count-label">{summary.attention.total}</span>
+              }
+            />
             {summary.attention.total === 0 ? (
               <div className="attention-clear">
                 <Check size={22} />
