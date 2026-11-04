@@ -393,6 +393,59 @@ it("protects organization customization and rejects stale audited changes", asyn
       )
     ).statusCode,
   ).toBe(200);
+  const tenant = `organizations/${fixture.id}`;
+  for (const { actor, label, operates, manages } of [
+    { actor: manager, label: "OWNER", operates: true, manages: true },
+    { actor: administrator, label: "ADMIN", operates: true, manages: true },
+    {
+      actor: coordinator,
+      label: "COORDINATOR",
+      operates: true,
+      manages: false,
+    },
+    { actor: member, label: "MEMBER", operates: false, manages: false },
+  ]) {
+    for (const route of ["services", "notices"])
+      expect(
+        (await request("GET", `${tenant}/${route}`, actor.access)).statusCode,
+        `${label} ${route}`,
+      ).toBe(200);
+    for (const route of ["members", "settings"])
+      expect(
+        (await request("GET", `${tenant}/${route}`, actor.access)).statusCode,
+        `${label} ${route}`,
+      ).toBe(manages ? 200 : 403);
+    for (const [route, body] of [
+      ["roles", { name: `Matrix ${label}` }],
+      ["notices", { title: `Matrix ${label}`, body: "Operational notice" }],
+      [
+        "services",
+        {
+          title: `Matrix ${label}`,
+          startsAt: "2027-10-01T12:00:00Z",
+          endsAt: "2027-10-01T16:00:00Z",
+        },
+      ],
+    ] as const)
+      expect(
+        (await request("POST", `${tenant}/${route}`, actor.access, body))
+          .statusCode,
+        `${label} ${route}`,
+      ).toBe(operates ? 201 : 403);
+    expect(
+      (
+        await request("POST", `${tenant}/invitations`, actor.access, {
+          maxUses: 1,
+        })
+      ).statusCode,
+      `${label} invitations`,
+    ).toBe(manages ? 201 : 403);
+  }
+  const scope = { organizationId: fixture.id };
+  expect(await db.jobRole.count({ where: scope })).toBe(3);
+  expect(await db.notice.count({ where: scope })).toBe(3);
+  expect(await db.service.count({ where: scope })).toBe(3);
+  expect(await db.invitation.count({ where: scope })).toBe(2);
 });
 
 it("protects private organization logos and rolls back failed audited uploads", async () => {

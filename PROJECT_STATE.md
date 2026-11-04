@@ -212,3 +212,5 @@ API recargada tras validar commandline y propietario de puerto: nuevo PID 14292/
 04/11 — Marca aplicada al launcher nativo: mipmap Android y catálogo AppIcon iOS generados desde la misma N de la web; tamaños y opacidad iOS comprobados. El catálogo conserva sus nombres y referencias. No ejecución física ni build iOS.
 
 04/11 — APK con marca Nodra compilado y firma v2 verificada. aapt2 confirma nombre e iconos; cinco imágenes empaquetadas coinciden con los píxeles fuente. SHA-256 y tamaño actualizados en TESTING. No prueba física ni compilación iOS.
+
+04/11 — Revisión de permisos: matriz HTTP de cuatro roles activos/ocho operaciones verificada con PostgreSQL aislado; 32 peticiones y recuentos 3/3/3/2. Trece integraciones/lint pasan sin cambiar runtime o aumentar casos. Docker Desktop actualmente falla al arrancar el listener sailor-ingest.sock; las comprobaciones antiguas de disponibilidad no describen el estado actual. No factory reset ni datos de desarrollo modificados.
