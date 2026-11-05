@@ -68,6 +68,7 @@ model User {
   avatarUpdatedAt DateTime? @db.Timestamptz
   active Boolean @default(true)
   emailVerifiedAt DateTime? @db.Timestamptz
+  registrationPending Boolean @default(false)
   createdAt DateTime @default(now()) @db.Timestamptz
   updatedAt DateTime @updatedAt @db.Timestamptz
   memberships Membership[]

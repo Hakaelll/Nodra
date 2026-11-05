@@ -52,12 +52,17 @@ export class AuthController {
     @Inject(ProfileService) private readonly profile: ProfileService,
   ) {}
   @Post("register")
-  @ApiOperation({ summary: "Crear usuario y sesión" })
+  @ApiOperation({
+    summary: "Solicitar registro con verificación de correo",
+    description:
+      "Respuesta genérica para cualquier dirección válida. No crea sesión; las cuentas nuevas requieren enlace y contraseña antes de iniciar sesión.",
+  })
   @ApiBody({ schema: openApiSchema(registration) })
-  @ApiResponse({ status: 201, schema: openApiSchema(sessionOutput) })
+  @ApiResponse({ status: 201, schema: openApiSchema(okOutput) })
   @ApiResponse({
     status: 409,
-    description: "Email registrado o conflicto concurrente.",
+    description:
+      "Conflicto concurrente reintentable, sin indicar si existe el correo.",
     schema: openApiSchema(errorOutput),
   })
   register(@Body() body: unknown) {
@@ -107,7 +112,8 @@ export class AuthController {
   @ApiResponse({ status: 201, schema: openApiSchema(okOutput) })
   @ApiResponse({ status: 400, schema: openApiSchema(errorOutput) })
   verifyComplete(@Body() body: unknown) {
-    return this.auth.verifyEmail(parse(verificationInput, body).token);
+    const input = parse(verificationInput, body);
+    return this.auth.verifyEmail(input.token, input.password);
   }
   @Post("refresh")
   @ApiOperation({

@@ -15,7 +15,10 @@ export const resetCompleteInput = z
   })
   .strict();
 export const verificationInput = z
-  .object({ token: z.string().regex(/^[a-f0-9]{64}$/) })
+  .object({
+    token: z.string().regex(/^[a-f0-9]{64}$/),
+    password: z.string().min(12).max(128).optional(),
+  })
   .strict();
 export const publicUserOutput = z
   .object({

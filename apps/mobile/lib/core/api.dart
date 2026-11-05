@@ -92,12 +92,7 @@ class NodraApi {
     _requireGeneration(generation);
   }
 
-  Future<Json> authenticate(
-    String email,
-    String password, {
-    String? firstName,
-    String? lastName,
-  }) async {
+  Future<Json> authenticate(String email, String password) async {
     final generation = ++_generation;
     _access = null;
     _refresh = null;
@@ -107,19 +102,35 @@ class NodraApi {
     _requireGeneration(generation);
     try {
       final response = await dio.post<Json>(
-        firstName == null ? '/auth/login' : '/auth/register',
-        data: {
-          'email': email.trim().toLowerCase(),
-          'password': password,
-          'firstName': ?firstName,
-          'lastName': ?lastName,
-        },
+        '/auth/login',
+        data: {'email': email.trim().toLowerCase(), 'password': password},
       );
       await _save(response.data!, generation);
       _requireGeneration(generation);
       return response.data!['user'] as Json;
     } on DioException catch (error) {
       _requireGeneration(generation);
+      throw ApiFailure.from(error);
+    }
+  }
+
+  Future<void> register(
+    String email,
+    String password,
+    String firstName,
+    String lastName,
+  ) async {
+    try {
+      await dio.post<Json>(
+        '/auth/register',
+        data: {
+          'email': email.trim().toLowerCase(),
+          'password': password,
+          'firstName': firstName.trim(),
+          'lastName': lastName.trim(),
+        },
+      );
+    } on DioException catch (error) {
       throw ApiFailure.from(error);
     }
   }
@@ -150,9 +161,15 @@ class NodraApi {
     await request('/auth/verify/request', method: 'POST');
   }
 
-  Future<void> completeEmailVerification(String token) async {
+  Future<void> completeEmailVerification(
+    String token, {
+    String? password,
+  }) async {
     try {
-      await dio.post<Json>('/auth/verify/complete', data: {'token': token});
+      await dio.post<Json>(
+        '/auth/verify/complete',
+        data: {'token': token, 'password': ?password},
+      );
     } on DioException catch (error) {
       throw ApiFailure.from(error);
     }

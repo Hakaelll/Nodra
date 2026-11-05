@@ -2,11 +2,15 @@
 
 Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
 
-05/11 — [Disposición vigente de los 25 IDs](docs/validation/2026-11-05-delivery-review.md): doce DONE, once REVIEW, NOD-020 IN_PROGRESS y NOD-023 BLOCKED para proveedores futuros. Las notas iniciales y las fechadas anteriormente se conservan como historial; no sustituyen los estados y pendientes de esta revisión.
+05/11 — [Disposición vigente de los 25 IDs](docs/validation/2026-11-05-delivery-review.md): quince DONE, ocho REVIEW, NOD-020 y NOD-026 IN_PROGRESS y NOD-023 BLOCKED para proveedores futuros. Las notas iniciales y las fechadas anteriormente se conservan como historial; no sustituyen los estados y pendientes de esta revisión.
 
 05/11 — Caché residual de Android e instaladores temporales retirados; emulador/imagen/AVD ausentes y sin procesos activos. SDK/APK y datos conservados. Web LAN, API y worker responden 200 después de la limpieza.
 
 ## Prioridad de continuidad
+
+05/11 — Registro verificado activado en API/web, migración compatible aplicada sin reset/seed y readiness 200. Flujo HTTP/BFF, contratos, suite esencial y sonda Flutter comprobados; [evidencia](docs/validation/2026-11-05-verified-registration.md). Fuente móvil actualizada; APK nuevo pendiente del inglés para evitar recompilar y recrear cachés dos veces.
+
+05/11 — El propietario probó el APK d7d6ce69 en su teléfono e informó que conserva la sesión al cerrar/abrir y funcionan servicios y chat. Se cierran NOD-016/017/022 con esa evidencia y las pruebas técnicas previas. La nueva verificación de registro es un cambio posterior y conserva sus propias comprobaciones pendientes. NOD-005 se amplía por decisión explícita del propietario para exigir correo verificado antes del primer acceso; NOD-026 añade inglés.
 
 05/11 — El propietario puede probar el APK en su teléfono; el resultado nativo sigue pendiente. Descarga temporal LAN disponible en http://192.168.1.133:3001/nodra.apk, servida por una sonda local que sólo entrega ese archivo y no forma parte de la web productiva. Descarga HTTP completa verificada: 211.046.639 bytes y hash d7d6ce69080a71919a9a822463f563debf4951a98b0a0cc199a095900d2a467a; rutas ajenas 404 y POST 405. API LAN readiness 200. Sin segunda copia del APK ni cachés de compilación nuevas; retirar el servidor temporal al terminar la prueba.
 
@@ -19,7 +23,7 @@ Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
    §68: análisis de SQL real y ajuste acotado de pendientes comprobado el 05/11; [planes y límites](docs/validation/2026-11-05-query-plans.md). No añadir índices por scans de tablas pequeñas ni interpretar este fixture como benchmark productivo.
    §258: tipos de chat/actividad/notificaciones compartidos entre API/web y derivados de Zod; OpenAPI completo sin cambios. La duplicación local indicada en la auditoría histórica está resuelta; generación Flutter desde OpenAPI continúa como evolución futura.
    §190/229, chat: resuelto historial atascado por polling y tope de primera página en ambos clientes; [evidencia con 110 chats/130 mensajes](docs/validation/2026-11-05-chat-paging.md). Mantener pendiente interacción completa/aceptación; emulador sigue desinstalado.
-2. NOD-008 y demás REVIEW: completar revisión de uso sin Computer Use, según la preferencia del propietario. NOD-005 conserva el registro duplicado con 409 como limitación documentada; no dar por cumplido su criterio amplio de no enumeración ni cambiar el flujo de acceso silenciosamente.
+2. NOD-008 y demás REVIEW: completar revisión de uso sin Computer Use, según la preferencia del propietario. NOD-005 cambia por decisión del propietario a registro con correo verificado, respuesta genérica y sin sesión previa; evidencia en docs/validation/2026-11-05-verified-registration.md. NOD-026 añade inglés.
 3. NOD-014/015/017/022: recorrido de datos Flutter/API real aprobado el 05/11, incluido contexto restaurado y confirmación persistida; evidencia en MOBILE_APP/TESTING. Continúan pendientes interacción completa de pantallas y prueba física; aceptación web recibida del propietario; conservar los límites de las pruebas nativas, sin Computer Use ni subagentes.
 4. NOD-013/016/020: separar aceptación pendiente de evolución futura. Android debug compilado y [arranque nativo en AVD API 35 comprobado](docs/validation/2026-11-05-android-startup.md) el 05/11; falta interacción completa y prueba física. Emulador/imagen/AVD retirados después por petición del propietario. §271 sitúa macOS/Xcode/Apple Developer/APNs como futuros; adquisición push remota y distribución nativa no son prerrequisitos del APK local. Conservarlos en roadmap sin simular implementación ni contratar servicios.
 
@@ -339,7 +343,7 @@ Descripción: Riverpod, Dio, rutas, secure storage y organización.
 
 Prioridad: P0
 
-Estado: REVIEW
+Estado: DONE
 
 Dependencias: NOD-005, NOD-006.
 
@@ -359,7 +363,7 @@ Descripción: Servicios, interés y respuesta a asignación.
 
 Prioridad: P0
 
-Estado: REVIEW
+Estado: DONE
 
 Dependencias: NOD-012, NOD-016.
 
@@ -469,7 +473,7 @@ NOD-019 referencias reales y settings: 14 operaciones contra UUID existentes de 
 
 Descripción: conversaciones manuales y desde servicios confirmados, con lectura por participante.
 Prioridad: P0
-Estado: REVIEW
+Estado: DONE
 Dependencias: NOD-004, NOD-009, NOD-014, NOD-021.
 Objetivo: chat sencillo, privado por Membership, utilizable en móvil y escritorio.
 Criterios de aceptación: creación individual/grupo con nombre; chat de servicio con título heredado; mensajes cronológicos e idempotentes; contador de no leídos; acceso limitado a participantes; E2E en dispositivo y cliente móvil.
@@ -630,3 +634,13 @@ APK debug actualizado (build 31,7 s), firma v2 verificada; SHA-256 b4e30cb2f7c5f
 04/11 — NOD-019/020: capturados logs reales de API/ConsolePush en sonda aislada. Cuatro estados HTTP 401/400/500/503, identificadores presentes, queries omitidas, canarios de tokens/cookies/password/error/push ausentes y respuestas internas genéricas. No ampliar esta evidencia a cada rama de logging o permisos; los dos errores usaron inyección local. Sin nuevos casos ni cambio de runtime. Conservar revisión de cliente/hardware y demás criterios abiertos.
 
 05/11 — NOD-016/017/020/022: APK actual comprobado por hash, firma v2 y API LAN embebida. No hay Android conectado según ADB; instancia temporal cerrada. Pendiente respuesta sobre prueba del APK o teléfono USB, sin reinstalar emulador. Esta comprobación del artefacto no cierra ejecución/persistencia nativa.
+
+## NOD-026 — Español e inglés en web y Flutter
+
+Descripción: añadir inglés a los controles, formularios, estados, fechas y mensajes de ambos clientes, conservando español y la dirección visual aprobada.
+Prioridad: P0
+Estado: IN_PROGRESS
+Dependencias: NOD-005, NOD-014, NOD-016.
+Objetivo: idioma seleccionable y persistente sin traducir contenido creado por usuarios u organizaciones.
+Criterios de aceptación: controles y navegación en ambos idiomas, formularios y errores traducidos, formatos de fecha/número coherentes, preferencia conservada y ninguna dependencia de servicios de traducción externos.
+Tests requeridos: catálogos y flujos esenciales, tipos/análisis/builds afectados; no ampliar la suite permanente sin necesidad.

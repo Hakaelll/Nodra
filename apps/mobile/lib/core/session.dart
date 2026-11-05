@@ -75,20 +75,10 @@ class SessionController extends AsyncNotifier<SessionState> {
     );
   }
 
-  Future<void> login(
-    String email,
-    String password, {
-    String? firstName,
-    String? lastName,
-  }) async {
+  Future<void> login(String email, String password) async {
     final operation = ++_operation;
     try {
-      await api.authenticate(
-        email,
-        password,
-        firstName: firstName,
-        lastName: lastName,
-      );
+      await api.authenticate(email, password);
       if (!_isCurrent(operation)) return;
       final loaded = await _load();
       if (_isCurrent(operation)) state = AsyncData(loaded);

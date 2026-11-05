@@ -2,6 +2,7 @@ import { beforeAll, afterAll, describe, it, expect, vi } from "vitest";
 import * as auditEvents from "./events";
 import type { AuditAction } from "./events";
 import { randomUUID } from "node:crypto";
+import { openAuthToken } from "@nodra/shared";
 import { z } from "zod";
 import { unlink } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -41,21 +42,180 @@ async function request(
   });
 }
 async function register(label: string) {
+  const email = `${label.toLowerCase()}-${randomUUID()}@nodra.test`;
+  const password = "Integration-password-123";
   const result = await request("POST", "auth/register", undefined, {
-    email: `${label}-${randomUUID()}@nodra.test`,
-    password: "Integration-password-123",
+    email,
+    password,
     firstName: label,
     lastName: "Test",
   });
   expect(result.statusCode).toBe(201);
-  const data = result.json();
-  ids.push(data.user.id);
+  const user = await db.user.findUniqueOrThrow({ where: { email } });
+  ids.push(user.id);
+  expect(Object.keys(result.json())).toEqual(["ok"]);
+  expect(result.json().ok).toBe(true);
+  expect(await db.session.count({ where: { userId: user.id } })).toBe(0);
+  if (label === "Owner") {
+    expect(
+      (await request("POST", "auth/login", undefined, { email, password }))
+        .statusCode,
+    ).toBe(401);
+  }
+  if (label === "Owner") {
+    const retries = await Promise.all(
+      [1, 2].map(() =>
+        request("POST", "auth/register", undefined, {
+          email,
+          password,
+          firstName: label,
+          lastName: "Test",
+        }),
+      ),
+    );
+    for (const retry of retries) {
+      expect(retry.statusCode).toBe(201);
+      expect(retry.json()).toEqual({ ok: true });
+    }
+    expect(await db.user.count({ where: { email } })).toBe(1);
+    expect(
+      await db.authAction.count({
+        where: {
+          userId: user.id,
+          purpose: "EMAIL_VERIFICATION",
+          consumedAt: null,
+        },
+      }),
+    ).toBe(1);
+    expect(
+      await db.authAction.count({
+        where: {
+          userId: user.id,
+          purpose: "EMAIL_VERIFICATION",
+          consumedAt: { not: null },
+        },
+      }),
+    ).toBe(2);
+  }
+  const action = await db.authAction.findFirstOrThrow({
+    where: { userId: user.id, purpose: "EMAIL_VERIFICATION", consumedAt: null },
+    include: { email: true },
+  });
+  const sealed = action.email;
+  if (!sealed?.encryptedToken || !sealed.nonce || !sealed.tag)
+    throw new Error("Verification mail not queued");
+  const token = openAuthToken(
+    {
+      encryptedToken: sealed.encryptedToken,
+      nonce: sealed.nonce,
+      tag: sealed.tag,
+    },
+    action.id,
+    "integration-test-only-secret-64-characters-not-for-production-0000",
+  );
+  if (label === "Owner") {
+    expect(
+      (await request("POST", "auth/verify/complete", undefined, { token }))
+        .statusCode,
+    ).toBe(400);
+    expect(
+      (
+        await request("POST", "auth/verify/complete", undefined, {
+          token,
+          password: "Wrong-password-1234",
+        })
+      ).statusCode,
+    ).toBe(400);
+  }
+  expect(
+    (
+      await request("POST", "auth/verify/complete", undefined, {
+        token,
+        password,
+      })
+    ).statusCode,
+  ).toBe(201);
+  if (label === "Owner") {
+    expect(
+      (
+        await request("POST", "auth/verify/complete", undefined, {
+          token,
+          password,
+        })
+      ).statusCode,
+    ).toBe(400);
+  }
+  const login = await request("POST", "auth/login", undefined, {
+    email,
+    password,
+  });
+  expect(login.statusCode).toBe(201);
+  const data = login.json();
+  if (label === "Owner") {
+    const beforeDuplicate = await db.user.findUniqueOrThrow({
+      where: { id: user.id },
+    });
+    const duplicate = await request("POST", "auth/register", undefined, {
+      email,
+      password: "Other-password-123",
+      firstName: "Other",
+      lastName: "Person",
+    });
+    expect(duplicate.statusCode).toBe(result.statusCode);
+    expect(duplicate.json()).toEqual({ ok: true });
+    expect(
+      (
+        await db.user.findUniqueOrThrow({ where: { id: user.id } })
+      ).updatedAt.getTime() === beforeDuplicate.updatedAt.getTime(),
+    ).toBe(true);
+    expect(
+      (await db.user.findUniqueOrThrow({ where: { id: user.id } })).firstName,
+    ).toBe(label);
+  }
+  if (label === "Owner") {
+    const legacyEmail = `legacy-${randomUUID()}@nodra.test`;
+    const legacy = await db.user.create({
+      data: {
+        email: legacyEmail,
+        passwordHash: user.passwordHash,
+        firstName: "Legacy",
+        lastName: "Account",
+      },
+    });
+    ids.push(legacy.id);
+    expect(legacy.registrationPending).toBe(false);
+    expect(legacy.emailVerifiedAt).toBeNull();
+    expect(
+      (
+        await request("POST", "auth/login", undefined, {
+          email: legacyEmail,
+          password,
+        })
+      ).statusCode,
+    ).toBe(201);
+    await db.user.update({ where: { id: legacy.id }, data: { active: false } });
+    const inactive = await request("POST", "auth/register", undefined, {
+      email: legacyEmail,
+      password: "Other-password-123",
+      firstName: "Other",
+      lastName: "Name",
+    });
+    expect(inactive.statusCode).toBe(201);
+    expect(inactive.json()).toEqual({ ok: true });
+    const unchanged = await db.user.findUniqueOrThrow({
+      where: { id: legacy.id },
+    });
+    expect(unchanged.active).toBe(false);
+    expect(unchanged.passwordHash === user.passwordHash).toBe(true);
+    expect(await db.authAction.count({ where: { userId: legacy.id } })).toBe(0);
+  }
   return {
-    id: data.user.id,
+    id: user.id,
     access: data.accessToken as string,
     refresh: data.refreshToken as string,
   };
 }
+
 async function expectAudit(
   organizationId: string,
   actorId: string,

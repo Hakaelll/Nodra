@@ -23,6 +23,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _last = TextEditingController();
   bool _register = false,
       _recovering = false,
+      _registrationSent = false,
+      _verifying = false,
+      _verificationDone = false,
       _sent = false,
       _enteringReset = false,
       _resetDone = false,
@@ -50,6 +53,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _error = null;
     });
     try {
+      if (_verifying) {
+        await ref
+            .read(apiProvider)
+            .completeEmailVerification(
+              accountActionToken(_resetLink.text, AccountAction.verify)!,
+              password: _password.text,
+            );
+        _password.clear();
+        _resetLink.clear();
+        if (mounted) setState(() => _verificationDone = true);
+        return;
+      }
       if (_enteringReset) {
         await ref
             .read(apiProvider)
@@ -68,14 +83,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         if (mounted) setState(() => _sent = true);
         return;
       }
+      if (_register) {
+        await ref
+            .read(apiProvider)
+            .register(_email.text, _password.text, _first.text, _last.text);
+        _password.clear();
+        if (mounted) setState(() => _registrationSent = true);
+        return;
+      }
       await ref
           .read(sessionProvider.notifier)
-          .login(
-            _email.text,
-            _password.text,
-            firstName: _register ? _first.text.trim() : null,
-            lastName: _register ? _last.text.trim() : null,
-          );
+          .login(_email.text, _password.text);
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {
@@ -95,7 +113,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             Text('nodra.', style: Theme.of(context).textTheme.headlineLarge),
             const SizedBox(height: 65),
             Text(
-              _resetDone
+              _verificationDone
+                  ? 'Correo verificado.'
+                  : _verifying
+                  ? 'Verifica tu correo.'
+                  : _resetDone
                   ? 'Contraseña actualizada.'
                   : _enteringReset
                   ? 'Elige una nueva contraseña.'
@@ -122,18 +144,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 padding: const EdgeInsets.only(bottom: 20),
                 child: NodraInlineError(message: _error!),
               ),
-            if (_resetDone) ...[
+            if (_resetDone || _verificationDone) ...[
               NodraButton(
                 label: 'Iniciar sesión',
                 onPressed: () => setState(() {
                   _enteringReset = false;
                   _resetDone = false;
+                  _verificationDone = false;
+                  _verifying = false;
+                  _register = false;
                   _error = null;
                 }),
               ),
-            ] else if (_sent) ...[
-              const Text(
-                'Si existe una cuenta con ese correo, recibirás un enlace. Puedes abrirlo o pegarlo aquí para continuar.',
+            ] else if (_sent || _registrationSent) ...[
+              Text(
+                _registrationSent
+                    ? 'Si el correo puede registrarse, recibirás un enlace para verificarlo. Si ya tienes cuenta, inicia sesión o recupera tu contraseña.'
+                    : 'Si existe una cuenta con ese correo, recibirás un enlace. Puedes abrirlo o pegarlo aquí para continuar.',
               ),
               const SizedBox(height: 24),
               NodraButton(
@@ -141,7 +168,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 onPressed: () => setState(() {
                   _sent = false;
                   _recovering = false;
-                  _enteringReset = true;
+                  _verifying = _registrationSent;
+                  _enteringReset = !_registrationSent;
+                  _registrationSent = false;
                   _error = null;
                   _password.clear();
                 }),
@@ -153,6 +182,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 onPressed: () => setState(() {
                   _recovering = false;
                   _sent = false;
+                  _registrationSent = false;
+                  _register = false;
+                  _verifying = false;
                   _enteringReset = false;
                   _error = null;
                 }),
@@ -163,7 +195,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (_register && !_enteringReset) ...[
+                    if (_register && !_enteringReset && !_verifying) ...[
                       NodraTextField(
                         controller: _first,
                         decoration: const InputDecoration(labelText: 'Nombre'),
@@ -181,11 +213,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       ),
                       const SizedBox(height: 16),
                     ],
-                    if (_enteringReset) ...[
+                    if (_enteringReset || _verifying) ...[
                       NodraTextField(
                         controller: _resetLink,
-                        decoration: const InputDecoration(
-                          labelText: 'Enlace de recuperación',
+                        decoration: InputDecoration(
+                          labelText: _verifying
+                              ? 'Enlace de verificación'
+                              : 'Enlace de recuperación',
                           helperText:
                               'Pega el enlace completo recibido por correo.',
                         ),
@@ -193,9 +227,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         textCapitalization: TextCapitalization.none,
                         autocorrect: false,
                         validator: (v) =>
-                            accountActionToken(v ?? '', AccountAction.reset) ==
+                            accountActionToken(
+                                  v ?? '',
+                                  _verifying
+                                      ? AccountAction.verify
+                                      : AccountAction.reset,
+                                ) ==
                                 null
-                            ? 'Pega un enlace de recuperación válido.'
+                            ? 'Pega un enlace válido.'
                             : null,
                       ),
                       const SizedBox(height: 16),
@@ -221,7 +260,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         ),
                         obscureText: true,
                         autofillHints: [
-                          _register || _enteringReset
+                          (_register && !_verifying) || _enteringReset
                               ? AutofillHints.newPassword
                               : AutofillHints.password,
                         ],
@@ -249,6 +288,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           ? 'Un momento…'
                           : _recovering
                           ? 'Enviar enlace'
+                          : _verifying
+                          ? 'Verificar correo'
                           : _enteringReset
                           ? 'Guardar contraseña'
                           : _register
@@ -257,12 +298,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       onPressed: _busy ? null : _submit,
                     ),
                     const SizedBox(height: 16),
-                    if (_enteringReset)
+                    if (_enteringReset || _verifying)
                       TextButton(
                         onPressed: _busy
                             ? null
                             : () => setState(() {
                                 _enteringReset = false;
+                                _verifying = false;
+                                _register = false;
                                 _error = null;
                                 _resetLink.clear();
                                 _password.clear();
@@ -301,6 +344,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   _password.clear();
                                 }),
                           child: const Text('Ya tengo un enlace'),
+                        ),
+                      if (!_register)
+                        TextButton(
+                          onPressed: _busy
+                              ? null
+                              : () => setState(() {
+                                  _verifying = true;
+                                  _error = null;
+                                  _password.clear();
+                                }),
+                          child: const Text('Verificar mi correo'),
                         ),
                     ] else
                       TextButton(

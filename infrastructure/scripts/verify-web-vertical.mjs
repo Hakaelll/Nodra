@@ -295,10 +295,11 @@ try {
   let webPort = await freePort();
   while (webPort === apiPort) webPort = await freePort();
   const webOrigin = `http://127.0.0.1:${webPort}`;
+  const verificationSecret = `http-verification-${randomBytes(32).toString("hex")}`;
   const api = launch(apiEntry, {
     DATABASE_URL: fixtureUrl.toString(),
     NODE_ENV: "test",
-    JWT_SECRET: `http-verification-${randomBytes(32).toString("hex")}`,
+    JWT_SECRET: verificationSecret,
     PORT: String(apiPort),
     API_BIND_HOST: "127.0.0.1",
     WEB_ORIGIN: webOrigin,
@@ -316,34 +317,49 @@ try {
   const suffix = randomBytes(6).toString("hex");
   const ownerEmail = `owner-${suffix}@nodra.test`;
   const workerEmail = `worker-${suffix}@nodra.test`;
-  const ownerRegistration = await owner(
-    "POST",
-    "auth/register",
-    {
-      email: ownerEmail,
-      password,
-      firstName: "Owner",
-      lastName: "Verify",
-    },
-    201,
+  const { openAuthToken } = require(
+    resolve(root, "packages/shared/dist/index.js"),
   );
-  const workerRegistration = await worker(
-    "POST",
-    "auth/register",
-    {
-      email: workerEmail,
-      password,
-      firstName: "Worker",
-      lastName: "Verify",
-    },
-    201,
-  );
-  for (const registration of [ownerRegistration, workerRegistration]) {
-    assert.equal(registration.data.accessToken, undefined);
-    assert.equal(registration.data.refreshToken, undefined);
-    assert.ok(registration.cookies.has("nodra_access"));
-    assert.ok(registration.cookies.has("nodra_refresh"));
+  const mailDb = new Client({ connectionString: fixtureUrl.toString() });
+  await mailDb.connect();
+  const signedIn = [];
+  try {
+    for (const [client, email, firstName] of [
+      [owner, ownerEmail, "Owner"],
+      [worker, workerEmail, "Worker"],
+    ]) {
+      const registered = await client(
+        "POST",
+        "auth/register",
+        { email, password, firstName, lastName: "Verify" },
+        201,
+      );
+      assert.deepEqual(registered.data, { ok: true });
+      assert.equal(registered.cookies.has("nodra_access"), false);
+      assert.equal(registered.cookies.has("nodra_refresh"), false);
+      await client("POST", "auth/login", { email, password }, 401);
+      const pending = await mailDb.query(
+        'SELECT a.id, e."encryptedToken", e.nonce, e.tag FROM "AuthAction" a JOIN "AuthActionEmail" e ON e."actionId" = a.id JOIN "User" u ON u.id = a."userId" WHERE u.email = $1 AND a.purpose = $2 AND a."consumedAt" IS NULL',
+        [email, "EMAIL_VERIFICATION"],
+      );
+      assert.equal(pending.rowCount, 1);
+      const action = pending.rows[0];
+      const token = openAuthToken(action, action.id, verificationSecret);
+      await client("POST", "auth/verify/complete", { token, password }, 201);
+      const loggedIn = await client(
+        "POST",
+        "auth/login",
+        { email, password },
+        201,
+      );
+      assert.ok(loggedIn.cookies.has("nodra_access"));
+      assert.ok(loggedIn.cookies.has("nodra_refresh"));
+      signedIn.push(loggedIn);
+    }
+  } finally {
+    await mailDb.end();
   }
+  const [ownerRegistration, workerRegistration] = signedIn;
   await verifySharedRefresh(
     webOrigin,
     ownerRegistration.cookies,

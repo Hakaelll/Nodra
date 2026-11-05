@@ -2,7 +2,7 @@
 
 Última actualización: 05/11/2026. Objetivo bootstrap **activo**; primera vertical funcional, sin certificación de entrega completa ni despliegue productivo.
 
-Disposición vigente: [revisión de entrega](docs/validation/2026-11-05-delivery-review.md). De 25 tareas, doce están DONE por evidencia técnica o aceptación web del propietario, once en REVIEW, NOD-020 IN_PROGRESS y NOD-023 BLOCKED exclusivamente para proveedores futuros. REVIEW conserva las comprobaciones manuales y decisiones sin resolver; no equivale a un fallo funcional demostrado. El propietario informó el 05/11 que probó la versión LAN sin pendientes; NOD-021 queda DONE. Esto no atribuye pruebas nativas ni escenarios concretos que no haya detallado.
+Disposición vigente: [revisión de entrega](docs/validation/2026-11-05-delivery-review.md). De 26 tareas, quince están DONE por evidencia técnica o aceptación del propietario, ocho en REVIEW, NOD-020 y NOD-026 IN_PROGRESS y NOD-023 BLOCKED exclusivamente para proveedores futuros. REVIEW conserva las comprobaciones manuales y decisiones sin resolver; no equivale a un fallo funcional demostrado. El propietario informó el 05/11 que probó la versión LAN sin pendientes; NOD-021 queda DONE. Esto no atribuye pruebas nativas ni escenarios concretos que no haya detallado.
 
 Nota histórica del 30/09, revisión documental §146/149: resumen vigente separado del historial íntegro; conservados los IDs y estados, incluido DONE. Comprobados formato, enlaces locales editados y presencia de los 17 documentos obligatorios. README corrige el puerto del fixture anterior; ADRs actualizan storage y precedencia visual. No cambia runtime ni se repiten suites de aplicación por estos cambios. Auditoría §136–168 registrada; NOD-023 bloquea exclusivamente futuras integraciones externas. §136 reforzado: cuatro regresiones con secretos/stack canario; mensajes 5xx internos sanitizados; Calendario corregido: incluye cancelados como historial, sin incluirlos en próximos. Pasan 56 integraciones verticales, 35 unitarios, lint, typecheck y build API tras el cambio.
 
@@ -30,6 +30,10 @@ Catorce migraciones. Identidad y Session; Organization/Membership/Invitation; Jo
 REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Worker tiene health/ready propio en loopback:4100, con PostgreSQL/Valkey/consumidor. Errores con code/message/requestId. Consultar [API](docs/API.md) y [modelo](docs/DATA_MODEL.md) para rutas, permisos y entidades implemented/planned.
 
 ## Web y móvil
+
+05/11 — Registro verificado activado en API/web, migración compatible aplicada sin reset/seed y readiness 200. Flujo HTTP/BFF, contratos, suite esencial y sonda Flutter comprobados; [evidencia](docs/validation/2026-11-05-verified-registration.md). Fuente móvil actualizada; APK nuevo pendiente del inglés para evitar recompilar y recrear cachés dos veces.
+
+05/11 — El propietario probó el APK d7d6ce69 en su teléfono e informó que conserva la sesión al cerrar/abrir y funcionan servicios y chat. Se cierran NOD-016/017/022 con esa evidencia y las pruebas técnicas previas. La nueva verificación de registro es un cambio posterior y conserva sus propias comprobaciones pendientes. NOD-005 se amplía por decisión explícita del propietario para exigir correo verificado antes del primer acceso; NOD-026 añade inglés.
 
 05/11 — El propietario puede probar el APK en su teléfono; el resultado nativo sigue pendiente. Descarga temporal LAN disponible en http://192.168.1.133:3001/nodra.apk, servida por una sonda local que sólo entrega ese archivo y no forma parte de la web productiva. Descarga HTTP completa verificada: 211.046.639 bytes y hash d7d6ce69080a71919a9a822463f563debf4951a98b0a0cc199a095900d2a467a; rutas ajenas 404 y POST 405. API LAN readiness 200. Sin segunda copia del APK ni cachés de compilación nuevas; retirar el servidor temporal al terminar la prueba.
 
@@ -79,7 +83,7 @@ Resultados históricos adicionales, sin repetir esas suites retiradas:
 
 ## Qué está parcial o falta
 
-La revisión vigente distingue implementación, evidencia y aceptación en [delivery-review](docs/validation/2026-11-05-delivery-review.md). Quedan once tareas REVIEW, con comprobaciones específicas de interacción, persistencia nativa y navegación completa. La aceptación web del propietario está registrada por separado. NOD-005 mantiene el 409 de registro duplicado como limitación respecto a su criterio amplio de no enumeración. No se presenta una prueba HTTP, callback o arranque nativo como sustituto de esas comprobaciones.
+La revisión vigente distingue implementación, evidencia y aceptación en [delivery-review](docs/validation/2026-11-05-delivery-review.md). Quedan ocho tareas REVIEW, con comprobaciones específicas de interacción, persistencia nativa y navegación completa. La aceptación web del propietario está registrada por separado. NOD-005 sustituye el 409 de correo duplicado por el registro verificado autorizado por el propietario. No se presenta una prueba HTTP, callback o arranque nativo como sustituto de esas comprobaciones.
 
 Disponibilidad, targeting avanzado, campos personalizados, presets y push remoto conservan su preparación futura permitida por el prompt. iOS requiere el entorno futuro documentado. NOD-023 sólo bloquea proveedores comerciales futuros; no impide el desarrollo local. GitHub CI permanece retirado y no se reinstala el emulador sin una nueva necesidad autorizada.
 

@@ -9,7 +9,6 @@ import { JwtService } from "@nestjs/jwt";
 import { hash, verify, argon2id } from "argon2";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { Database } from "../database";
-import { publicUser } from "../common";
 import { Prisma } from "@prisma/client";
 import { configuration } from "@nodra/config";
 import { sealAuthToken } from "@nodra/shared";
@@ -85,12 +84,24 @@ export class AuthService {
     const { password, ...profile } = input;
     const hashed = await passwordHash(password);
     return this.db.atomic(async (tx) => {
-      const user = await tx.user.create({
-        data: { ...profile, passwordHash: hashed },
-        select: publicUser,
+      const existing = await tx.user.findUnique({
+        where: { email: profile.email },
       });
-      await this.queueAction(tx, user.id, "EMAIL_VERIFICATION", 24 * 3600000);
-      return { ...(await this.session(tx, user.id)), user };
+      if (existing && (!existing.active || !existing.registrationPending))
+        return { ok: true };
+      const user = await tx.user.upsert({
+        where: { email: profile.email },
+        create: { ...profile, passwordHash: hashed, registrationPending: true },
+        update: { email: profile.email },
+      });
+      if (user.active && user.registrationPending) {
+        await tx.user.update({
+          where: { id: user.id },
+          data: { ...profile, passwordHash: hashed },
+        });
+        await this.queueAction(tx, user.id, "EMAIL_VERIFICATION", 24 * 3600000);
+      }
+      return { ok: true };
     });
   }
   async login(input: { email: string; password: string }) {
@@ -101,17 +112,28 @@ export class AuthService {
       user?.passwordHash ?? unknownUserHash,
       input.password,
     );
-    if (!user || !user.active || !passwordMatches)
+    if (!user || !user.active || user.registrationPending || !passwordMatches)
       throw new UnauthorizedException("Email o contraseña incorrectos.");
-    return this.db.atomic(async (tx) => ({
-      ...(await this.session(tx, user.id)),
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-    }));
+    return this.db.atomic(async (tx) => {
+      const current = await tx.user.findUniqueOrThrow({
+        where: { id: user.id },
+      });
+      if (
+        !current.active ||
+        current.registrationPending ||
+        current.passwordHash !== user.passwordHash
+      )
+        throw new UnauthorizedException("Email o contraseña incorrectos.");
+      return {
+        ...(await this.session(tx, user.id)),
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      };
+    });
   }
   async refresh(token: string) {
     const result = await this.db.atomic(async (tx) => {
@@ -127,7 +149,12 @@ export class AuthService {
         });
         return null;
       }
-      if (session.expiresAt <= new Date() || !session.user.active) return null;
+      if (
+        session.expiresAt <= new Date() ||
+        !session.user.active ||
+        session.user.registrationPending
+      )
+        return null;
       await tx.session.update({
         where: { id: session.id },
         data: { revokedAt: new Date() },
@@ -233,7 +260,7 @@ export class AuthService {
     });
     return { ok: true };
   }
-  async verifyEmail(token: string) {
+  async verifyEmail(token: string, password?: string) {
     await this.db.atomic(async (tx) => {
       const action = await tx.authAction.findUnique({
         where: { tokenHash: tokenHash(token) },
@@ -247,10 +274,17 @@ export class AuthService {
         !action.user.active
       )
         throw new BadRequestException("Enlace inválido o caducado.");
+      if (
+        action.user.registrationPending &&
+        (!password || !(await verify(action.user.passwordHash, password)))
+      )
+        throw new BadRequestException(
+          "Comprueba el enlace y la contraseña del registro.",
+        );
       const now = new Date();
       await tx.user.update({
         where: { id: action.userId },
-        data: { emailVerifiedAt: now },
+        data: { emailVerifiedAt: now, registrationPending: false },
       });
       await tx.authAction.updateMany({
         where: {

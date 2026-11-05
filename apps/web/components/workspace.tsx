@@ -157,7 +157,8 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
     [recover, setRecover] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [recoverySent, setRecoverySent] = useState(false);
+    [recoverySent, setRecoverySent] = useState(false),
+    [registrationSent, setRegistrationSent] = useState(false);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
@@ -169,20 +170,20 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
         setRecoverySent(true);
         return;
       }
-      const result = await api<{ user: PublicUser }>(
-        `auth/${register ? "register" : "login"}`,
-        "POST",
-        {
+      if (register) {
+        await api("auth/register", "POST", {
           email: value(f, "email").trim().toLowerCase(),
           password: value(f, "password"),
-          ...(register
-            ? {
-                firstName: value(f, "firstName"),
-                lastName: value(f, "lastName"),
-              }
-            : {}),
-        },
-      );
+          firstName: value(f, "firstName"),
+          lastName: value(f, "lastName"),
+        });
+        setRegistrationSent(true);
+        return;
+      }
+      const result = await api<{ user: PublicUser }>("auth/login", "POST", {
+        email: value(f, "email").trim().toLowerCase(),
+        password: value(f, "password"),
+      });
       await onLogin(result.user);
     } catch (e) {
       setError((e as Error).message);
@@ -227,12 +228,13 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
                 : "Entra en tu espacio de trabajo."}
           </p>
           <ErrorMessage message={error} clear={() => setError("")} />
-          {recoverySent ? (
+          {recoverySent || registrationSent ? (
             <div className="auth-feedback" role="status">
               <h3>Revisa tu correo</h3>
               <p>
-                Si existe una cuenta con esa dirección, recibirás un enlace para
-                elegir una nueva contraseña. Comprueba también spam.
+                {registrationSent
+                  ? "Si el correo puede registrarse, recibirás un enlace para verificarlo. Si ya tienes cuenta, inicia sesión o recupera tu contraseña."
+                  : "Si existe una cuenta con esa dirección, recibirás un enlace para elegir una nueva contraseña. Comprueba también spam."}
               </p>
             </div>
           ) : (
@@ -308,6 +310,7 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
                 <TextLink
                   onClick={() => {
                     setRegister(!register);
+                    setRegistrationSent(false);
                     setError("");
                   }}
                 >
@@ -362,7 +365,9 @@ function AccountLink({
       await api(
         kind === "reset" ? "auth/reset/complete" : "auth/verify/complete",
         "POST",
-        kind === "reset" ? { token, newPassword: password } : { token },
+        kind === "reset"
+          ? { token, newPassword: password }
+          : { token, password },
       );
       setCompleted(true);
     } catch (cause) {
@@ -419,6 +424,17 @@ function AccountLink({
               </p>
               <ErrorMessage message={error} clear={() => setError("")} />
               <form onSubmit={(event) => void submit(event)} aria-busy={busy}>
+                {kind === "verify" && (
+                  <Input
+                    label="Contraseña de tu cuenta"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    minLength={12}
+                    maxLength={128}
+                    required
+                  />
+                )}
                 {kind === "reset" && (
                   <>
                     <Input
