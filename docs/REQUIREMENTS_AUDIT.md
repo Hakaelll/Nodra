@@ -1,5 +1,7 @@
 # Auditoría del prompt de arranque
 
+05/11 — [Gates actualizados](validation/2026-11-05-bootstrap-gates.md) aprobados: lint/tipos/builds, cuatro web, trece integraciones, contratos, inventario/esquema/Compose, bootstrap/seed doble y HTTP/BFF. Las carencias históricas §182/183 están resueltas; Android compilado. §271 considera la configuración iOS futura y §55 prepara DeviceToken, por lo que no se debe convertir push remoto o una cuenta Apple en requisito nuevo del APK. Conservar revisión de requisitos y aceptación pendiente: estos gates no prueban por sí solos todo el prompt.
+
 05/11 — §183 implementado: familia móvil completa en design/widgets.dart y consumidores migrados, con formularios/diálogos Material, selector sincronizado al contexto y skeleton accesible. Analyze, tres tests esenciales, una sonda puntual de interacción y build Android aprobados; detalle y límites en MOBILE_APP/TESTING. Esta nota actualiza la carencia histórica de componentes de SECTIONS_169_195, sin convertir pruebas de widgets en aceptación visual ni prueba física. El objetivo global permanece activo.
 
 Primer pase individual completo: [secciones 256–290](audit/SECTIONS_256_290.md). Hay 291 entradas únicas, §0–290, sin huecos ni duplicados. Esto demuestra cobertura de la revisión, **no finalización de los requisitos**. NOD-020 sigue abierto para corregir discrepancias y reunir evidencia de aceptación. Las notas anteriores se conservan como historial fechado.
