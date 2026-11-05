@@ -1,5 +1,7 @@
 # Desarrollo local
 
+05/11 — Limpieza solicitada por el propietario: retirados clústeres temporales detenidos, `.next/cache` de producción y caché Vitest, conservando `.next-dev` del servidor activo, dependencias y datos. Tras la prueba nativa también se desinstalaron el paquete emulator y la imagen AOSP temporal del SDK local, y se borraron AVD/logs/caché de instalación. Plataformas Android, build tools, clave debug y APK se mantienen. [Registro y alcance](validation/2026-11-05-android-startup.md); el emulador no forma parte de la instalación local actual.
+
 30/09 — `db:verify-bootstrap` ya comprobó las once migraciones vigentes desde cero y seed repetido. Además de recuentos, prueba owner/worker reales, borrador oculto, historial de Confirmation pendiente y aviso con acuse. La base de desarrollo no se usa para estos datos de prueba; sólo se elimina la fixture creada por el comando.
 
 Seguir primero README. Mantener Node/pnpm y locks del repositorio; no actualizar dependencias en bloque sin motivo.

@@ -29,6 +29,8 @@ REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Wor
 
 ## Web y móvil
 
+05/11 — APK instalado y arrancado en AVD AOSP API 35 sin ventana: actividad activa, proceso conservado y sin coincidencias fatales en logs de arranque. Red desde el guest a readiness API: 200. [Evidencia y límites](docs/validation/2026-11-05-android-startup.md); no prueba navegación, almacenamiento persistente o dispositivo físico. Por petición del propietario se desinstalaron emulador/imagen, se retiró el AVD y se limpiaron cachés inactivas; SDK de compilación y APK conservados. Web/API/worker recuperados y HTTP 200 después de la limpieza.
+
 05/11 — §183: widgets.dart completa la familia compartida móvil con NodraTextField, NodraDialog, NodraSkeleton y NodraOrganizationSwitcher. Formularios y confirmaciones existentes usan los controles; el selector refleja cambios externos sin desbordar nombres largos y el detalle tiene carga accesible. Analyze, tres tests esenciales, sonda puntual de interacción y build APK debug aprobados. Web/API/worker recuperados tras arrancar Docker; cuatro contenedores saludables, migraciones principales al día y tres endpoints HTTP 200. No seed/reset, nuevas dependencias ni validación visual/física.
 
 Web usa cookies HttpOnly, BFF con validación Origin y timeouts. Contexto y filtros navegables en URL. Cabecera de 52 px, lateral compacto, chat a altura disponible y contenido adaptado a 2K. Referencia clara [design.md](docs/design.md), con instrucciones posteriores del propietario sobre navegación, radios y estados. La revisión visual corresponde al propietario: no Computer Use ni subagentes.
