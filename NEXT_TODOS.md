@@ -8,6 +8,8 @@ Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
 
 ## Prioridad de continuidad
 
+05/11 — §256/257: perfil ya delegado a ProfileService; grafo de imports revisado en 89 archivos TS/TSX y 25 Dart, 325 aristas internas. Sin ciclos TS ni Dart propio; única referencia mutua en traducciones generadas de Flutter. [Evidencia y límites](docs/validation/2026-11-05-import-graph.md). No cambia runtime ni la suite permanente.
+
 1. NOD-020: aceptación web del propietario recibida sin pendientes el 05/11; continuar con las comprobaciones restantes según la [disposición actual](docs/validation/2026-11-05-delivery-review.md); los gates técnicos y los componentes §182/183 tienen evidencia. Mantener el objetivo abierto mientras falten las comprobaciones de las tareas REVIEW, sin repetir suites retiradas ni convertir el roadmap futuro en funciones obligatorias.
    §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. NOD-019 cumple sus criterios de bootstrap; se mantienen explícitos los límites de seguridad productiva y las pruebas físicas/aceptación visual pendientes.
    §68: análisis de SQL real y ajuste acotado de pendientes comprobado el 05/11; [planes y límites](docs/validation/2026-11-05-query-plans.md). No añadir índices por scans de tablas pequeñas ni interpretar este fixture como benchmark productivo.

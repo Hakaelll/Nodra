@@ -81,6 +81,8 @@ Disponibilidad, targeting avanzado, campos personalizados, presets y push remoto
 
 ## Decisiones y siguiente objetivo
 
+05/11 — §256/257: perfil ya delegado a ProfileService; grafo de imports revisado en 89 archivos TS/TSX y 25 Dart, 325 aristas internas. Sin ciclos TS ni Dart propio; única referencia mutua en traducciones generadas de Flutter. [Evidencia y límites](docs/validation/2026-11-05-import-graph.md). No cambia runtime ni la suite permanente.
+
 Documentos obligatorios existentes: README, AGENTS, este estado y NEXT_TODOS; en docs, PRODUCT, ARCHITECTURE, DATA_MODEL, API, AUTH_AND_PERMISSIONS, MULTI_TENANCY, DESIGN_SYSTEM, WEB_APP, MOBILE_APP, NOTIFICATIONS, SECURITY, TESTING, DEPLOYMENT, DEVELOPMENT, DECISIONS, ROADMAP y DEPENDENCIES. Diseños futuros y auditorías se enlazan desde esos documentos; existencia no significa implementación completa.
 
 Quince ADRs en [DECISIONS](docs/DECISIONS.md): monolito modular, PostgreSQL, Prisma, REST/OpenAPI, Flutter, Next.js, NestJS/Fastify, Valkey, BullMQ, tenancy, providers, coste cero, diseño claro, URL web y coordinación de sesión entre pestañas. La referencia original oscura es histórica.

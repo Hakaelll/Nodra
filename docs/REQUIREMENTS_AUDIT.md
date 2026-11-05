@@ -1,5 +1,7 @@
 # Auditoría del prompt de arranque
 
+05/11 — §256/257: perfil ya delegado a ProfileService; grafo de imports revisado en 89 archivos TS/TSX y 25 Dart, 325 aristas internas. Sin ciclos TS ni Dart propio; única referencia mutua en traducciones generadas de Flutter. [Evidencia y límites](validation/2026-11-05-import-graph.md). No cambia runtime ni la suite permanente.
+
 05/11 — [Disposición de las 25 tareas](validation/2026-11-05-delivery-review.md) contrastada con criterios, código y evidencia: doce DONE por evidencia técnica o aceptación web, once REVIEW, NOD-020 IN_PROGRESS y proveedores futuros BLOCKED. Los 291 apartados siguen siendo cobertura de auditoría, no 291 requisitos aprobados. Las revisiones manuales, limitación de registro duplicado y alcance de cada prueba permanecen abiertos explícitamente; no se declara completo el objetivo.
 
 05/11 — §258: resuelta la duplicación local de modelos de chat/actividad citada en SECTIONS_256_290. Schemas compartidos en communications.ts, inferencia para la web y consumidores API migrados; archivo API duplicado retirado. OpenAPI anterior/nuevo idéntico y lint/tipos/builds/cuatro web/trece integraciones aprobados. No se introduce generación Flutter obligatoria ni se confunden props de presentación con contratos de transporte.
