@@ -31,6 +31,8 @@ REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Wor
 
 ## Web y móvil
 
+05/11 — NOD-026 en curso: catálogos base de navegación español/inglés en web y ARB inglés generado con Flutter, con paridad de claves y tipos web comprobados. La aplicación conserva todavía el idioma fijo español; faltan selector persistente, migración del resto de textos/errores/fechas y APK actualizado. Esta base no se anuncia como traducción completa.
+
 05/11 — Registro verificado activado en API/web, migración compatible aplicada sin reset/seed y readiness 200. Flujo HTTP/BFF, contratos, suite esencial y sonda Flutter comprobados; [evidencia](docs/validation/2026-11-05-verified-registration.md). Fuente móvil actualizada; APK nuevo pendiente del inglés para evitar recompilar y recrear cachés dos veces.
 
 05/11 — El propietario probó el APK d7d6ce69 en su teléfono e informó que conserva la sesión al cerrar/abrir y funcionan servicios y chat. Se cierran NOD-016/017/022 con esa evidencia y las pruebas técnicas previas. La nueva verificación de registro es un cambio posterior y conserva sus propias comprobaciones pendientes. NOD-005 se amplía por decisión explícita del propietario para exigir correo verificado antes del primer acceso; NOD-026 añade inglés.

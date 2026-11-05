@@ -22,6 +22,26 @@ const spanish = {
   },
 } as const;
 
-export const dictionaries = { "es-ES": spanish } as const;
+const english = {
+  views: {
+    Inicio: "Home",
+    Servicios: "Services",
+    Chat: "Chat",
+    Grupos: "Groups",
+    Equipo: "Team",
+    Avisos: "Notices",
+    Calendario: "Calendar",
+    Configuración: "Settings",
+    Perfil: "Profile",
+  } satisfies Record<View, string>,
+  navigation: {
+    workspace: "WORKSPACE",
+    primary: "Main navigation",
+    mobile: "Mobile navigation",
+    openProfile: "Open profile",
+  },
+} as const;
+
+export const dictionaries = { "es-ES": spanish, "en-GB": english } as const;
 export type SupportedLocale = keyof typeof dictionaries;
 export const copy = dictionaries[defaultLocale];

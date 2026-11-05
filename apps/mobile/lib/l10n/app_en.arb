@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "navHome": "Home",
+  "navServices": "Services",
+  "navNotices": "Notices",
+  "navCalendar": "Calendar",
+  "navProfile": "Profile",
+  "actionRefresh": "Refresh",
+  "labelOrganization": "Your organization",
+  "logoutTitle": "Sign out?",
+  "logoutBody": "You will need to enter your details again to sign in on this device.",
+  "logoutStay": "Stay signed in",
+  "logoutConfirm": "Sign out"
+}
