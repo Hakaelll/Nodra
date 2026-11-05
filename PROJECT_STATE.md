@@ -31,6 +31,8 @@ REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Wor
 
 ## Web y móvil
 
+05/11 — Limpieza adicional solicitada: retirados caché residual de Android, instaladores descargados de Android/Java y directorios vacíos de staging/system-images. Los instaladores sumaban 360.728.847 bytes lógicos; no se mide espacio físico recuperado. Emulador, imágenes y AVD ausentes, sin procesos emulator/qemu/adb. SDK, firma y APK conservados. Web LAN, API readiness y worker readiness devolvieron 200 después de la limpieza.
+
 05/11 — El propietario respondió «La he probado sin pendientes» a la revisión de la versión LAN. Se registra la aceptación web y se cierra NOD-021; las comprobaciones nativas y demás límites de evidencia permanecen separados. Añadida y releída la descripción inglesa del repositorio en GitHub; antes estaba vacía. Cambio sólo de metadatos/documentación, sin modificar la aplicación.
 
 05/11 — [Paginación del chat corregida](docs/validation/2026-11-05-chat-paging.md): el refresco web conserva la página más antigua cargada; respuestas/envíos/borrados tardíos no modifican otra conversación seleccionada. Web/Flutter permiten acceder a más de cien chats, mantienen la página durante polling y corrigen una página vacía tras retirar chats. Lint/tipos/build web, cuatro web, analyze/tres Flutter, sonda widget y HTTP/PostgreSQL real aprobados. APK recompilado sin reinstalar emulador; no ejecución del APK nuevo ni aceptación visual.
@@ -73,7 +75,7 @@ Resultados históricos adicionales, sin repetir esas suites retiradas:
 
 ## Qué está parcial o falta
 
-La revisión vigente distingue implementación, evidencia y aceptación en [delivery-review](docs/validation/2026-11-05-delivery-review.md). Quedan doce tareas REVIEW, incluyendo interacción/aceptación visual, persistencia nativa y navegación completa. NOD-005 mantiene el 409 de registro duplicado como limitación respecto a su criterio amplio de no enumeración. No se presenta una prueba HTTP, callback o arranque nativo como sustituto de esas comprobaciones.
+La revisión vigente distingue implementación, evidencia y aceptación en [delivery-review](docs/validation/2026-11-05-delivery-review.md). Quedan once tareas REVIEW, con comprobaciones específicas de interacción, persistencia nativa y navegación completa. La aceptación web del propietario está registrada por separado. NOD-005 mantiene el 409 de registro duplicado como limitación respecto a su criterio amplio de no enumeración. No se presenta una prueba HTTP, callback o arranque nativo como sustituto de esas comprobaciones.
 
 Disponibilidad, targeting avanzado, campos personalizados, presets y push remoto conservan su preparación futura permitida por el prompt. iOS requiere el entorno futuro documentado. NOD-023 sólo bloquea proveedores comerciales futuros; no impide el desarrollo local. GitHub CI permanece retirado y no se reinstala el emulador sin una nueva necesidad autorizada.
 

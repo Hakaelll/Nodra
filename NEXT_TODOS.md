@@ -4,6 +4,8 @@ Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
 
 05/11 — [Disposición vigente de los 25 IDs](docs/validation/2026-11-05-delivery-review.md): doce DONE, once REVIEW, NOD-020 IN_PROGRESS y NOD-023 BLOCKED para proveedores futuros. Las notas iniciales y las fechadas anteriormente se conservan como historial; no sustituyen los estados y pendientes de esta revisión.
 
+05/11 — Caché residual de Android e instaladores temporales retirados; emulador/imagen/AVD ausentes y sin procesos activos. SDK/APK y datos conservados. Web LAN, API y worker responden 200 después de la limpieza.
+
 ## Prioridad de continuidad
 
 1. NOD-020: aceptación web del propietario recibida sin pendientes el 05/11; continuar con las comprobaciones restantes según la [disposición actual](docs/validation/2026-11-05-delivery-review.md); los gates técnicos y los componentes §182/183 tienen evidencia. Mantener el objetivo abierto mientras falten las comprobaciones de las tareas REVIEW, sin repetir suites retiradas ni convertir el roadmap futuro en funciones obligatorias.
