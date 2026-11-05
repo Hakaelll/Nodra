@@ -2,6 +2,8 @@
 
 Última actualización: 05/11/2026. Objetivo bootstrap **activo**; primera vertical funcional, sin certificación de entrega completa ni despliegue productivo.
 
+Disposición vigente: [revisión de entrega](docs/validation/2026-11-05-delivery-review.md). De 25 tareas, once están DONE con evidencia técnica, doce en REVIEW, NOD-020 IN_PROGRESS y NOD-023 BLOCKED exclusivamente para proveedores futuros. REVIEW conserva las comprobaciones manuales y decisiones sin resolver; no equivale a un fallo funcional demostrado. La revisión del propietario está solicitada sobre la aplicación LAN.
+
 Nota histórica del 30/09, revisión documental §146/149: resumen vigente separado del historial íntegro; conservados los IDs y estados, incluido DONE. Comprobados formato, enlaces locales editados y presencia de los 17 documentos obligatorios. README corrige el puerto del fixture anterior; ADRs actualizan storage y precedencia visual. No cambia runtime ni se repiten suites de aplicación por estos cambios. Auditoría §136–168 registrada; NOD-023 bloquea exclusivamente futuras integraciones externas. §136 reforzado: cuatro regresiones con secretos/stack canario; mensajes 5xx internos sanitizados; Calendario corregido: incluye cancelados como historial, sin incluirlos en próximos. Pasan 56 integraciones verticales, 35 unitarios, lint, typecheck y build API tras el cambio.
 
 ## Qué funciona
@@ -69,7 +71,9 @@ Resultados históricos adicionales, sin repetir esas suites retiradas:
 
 ## Qué está parcial o falta
 
-Primer pase individual completo: 291 entradas únicas (§0–290), sin huecos ni duplicados; resolver límites y discrepancias en [REQUIREMENTS_AUDIT](docs/REQUIREMENTS_AUDIT.md). No confundir documentación futura con implementación. Las catorce acciones AuditEvent de §63 ya tienen evidencia PostgreSQL; la revisión residual de permisos/logs sigue abierta. Otros pendientes: targeting avanzado de avisos (§52), carreras de contexto aún sin cobertura global, E2E de clientes, entrega nativa y aceptación visual. Campos personalizados y presets conservan su preparación futura. CI/CD de GitHub retirado por petición del propietario; verificaciones locales. El roadmap mantiene las funciones excluidas por el propietario.
+La revisión vigente distingue implementación, evidencia y aceptación en [delivery-review](docs/validation/2026-11-05-delivery-review.md). Quedan doce tareas REVIEW, incluyendo interacción/aceptación visual, persistencia nativa y navegación completa. NOD-005 mantiene el 409 de registro duplicado como limitación respecto a su criterio amplio de no enumeración. No se presenta una prueba HTTP, callback o arranque nativo como sustituto de esas comprobaciones.
+
+Disponibilidad, targeting avanzado, campos personalizados, presets y push remoto conservan su preparación futura permitida por el prompt. iOS requiere el entorno futuro documentado. NOD-023 sólo bloquea proveedores comerciales futuros; no impide el desarrollo local. GitHub CI permanece retirado y no se reinstala el emulador sin una nueva necesidad autorizada.
 
 ## Decisiones y siguiente objetivo
 
@@ -77,7 +81,7 @@ Documentos obligatorios existentes: README, AGENTS, este estado y NEXT_TODOS; en
 
 Quince ADRs en [DECISIONS](docs/DECISIONS.md): monolito modular, PostgreSQL, Prisma, REST/OpenAPI, Flutter, Next.js, NestJS/Fastify, Valkey, BullMQ, tenancy, providers, coste cero, diseño claro, URL web y coordinación de sesión entre pestañas. La referencia original oscura es histórica.
 
-Siguiente objetivo NOD-020: resolver discrepancias concretas de los diez bloques revisados y verificar sus criterios de aceptación. [NEXT_TODOS](NEXT_TODOS.md) conserva tareas NOD-001–024 y estados; DONE no se elimina. Historial íntegro anterior: [estado](docs/history/PROJECT_STATE_2026_09_30.md) y [tareas](docs/history/NEXT_TODOS_2026_09_30.md). Sus notas son evidencia fechada, no descripción actual del entorno.
+Siguiente objetivo NOD-020: resolver discrepancias concretas de los diez bloques revisados y verificar sus criterios de aceptación. [NEXT_TODOS](NEXT_TODOS.md) conserva tareas NOD-001–025 y estados; DONE no se elimina. Historial íntegro anterior: [estado](docs/history/PROJECT_STATE_2026_09_30.md) y [tareas](docs/history/NEXT_TODOS_2026_09_30.md). Sus notas son evidencia fechada, no descripción actual del entorno.
 
 03/11 — NOD-006/014/019/020: coordinación web entre pestañas mediante SharedWorker, sin cambiar BFF, cookies, API ni esquema. Revisiones comparten refresh y evitan repetirlo por un 401 tardío; generaciones invalidan peticiones antiguas, esperan la renovación conocida y recargan las otras pestañas al cambiar autenticación. Ausencia de la API o fallo del constructor conserva el modo por pestaña; una conexión compartida ya iniciada que falla exige recargar. La reproducción del commit 913f588 emitía dos renovaciones; el recorrido HTTP/BFF actual emite una y conserva ambas lecturas autenticadas. Pasan lint, tipos web/worker estático, cuatro unitarios web y build standalone con sus recursos copiados. El verificador HTTP usa una base efímera con trece migraciones, eliminada al terminar. Web y API LAN y worker loopback responden 200; el coordinador LAN devuelve JavaScript idéntico al fuente. Sin Computer Use, subagentes ni prueba física/DOM. Clientes que eludan el coordinador, compatibilidad real y cierres abruptos siguen pendientes; NOD-006 y el objetivo completo continúan abiertos. Detalles en TESTING y ADR-015.
 

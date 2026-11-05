@@ -1,5 +1,7 @@
 # Auditoría del prompt de arranque
 
+05/11 — [Disposición de las 25 tareas](validation/2026-11-05-delivery-review.md) contrastada con criterios, código y evidencia: once DONE técnicos, doce REVIEW, NOD-020 IN_PROGRESS y proveedores futuros BLOCKED. Los 291 apartados siguen siendo cobertura de auditoría, no 291 requisitos aprobados. Las revisiones manuales, limitación de registro duplicado y alcance de cada prueba permanecen abiertos explícitamente; no se declara completo el objetivo.
+
 05/11 — §258: resuelta la duplicación local de modelos de chat/actividad citada en SECTIONS_256_290. Schemas compartidos en communications.ts, inferencia para la web y consumidores API migrados; archivo API duplicado retirado. OpenAPI anterior/nuevo idéntico y lint/tipos/builds/cuatro web/trece integraciones aprobados. No se introduce generación Flutter obligatoria ni se confunden props de presentación con contratos de transporte.
 
 05/11 — §68: consultas importantes contrastadas con índices y planes reales sobre cuatro tenants sintéticos. [Evidencia acotada](validation/2026-11-05-query-plans.md) de cinco rutas/19 consultas distintas; organización explícita en subconsultas de pendientes evita el scan completo de posiciones observado antes. Tipos/build API, lint y trece integraciones aprobados, sin índice/migración nuevos. Esta nota actualiza la ausencia histórica de EXPLAIN en SECTIONS_059_082; no acredita rendimiento productivo ni aceptación global.

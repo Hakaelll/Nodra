@@ -2,14 +2,16 @@
 
 Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
 
+05/11 — [Disposición vigente de los 25 IDs](docs/validation/2026-11-05-delivery-review.md): once DONE técnicos, doce REVIEW, NOD-020 IN_PROGRESS y NOD-023 BLOCKED para proveedores futuros. Las notas iniciales y las fechadas anteriormente se conservan como historial; no sustituyen los estados y pendientes de esta revisión.
+
 ## Prioridad de continuidad
 
-1. NOD-020: continuar revisión de cierre; NOD-025/§182 y §183 móvil ya tienen componentes compartidos utilizados por las pantallas. [Gates actualizados del 05/11](docs/validation/2026-11-05-bootstrap-gates.md) aprobados, incluido bootstrap/seed doble y HTTP/BFF en bases propias eliminadas. Flutter analyze/tres tests/build Android aprobados el mismo día. Primer pase individual §0–290 completo, sin confundir inventario con implementación.
-   §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. Continuar revisión residual de permisos/logs y validación final, manteniendo pruebas físicas/aceptación visual pendientes.
+1. NOD-020: completar la aceptación pendiente según la [disposición actual](docs/validation/2026-11-05-delivery-review.md); los gates técnicos y los componentes §182/183 tienen evidencia. Mantener el objetivo abierto mientras falten las comprobaciones de las tareas REVIEW, sin repetir suites retiradas ni convertir el roadmap futuro en funciones obligatorias.
+   §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. NOD-019 cumple sus criterios de bootstrap; se mantienen explícitos los límites de seguridad productiva y las pruebas físicas/aceptación visual pendientes.
    §68: análisis de SQL real y ajuste acotado de pendientes comprobado el 05/11; [planes y límites](docs/validation/2026-11-05-query-plans.md). No añadir índices por scans de tablas pequeñas ni interpretar este fixture como benchmark productivo.
    §258: tipos de chat/actividad/notificaciones compartidos entre API/web y derivados de Zod; OpenAPI completo sin cambios. La duplicación local indicada en la auditoría histórica está resuelta; generación Flutter desde OpenAPI continúa como evolución futura.
    §190/229, chat: resuelto historial atascado por polling y tope de primera página en ambos clientes; [evidencia con 110 chats/130 mensajes](docs/validation/2026-11-05-chat-paging.md). Mantener pendiente interacción completa/aceptación; emulador sigue desinstalado.
-2. NOD-019/008: inventario de las 47 operaciones tenant contrastado con OpenAPI; 188 rechazos sin sesión o Membership activa verificados. Matriz acotada de roles activos y logs documentada; el 05/11 la baja simultánea de dos propietarios preservó uno activo y las invitaciones caducadas/revocadas rechazaron ambos canales. No generalizar estas sondas a todas las carreras de revocación. Las acciones requeridas, cancelaciones por lote y JobRole tienen evidencia; E2E de clientes y aceptación siguen pendientes.
+2. NOD-008 y demás REVIEW: completar revisión de uso sin Computer Use, según la preferencia del propietario. NOD-005 conserva el registro duplicado con 409 como limitación documentada; no dar por cumplido su criterio amplio de no enumeración ni cambiar el flujo de acceso silenciosamente.
 3. NOD-014/015/017/022: recorrido de datos Flutter/API real aprobado el 05/11, incluido contexto restaurado y confirmación persistida; evidencia en MOBILE_APP/TESTING. Continúan pendientes interacción completa de pantallas y prueba física; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
 4. NOD-013/016/020: separar aceptación pendiente de evolución futura. Android debug compilado y [arranque nativo en AVD API 35 comprobado](docs/validation/2026-11-05-android-startup.md) el 05/11; falta interacción completa y prueba física. Emulador/imagen/AVD retirados después por petición del propietario. §271 sitúa macOS/Xcode/Apple Developer/APNs como futuros; adquisición push remota y distribución nativa no son prerrequisitos del APK local. Conservarlos en roadmap sin simular implementación ni contratar servicios.
 
@@ -73,7 +75,7 @@ Descripción: API Nest/Fastify con Prisma, configuración, logs y contratos.
 
 Prioridad: P0
 
-Estado: REVIEW
+Estado: DONE
 
 Dependencias: NOD-002, NOD-003.
 
@@ -115,7 +117,7 @@ Descripción: Contexto multiorganización y PermissionRole por Membership.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: REVIEW
 
 Dependencias: NOD-005.
 
@@ -169,7 +171,7 @@ Descripción: Roles operativos y agrupaciones dentro del tenant.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: REVIEW
 
 Dependencias: NOD-006.
 
@@ -189,7 +191,7 @@ Descripción: Servicios, posiciones y lifecycle.
 
 Prioridad: P0
 
-Estado: REVIEW
+Estado: DONE
 
 Dependencias: NOD-008.
 
@@ -209,7 +211,7 @@ Descripción: Expresar o retirar interés sin reservar capacidad.
 
 Prioridad: P0
 
-Estado: REVIEW
+Estado: DONE
 
 Dependencias: NOD-009.
 
@@ -229,7 +231,7 @@ Descripción: Selección autorizada y capacidad protegida.
 
 Prioridad: P0
 
-Estado: REVIEW
+Estado: DONE
 
 Dependencias: NOD-010.
 
@@ -249,7 +251,7 @@ Descripción: Confirmar, declinar o cancelar conservando historial.
 
 Prioridad: P0
 
-Estado: REVIEW
+Estado: DONE
 
 Dependencias: NOD-011.
 
@@ -269,7 +271,7 @@ Descripción: Outbox, cola, worker y providers locales.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: DONE
 
 Dependencias: NOD-012.
 
@@ -289,7 +291,7 @@ Descripción: Sesión segura, layout, contexto y diseño.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: REVIEW
 
 Dependencias: NOD-005, NOD-006.
 
@@ -309,7 +311,7 @@ Descripción: Agenda, servicios, selección, respuestas y equipo.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: REVIEW
 
 Dependencias: NOD-009, NOD-010, NOD-011, NOD-012, NOD-014.
 
@@ -369,7 +371,7 @@ Descripción: Avisos y acuse de lectura.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: REVIEW
 
 Dependencias: NOD-006.
 
@@ -389,7 +391,7 @@ Descripción: Auditoría, límites y pruebas de aislamiento.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: DONE
 
 Dependencias: NOD-004, NOD-012.
 
@@ -429,7 +431,7 @@ Notas técnicas: 17 documentos requeridos ya creados. Una base local vacía reci
 
 Descripción: aplicar UI UX Pro Max, hueyexe frontend skills, Emil y la skill universal/Impeccable al producto real.
 Prioridad: P0
-Estado: IN_PROGRESS
+Estado: REVIEW
 Dependencias: NOD-014, NOD-015.
 Objetivo: interfaz operativa cuidada, sin decoración genérica, con navegación inferior móvil y animaciones fluidas.
 Criterios de aceptación: rutas funcionales, diseño revisado en escritorio/móvil, teclado y reduce motion; validar barra inferior y ausencia de overflow.
@@ -457,7 +459,7 @@ NOD-019 referencias reales y settings: 14 operaciones contra UUID existentes de 
 
 Descripción: conversaciones manuales y desde servicios confirmados, con lectura por participante.
 Prioridad: P0
-Estado: IN_PROGRESS
+Estado: REVIEW
 Dependencias: NOD-004, NOD-009, NOD-014, NOD-021.
 Objetivo: chat sencillo, privado por Membership, utilizable en móvil y escritorio.
 Criterios de aceptación: creación individual/grupo con nombre; chat de servicio con título heredado; mensajes cronológicos e idempotentes; contador de no leídos; acceso limitado a participantes; E2E en dispositivo y cliente móvil.
