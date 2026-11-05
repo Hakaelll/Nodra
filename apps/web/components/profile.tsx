@@ -12,7 +12,10 @@ import {
   Settings,
 } from "lucide-react";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import type { PublicUser } from "@nodra/contracts";
+import type {
+  PublicUser,
+  Notification as ProfileActivity,
+} from "@nodra/contracts";
 import { CropDialog } from "./image-crop-dialog";
 import { api, apiFile, statusLabel } from "../lib/api";
 import { Button, Card, Input, PageHeader } from "./ui";
@@ -20,12 +23,6 @@ import { Button, Card, Input, PageHeader } from "./ui";
 export type ProfileUser = PublicUser & {
   avatarUrl: string | null;
   emailVerifiedAt: string | null;
-};
-type ProfileActivity = {
-  id: string;
-  title: string;
-  body: string;
-  createdAt: string;
 };
 
 export function Profile({

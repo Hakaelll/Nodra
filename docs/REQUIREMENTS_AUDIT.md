@@ -1,5 +1,7 @@
 # Auditoría del prompt de arranque
 
+05/11 — §258: resuelta la duplicación local de modelos de chat/actividad citada en SECTIONS_256_290. Schemas compartidos en communications.ts, inferencia para la web y consumidores API migrados; archivo API duplicado retirado. OpenAPI anterior/nuevo idéntico y lint/tipos/builds/cuatro web/trece integraciones aprobados. No se introduce generación Flutter obligatoria ni se confunden props de presentación con contratos de transporte.
+
 05/11 — §68: consultas importantes contrastadas con índices y planes reales sobre cuatro tenants sintéticos. [Evidencia acotada](validation/2026-11-05-query-plans.md) de cinco rutas/19 consultas distintas; organización explícita en subconsultas de pendientes evita el scan completo de posiciones observado antes. Tipos/build API, lint y trece integraciones aprobados, sin índice/migración nuevos. Esta nota actualiza la ausencia histórica de EXPLAIN en SECTIONS_059_082; no acredita rendimiento productivo ni aceptación global.
 
 05/11 — [Gates actualizados](validation/2026-11-05-bootstrap-gates.md) aprobados: lint/tipos/builds, cuatro web, trece integraciones, contratos, inventario/esquema/Compose, bootstrap/seed doble y HTTP/BFF. Las carencias históricas §182/183 están resueltas; Android compilado. §271 considera la configuración iOS futura y §55 prepara DeviceToken, por lo que no se debe convertir push remoto o una cuenta Apple en requisito nuevo del APK. Conservar revisión de requisitos y aceptación pendiente: estos gates no prueban por sí solos todo el prompt.

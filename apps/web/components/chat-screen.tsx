@@ -19,25 +19,12 @@ import { Button, Textarea, Checkbox } from "./ui";
 import { useConfirm } from "./confirmation-provider";
 import { Dropdown } from "./dropdown";
 
-type Person = { userId: string; firstName: string; lastName: string };
-type Message = {
-  id: string;
-  chatId: string;
-  senderId: string;
-  body: string;
-  createdAt: string;
-};
-type Chat = {
-  id: string;
-  kind: "MANUAL" | "SERVICE";
-  serviceId: string | null;
-  title: string;
-  participants: Person[];
-  lastMessage: Message | null;
-  updatedAt: string;
-  unreadCount: number;
-};
-type Page<T> = { items: T[]; total: number; page: number; limit: number };
+import type {
+  ChatParticipant as Person,
+  ChatMessage as Message,
+  Chat,
+  Page,
+} from "@nodra/contracts";
 
 const fullName = (person: Person) =>
   `${person.firstName} ${person.lastName}`.trim();

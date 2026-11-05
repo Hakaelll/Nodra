@@ -159,49 +159,6 @@ export const noticePageOutput = z
     limit: z.number().int().min(1).max(100),
   })
   .strict();
-export const notificationOutput = z
-  .object({
-    id: z.uuid(),
-    eventId: z.uuid(),
-    userId: z.uuid(),
-    organizationId: z.uuid(),
-    title: z.string(),
-    body: z.string(),
-    readAt: z.iso.datetime().nullable(),
-    deliveredAt: z.iso.datetime().nullable(),
-    createdAt: z.iso.datetime(),
-  })
-  .strict();
-export const serviceActivityPageOutput = z
-  .object({
-    items: z.array(
-      z
-        .object({
-          id: z.uuid(),
-          eventId: z.uuid(),
-          serviceId: z.uuid(),
-          title: z.string(),
-          body: z.string(),
-          kind: z.string(),
-          serviceStatus: z.enum([
-            "DRAFT",
-            "OPEN",
-            "SELECTION",
-            "CONFIRMATION",
-            "READY",
-            "IN_PROGRESS",
-            "COMPLETED",
-            "CANCELLED",
-          ]),
-          createdAt: z.iso.datetime(),
-        })
-        .strict(),
-    ),
-    total: z.number().int().min(0),
-    page: z.number().int().min(1),
-    limit: z.number().int().min(1).max(100),
-  })
-  .strict();
 export const settingsOutput = z
   .object({
     organizationId: z.uuid(),

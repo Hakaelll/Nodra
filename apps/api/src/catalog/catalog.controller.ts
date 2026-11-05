@@ -24,6 +24,8 @@ import {
   pageInput,
   roleCatalogInput,
   organizationCustomizationUpdateInput,
+  notificationOutput,
+  serviceActivityPageOutput,
 } from "@nodra/contracts";
 import { AuthGuard, CurrentUser } from "../auth/auth.guard";
 import { parse, uuid, openApiSchema } from "../common";
@@ -42,8 +44,6 @@ import {
   acknowledgementOutput,
   noticeOutput,
   noticePageOutput,
-  notificationOutput,
-  serviceActivityPageOutput,
   settingsOutput,
   updateFeaturesInput,
 } from "./catalog.schemas";

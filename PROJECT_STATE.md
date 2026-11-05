@@ -21,6 +21,8 @@ Comprobado el 03/11: PostgreSQL principal (5432), postgres-test (5433), Valkey (
 
 ## Modelo de datos y endpoints
 
+05/11 — §258: contratos de chat/notificaciones/actividad extraídos a packages/contracts/src/communications.ts; API y tipos web comparten esos esquemas Zod. Retiradas las definiciones manuales locales de chat y actividad, incluido el archivo API antiguo tras migrar sus consumidores. OpenAPI completo idéntico al anterior (55 paths/69 operaciones); lint, tipos/builds, cuatro tests web y trece integraciones aprobados. Sin cambios de formato HTTP, JSX, esquema DB ni casos nuevos.
+
 Catorce migraciones. Identidad y Session; Organization/Membership/Invitation; JobRole/Group/GroupMember; Service/Position/Interest/Assignment/Confirmation; Notice/Acknowledgement/Recipient; DomainEvent/Notification/Delivery/AuditEvent; DeviceToken; Chat/Participant/Message. OrganizationSettings conserva terminología y enum de acento, con API administrativa y lectura en Membership. Features Grupos/Chat efectivas por organización, modificables por OWNER/ADMIN. Avisos admiten ORGANIZATION/USERS con snapshot de Membership activas; GROUP/ROLE/SERVICE, campos personalizados y disponibilidad siguen preparados en documentación.
 
 REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Worker tiene health/ready propio en loopback:4100, con PostgreSQL/Valkey/consumidor. Errores con code/message/requestId. Consultar [API](docs/API.md) y [modelo](docs/DATA_MODEL.md) para rutas, permisos y entidades implemented/planned.

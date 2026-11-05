@@ -10,7 +10,7 @@ import { randomUUID } from "node:crypto";
 import { Database } from "../database";
 import { audit } from "../events";
 import { Policy } from "../organizations/policy";
-import { createChatInput, sendChatMessageInput } from "./chats.schemas";
+import { createChatInput, sendChatMessageInput } from "@nodra/contracts";
 import { z } from "zod";
 
 const chatInclude = {

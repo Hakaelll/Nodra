@@ -29,7 +29,7 @@ import {
   chatPageOutput,
   createChatInput,
   sendChatMessageInput,
-} from "./chats.schemas";
+} from "@nodra/contracts";
 import { z } from "zod";
 import { ChatsService } from "./chats.service";
 

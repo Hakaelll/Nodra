@@ -1,5 +1,7 @@
 # API
 
+05/11 — Chat (inputs y outputs), Notification y ServiceActivity tienen esquemas compartidos en packages/contracts/src/communications.ts, exportados por @nodra/contracts. Controladores y servicio de chat consumen esa fuente; sus tipos web se infieren con z.infer. El archivo chats.schemas.ts anterior se retiró después de migrar sus consumidores. La extracción conserva exactamente el OpenAPI previo: 55 paths y 69 operaciones. No cambia serialización, validación, permisos ni rutas.
+
 Inicio Flutter consulta el dashboard paginado con filter=attention/upcoming; ambos filtros se aplican antes de paginar. Cada servicio del resumen incluye timezone, localStartDay/localStartTime y localEndDay/localEndTime, además de sus instantes UTC. MEMBER recibe únicamente sus asignaciones pendientes en attention; los roles operativos conservan borradores y pendientes de gestión.
 
 GET organizations/:org/notices acepta pendingAcknowledgement=true/false. true filtra requiresAcknowledgement y ausencia de acuse del usuario autenticado antes de contar/paginar; un acuse de otra persona no oculta el aviso. Mantiene Membership y visibilidad del acuse por permiso. Valores distintos de true/false se rechazan. No equivale a Notification.readAt ni cambia la difusión a toda la organización.

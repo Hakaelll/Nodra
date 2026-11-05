@@ -69,6 +69,7 @@ import {
 } from "../lib/use-workspace-route";
 import type {
   PublicUser,
+  ServiceActivity,
   Membership,
   Service,
   Page,
@@ -3525,16 +3526,6 @@ function GroupEditor({
     </>
   );
 }
-type ServiceActivity = {
-  id: string;
-  eventId: string;
-  serviceId: string;
-  title: string;
-  body: string;
-  kind: string;
-  serviceStatus: string;
-  createdAt: string;
-};
 const activityLabel = (kind: string) => {
   if (kind === "ServiceCANCELLED") return "Cancelación de servicio";
   if (kind === "ServiceOPEN") return "Publicación de servicio";

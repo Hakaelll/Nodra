@@ -304,3 +304,5 @@ export const membershipUpdateInput = z
     expectedStatus: z.enum(["INVITED", "ACTIVE", "SUSPENDED", "LEFT"]),
   })
   .strict();
+
+export * from "./communications";
