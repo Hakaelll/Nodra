@@ -1,5 +1,7 @@
 # Delivery review, 5 November 2026
 
+Superseded current disposition: [6 November bootstrap delivery](2026-11-06-delivery.md). The table below is the dated review before the English/signup APK delivery; preserve it as history rather than treating its open build work as current.
+
 Source reviewed: `de70658293b7569029da44966da163a85165ce75`. This is the current disposition of the 25 tracked tasks, not a claim that all 291 prompt sections or manual reviews are complete. Initial notes and older test counts remain historical. The original prompt, its section-by-section audit and later owner instructions still define scope.
 
 ## Task disposition

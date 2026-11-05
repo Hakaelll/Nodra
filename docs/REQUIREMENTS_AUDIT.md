@@ -1,5 +1,7 @@
 # Auditoría del prompt de arranque
 
+06/11 — [Cierre de la primera entrega bootstrap](validation/2026-11-06-delivery.md), interpretado conforme a §177/178/286: base y vertical ejecutables, gates y documentación completados; siete REVIEW manuales e integraciones futuras conservan sus límites. NOD-005/020/026 pasan a DONE con registro verificado, validación final e inglés web/Flutter. No se afirma que los 291 apartados sean funciones implementadas ni se inventa aceptación física del APK nuevo. Las notas anteriores son historial.
+
 05/11 — §256/257: perfil ya delegado a ProfileService; grafo de imports revisado en 89 archivos TS/TSX y 25 Dart, 325 aristas internas. Sin ciclos TS ni Dart propio; única referencia mutua en traducciones generadas de Flutter. [Evidencia y límites](validation/2026-11-05-import-graph.md). No cambia runtime ni la suite permanente.
 
 05/11 — [Disposición de las 25 tareas](validation/2026-11-05-delivery-review.md) contrastada con criterios, código y evidencia: doce DONE por evidencia técnica o aceptación web, once REVIEW, NOD-020 IN_PROGRESS y proveedores futuros BLOCKED. Los 291 apartados siguen siendo cobertura de auditoría, no 291 requisitos aprobados. Las revisiones manuales, limitación de registro duplicado y alcance de cada prueba permanecen abiertos explícitamente; no se declara completo el objetivo.

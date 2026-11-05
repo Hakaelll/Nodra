@@ -1,12 +1,14 @@
 # Próximas tareas de Nodra
 
-Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
+Actualizado: 06/11/2026. Primera entrega bootstrap completada; REVIEW conserva aceptación manual específica para continuidad. Se conservan todos los IDs e historial DONE. No se presenta el roadmap futuro como implementado.
 
-05/11 — [Disposición vigente de los 25 IDs](docs/validation/2026-11-05-delivery-review.md): quince DONE, ocho REVIEW, NOD-020 y NOD-026 IN_PROGRESS y NOD-023 BLOCKED para proveedores futuros. Las notas iniciales y las fechadas anteriormente se conservan como historial; no sustituyen los estados y pendientes de esta revisión.
+06/11 — [Disposición vigente de los 26 IDs](docs/validation/2026-11-06-delivery.md): dieciocho DONE, siete REVIEW y NOD-023 BLOCKED para proveedores futuros. NOD-005/020/026 completados con evidencia de registro verificado, gates finales e inglés. Siguiente recomendado: NOD-024, aceptación específica del perfil sin Membership cuando el propietario quiera revisarlo. Las notas anteriores permanecen como historial, no como nuevos bloqueos del bootstrap.
 
 05/11 — Caché residual de Android e instaladores temporales retirados; emulador/imagen/AVD ausentes y sin procesos activos. SDK/APK y datos conservados. Web LAN, API y worker responden 200 después de la limpieza.
 
 ## Prioridad de continuidad
+
+06/11 — Registro verificado e inglés entregados en web y APK. [Evidencia final](docs/validation/2026-11-06-english.md) y [cierre del bootstrap](docs/validation/2026-11-06-delivery.md) prevalecen sobre los pendientes fechados del 05/11 que aparecen a continuación. No quedan implementaciones abiertas en esta entrega. Se conservan los REVIEW manuales sin atribuir pruebas visuales o físicas no realizadas, y los límites de iOS/proveedores futuros. Sin Computer Use, subagentes ni emulador reinstalado.
 
 05/11 — NOD-026: preferencia de idioma conectada a cookie/contexto web y secure storage/Riverpod móvil. SSR React y HTTP Next verifican es-ES/en-GB y fallback inválido; sonda Flutter verifica restauración y escrituras rápidas, analyze y las tres regresiones de sesión pasan. Sonda retirada de tests permanentes. Falta selector visible y traducción completa; [plan](docs/superpowers/plans/2026-11-05-english.md). Inventario local de textos es orientativo y no traduce datos de usuario.
 
@@ -113,7 +115,7 @@ Descripción: Registro, login, refresh, logout y password security.
 
 Prioridad: P0
 
-Estado: REVIEW
+Estado: DONE
 
 Dependencias: NOD-004.
 
@@ -427,7 +429,7 @@ Descripción: Verificar requisitos del prompt y cerrar documentación.
 
 Prioridad: P0
 
-Estado: IN_PROGRESS
+Estado: DONE
 
 Dependencias: NOD-003 a NOD-019, NOD-021.
 
@@ -643,7 +645,7 @@ APK debug actualizado (build 31,7 s), firma v2 verificada; SHA-256 b4e30cb2f7c5f
 
 Descripción: añadir inglés a los controles, formularios, estados, fechas y mensajes de ambos clientes, conservando español y la dirección visual aprobada.
 Prioridad: P0
-Estado: IN_PROGRESS
+Estado: DONE
 Dependencias: NOD-005, NOD-014, NOD-016.
 Objetivo: idioma seleccionable y persistente sin traducir contenido creado por usuarios u organizaciones.
 Criterios de aceptación: controles y navegación en ambos idiomas, formularios y errores traducidos, formatos de fecha/número coherentes, preferencia conservada y ninguna dependencia de servicios de traducción externos.

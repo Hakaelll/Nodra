@@ -16,4 +16,6 @@ The owner chose email verification before first access. Registration now returns
 
 ## Delivery limits
 
+Update, 6 November: the [English delivery](2026-11-06-english.md) compiled and published the new Android APK with verified registration. Its signer matches the earlier accepted artifact. The pending APK statement below is historical; physical acceptance of the changed registration flow is not claimed.
+
 The owner previously tested APK `d7d6ce69080a71919a9a822463f563debf4951a98b0a0cc199a095900d2a467a` on a phone and reported persistent session, services and chat working. This closes the earlier native acceptance barrier. The signup change is newer; a new APK will be compiled with the requested English delivery. No emulator was reinstalled, no paid service activated and no permanent case added beyond the existing twenty. The temporary APK download server was stopped after the owner's test. Production providers, exact constant-time responses and iOS execution are not claimed.

@@ -9,7 +9,7 @@ Use the existing Auth module, encrypted AuthAction outbox, Mailpit, Zod contract
 - [x] Update web registration success and verification password entry without creating cookies or triggering authenticated account reads before verification.
 - [x] Separate Flutter registration from login; provide link/password verification while signed out and preserve the existing profile verification flow.
 - [x] Update HTTP fixtures, seed/bootstrap expectations and documentation. Verify migrations on isolated databases, contracts, lint, types, essential tests, builds and native compilation where affected.
-- [ ] Deploy the coherent API/web change locally, publish a new APK, remove the generated caches and record the owner's earlier native acceptance with its original APK hash.
-- [ ] Implement English using the clients' existing localization structure and explicit locale selection; preserve user/organization-authored content and the approved visual direction.
+- [x] Deploy the coherent API/web change locally, publish a new APK, remove the generated caches and record the owner's earlier native acceptance with its original APK hash.
+- [x] Implement English using the clients' existing localization structure and explicit locale selection; preserve user/organization-authored content and the approved visual direction.
 
 No paid provider, external mail account, new production dependency, emulator, Computer Use, subagent or GitHub CI is needed. API changes must not expose registration existence through response status or body. Exact constant-time networking is not promised. Repeated generic registration requests can issue only new verification mail for pending accounts; the existing auth rate limiter remains active.

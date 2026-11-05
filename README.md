@@ -4,7 +4,7 @@ Private service coordination for teams.
 
 Nodra helps organizations publish services, define positions, select participants, and confirm attendance. Teams can track schedules, send notices with read acknowledgements, and discuss work in manual or service-based chats.
 
-**Status:** Active development. The core workflows are implemented, but the full requirements and production readiness are still under review. See [project status](PROJECT_STATE.md) and [remaining work](NEXT_TODOS.md) for current evidence and limitations. Most internal documentation is currently in Spanish.
+**Status:** The initial local bootstrap is delivered. Core workflows are implemented; specific manual reviews and production readiness remain documented follow-up work. See [project status](PROJECT_STATE.md) and [remaining work](NEXT_TODOS.md) for current evidence and limitations. Most internal documentation is currently in Spanish.
 
 ## Capabilities
 
