@@ -1,3 +1,5 @@
+import '../l10n/translation.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -107,12 +109,12 @@ class _AvatarCropSheetState extends State<AvatarCropSheet> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Centrar foto',
+                      tr(context, 'Centrar foto'),
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
                   IconButton(
-                    tooltip: 'Cerrar sin guardar',
+                    tooltip: tr(context, 'Cerrar sin guardar'),
                     onPressed: saving ? null : () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
                   ),
@@ -120,7 +122,10 @@ class _AvatarCropSheetState extends State<AvatarCropSheet> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Arrastra y pellizca para encuadrar. Así se verá tu foto de perfil.',
+                tr(
+                  context,
+                  'Arrastra y pellizca para encuadrar. Así se verá tu foto de perfil.',
+                ),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 24),
@@ -209,7 +214,7 @@ class _AvatarCropSheetState extends State<AvatarCropSheet> {
                       min: 1,
                       max: 4,
                       semanticFormatterCallback: (value) =>
-                          'Ampliación ${value.toStringAsFixed(1)}',
+                          tr(context, 'Ampliación ${value.toStringAsFixed(1)}'),
                       onChanged: saving
                           ? null
                           : (value) => updateZoom(value, side),
@@ -226,7 +231,9 @@ class _AvatarCropSheetState extends State<AvatarCropSheet> {
               SizedBox(
                 width: double.infinity,
                 child: NodraButton(
-                  label: saving ? 'Preparando foto…' : 'Usar esta foto',
+                  label: saving
+                      ? tr(context, 'Preparando foto…')
+                      : tr(context, 'Usar esta foto'),
                   onPressed: saving ? null : () => save(side),
                 ),
               ),

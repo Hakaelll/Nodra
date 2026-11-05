@@ -1,3 +1,5 @@
+import '../l10n/translation.dart';
+
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -23,14 +25,18 @@ class ChatRouteScreen extends ConsumerWidget {
         error: (error, _) =>
             Scaffold(body: Center(child: Text(error.toString()))),
         data: (session) => session.organizationId == null
-            ? const Scaffold(
-                body: Center(child: Text('Selecciona una organización.')),
+            ? Scaffold(
+                body: Center(
+                  child: Text(tr(context, 'Selecciona una organización.')),
+                ),
               )
             : !session.chatEnabled
             ? Scaffold(
-                appBar: AppBar(title: const Text('Chat')),
-                body: const Center(
-                  child: Text('Chat no disponible en esta organización.'),
+                appBar: AppBar(title: Text(tr(context, 'Chat'))),
+                body: Center(
+                  child: Text(
+                    tr(context, 'Chat no disponible en esta organización.'),
+                  ),
                 ),
               )
             : ChatScreen(
@@ -260,18 +266,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => NodraDialog(
-        title: const Text('¿Borrar de tu lista?'),
-        content: const Text(
-          'Los demás participantes conservarán la conversación. Si llega un mensaje nuevo, volverá a aparecer.',
+        title: Text(tr(context, '¿Borrar de tu lista?')),
+        content: Text(
+          tr(
+            context,
+            'Los demás participantes conservarán la conversación. Si llega un mensaje nuevo, volverá a aparecer.',
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(tr(context, 'Cancelar')),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Borrar de mi lista'),
+            child: Text(tr(context, 'Borrar de mi lista')),
           ),
         ],
       ),
@@ -299,11 +308,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             ? null
             : IconButton(
                 onPressed: closeConversation,
-                tooltip: 'Volver a los chats',
+                tooltip: tr(context, 'Volver a los chats'),
                 icon: const Icon(Icons.arrow_back),
               ),
         title: Text(
-          active == null ? 'Chat' : chatDisplayTitle(active!, userId),
+          active == null
+              ? tr(context, 'Chat')
+              : chatDisplayTitle(active!, userId),
         ),
         actions: [
           if (active != null)
@@ -313,16 +324,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               icon: const Icon(Icons.more_horiz),
               onSelected: (_) => deleteChat(),
               itemBuilder: (_) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'delete',
-                  child: Text('Borrar de mi lista'),
+                  child: Text(tr(context, 'Borrar de mi lista')),
                 ),
               ],
             ),
           if (active == null)
             IconButton(
               onPressed: create,
-              tooltip: 'Nuevo chat',
+              tooltip: tr(context, 'Nuevo chat'),
               icon: const Icon(Icons.add),
             ),
         ],
@@ -343,7 +354,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             else if (active == null) ...[
               Expanded(
                 child: chats.isEmpty
-                    ? const Center(child: Text('No hay chats'))
+                    ? Center(child: Text(tr(context, 'No hay chats')))
                     : RefreshIndicator(
                         onRefresh: loadChats,
                         child: ListView.separated(
@@ -377,7 +388,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                                 overflow: TextOverflow.ellipsis,
                               ),
                               subtitle: Text(
-                                last?['body'] as String? ?? 'Sin mensajes',
+                                last?['body'] as String? ??
+                                    tr(context, 'Sin mensajes'),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -410,7 +422,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                         onPressed: loading || chatPage == 1
                             ? null
                             : () => loadChats(page: chatPage - 1),
-                        child: const Text('Anterior'),
+                        child: Text(tr(context, 'Anterior')),
                       ),
                       Semantics(
                         liveRegion: true,
@@ -420,7 +432,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                         onPressed: loading || chatPage * 100 >= totalChats
                             ? null
                             : () => loadChats(page: chatPage + 1),
-                        child: const Text('Siguiente'),
+                        child: Text(tr(context, 'Siguiente')),
                       ),
                     ],
                   ),
@@ -428,7 +440,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
             ] else ...[
               Expanded(
                 child: messages.isEmpty
-                    ? const Center(child: Text('Todavía no hay mensajes'))
+                    ? Center(
+                        child: Text(tr(context, 'Todavía no hay mensajes')),
+                      )
                     : ListView.builder(
                         controller: scroll,
                         padding: const EdgeInsets.symmetric(
@@ -443,7 +457,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                             return TextButton(
                               onPressed: () =>
                                   loadMessages(page: messagePage + 1),
-                              child: const Text('Cargar mensajes anteriores'),
+                              child: Text(
+                                tr(context, 'Cargar mensajes anteriores'),
+                              ),
                             );
                           }
                           final message =
@@ -526,8 +542,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                           nonce = null;
                           setState(() {});
                         },
-                        decoration: const InputDecoration(
-                          hintText: 'Escribe un mensaje',
+                        decoration: InputDecoration(
+                          hintText: tr(context, 'Escribe un mensaje'),
                           counterText: '',
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
@@ -671,11 +687,14 @@ class _ChatCreateSheetState extends State<ChatCreateSheet> {
         children: [
           Row(
             children: [
-              Text('Nuevo chat', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                tr(context, 'Nuevo chat'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const Spacer(),
               IconButton(
                 onPressed: busy ? null : () => Navigator.pop(context),
-                tooltip: 'Cerrar',
+                tooltip: tr(context, 'Cerrar'),
                 icon: const Icon(Icons.close),
               ),
             ],
@@ -684,8 +703,8 @@ class _ChatCreateSheetState extends State<ChatCreateSheet> {
           TextField(
             enabled: !busy,
             autofocus: true,
-            decoration: const InputDecoration(
-              hintText: 'Buscar en tu equipo',
+            decoration: InputDecoration(
+              hintText: tr(context, 'Buscar en tu equipo'),
               prefixIcon: Icon(Icons.search),
             ),
             onChanged: (text) {
@@ -733,7 +752,9 @@ class _ChatCreateSheetState extends State<ChatCreateSheet> {
               enabled: !busy,
               maxLength: 120,
               onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(labelText: 'Nombre del grupo'),
+              decoration: InputDecoration(
+                labelText: tr(context, 'Nombre del grupo'),
+              ),
             ),
             const SizedBox(height: 12),
           ],
@@ -744,7 +765,9 @@ class _ChatCreateSheetState extends State<ChatCreateSheet> {
                     (selected.length > 1 && title.text.trim().isEmpty)
                 ? null
                 : create,
-            child: Text(busy ? 'Creando…' : 'Crear chat'),
+            child: Text(
+              busy ? tr(context, 'Creando…') : tr(context, 'Crear chat'),
+            ),
           ),
         ],
       ),

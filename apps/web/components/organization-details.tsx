@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "../lib/locale-provider";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { organizationUpdateInput, type Organization } from "@nodra/contracts";
 import { api } from "../lib/api";
@@ -13,6 +14,8 @@ export function OrganizationDetails({
   organization: Organization;
   refresh: () => Promise<void>;
 }) {
+  const t = useTranslation();
+
   const baseline = useRef({
     name: organization.name,
     timezone: organization.timezone,
@@ -105,11 +108,11 @@ export function OrganizationDetails({
 
   return (
     <Card>
-      <h2>Datos de la organización</h2>
+      <h2>{t("Datos de la organización")}</h2>
       <OrganizationLogo organization={organization} refresh={refresh} />
       <form noValidate onSubmit={save} aria-busy={busy}>
         <Input
-          label="Nombre de la organización"
+          label={t("Nombre de la organización")}
           value={name}
           onChange={(event) => {
             setName(event.target.value);
@@ -124,7 +127,7 @@ export function OrganizationDetails({
           autoComplete="organization"
         />
         <Input
-          label="Zona horaria"
+          label={t("Zona horaria")}
           value={timezone}
           onChange={(event) => {
             setTimezone(event.target.value);
@@ -149,12 +152,13 @@ export function OrganizationDetails({
             ))}
         </datalist>
         <p id={`${zonesId}-help`} className="muted">
-          Cambia cómo se muestran los horarios. Las actividades conservan su
-          instante original.
+          {t(
+            "Cambia cómo se muestran los horarios. Las actividades conservan su instante original.",
+          )}
         </p>
         {error && (
           <p className="inline-error" role="alert" tabIndex={-1} ref={errorRef}>
-            {error}
+            {t(error)}
           </p>
         )}
         {notice && (
@@ -163,7 +167,7 @@ export function OrganizationDetails({
           </p>
         )}
         <Button type="submit" disabled={busy || !changed}>
-          {busy ? "Guardando…" : "Guardar cambios"}
+          {busy ? t("Guardando…") : t("Guardar cambios")}
         </Button>
       </form>
     </Card>

@@ -71,6 +71,7 @@ export const notificationOutput = z
   .object({
     id: z.uuid(),
     eventId: z.uuid(),
+    kind: z.string(),
     userId: z.uuid(),
     organizationId: z.uuid(),
     title: z.string(),

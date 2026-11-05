@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "../lib/locale-provider";
 import { useOrganizationText } from "./organization-customization-context";
 import { useEffect, useId, useState } from "react";
 import type { JobRole, Page } from "@nodra/contracts";
@@ -24,6 +25,8 @@ export function RoleCatalogPicker({
   disabled?: boolean;
   refreshKey?: number;
 }) {
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const id = useId();
   const [search, setSearch] = useState("");
@@ -87,14 +90,16 @@ export function RoleCatalogPicker({
         </option>
         {missingSelection && (
           <option value={value}>
-            {selected?.id === value ? selected.name : "Selección actual"}
-            {selected?.id === value && !selected.active ? " · Archivado" : ""}
+            {selected?.id === value ? selected.name : t("Selección actual")}
+            {selected?.id === value && !selected.active
+              ? t(" · Archivado")
+              : ""}
           </option>
         )}
         {result.items.map((role) => (
           <option key={role.id} value={role.id}>
             {role.name}
-            {!role.active ? " · Archivado" : ""}
+            {!role.active ? t(" · Archivado") : ""}
           </option>
         ))}
       </Select>
@@ -126,7 +131,7 @@ export function RoleCatalogPicker({
             disabled={disabled}
             onClick={() => setReload((n) => n + 1)}
           >
-            Reintentar
+            {t("Reintentar")}
           </button>
         </p>
       ) : (
@@ -145,12 +150,13 @@ export function RoleCatalogPicker({
                 disabled={disabled || page === 1}
                 onClick={() => setPage((n) => n - 1)}
               >
-                Anterior
+                {t("Anterior")}
               </button>
               <small>
-                Página {page}
+                {t("Página ")}
+                {page}
                 {result.total
-                  ? ` de ${Math.ceil(result.total / result.limit)}`
+                  ? t(` de ${Math.ceil(result.total / result.limit)}`)
                   : ""}
               </small>
               <button
@@ -159,7 +165,7 @@ export function RoleCatalogPicker({
                 disabled={disabled || page * result.limit >= result.total}
                 onClick={() => setPage((n) => n + 1)}
               >
-                Siguiente
+                {t("Siguiente")}
               </button>
             </div>
           )}

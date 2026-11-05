@@ -1,3 +1,5 @@
+import '../design/language_selector.dart';
+import '../l10n/translation.dart';
 import '../design/organization_presentation.dart';
 
 import 'dart:ui' as ui;
@@ -299,10 +301,13 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Perfil', style: Theme.of(context).textTheme.headlineMedium),
+        Text(
+          tr(context, 'Perfil'),
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
         const SizedBox(height: 6),
         Text(
-          'Tu cuenta y actividad en Nodra.',
+          tr(context, 'Tu cuenta y actividad en Nodra.'),
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 28),
@@ -340,12 +345,12 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
                   if (role != null)
                     Text(
                       role == 'OWNER'
-                          ? 'Propietario'
+                          ? tr(context, 'Propietario')
                           : role == 'COORDINATOR'
-                          ? 'Coordinador'
+                          ? tr(context, 'Coordinador')
                           : role == 'ADMIN'
-                          ? 'Administrador'
-                          : 'Miembro',
+                          ? tr(context, 'Administrador')
+                          : tr(context, 'Miembro'),
                     ),
                   if (organization != null)
                     Text(
@@ -363,12 +368,15 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
           const SizedBox(height: 16),
         ],
         if (success != null) ...[
-          Text(success!, style: const TextStyle(color: Color(0xff187a77))),
+          Text(
+            tr(context, success!),
+            style: const TextStyle(color: Color(0xff187a77)),
+          ),
           const SizedBox(height: 16),
         ],
         if (!editing) ...[
           NodraButton(
-            label: 'Editar perfil',
+            label: tr(context, 'Editar perfil'),
             secondary: true,
             onPressed: busy ? null : _startEditing,
           ),
@@ -380,41 +388,47 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Datos personales',
+                    tr(context, 'Datos personales'),
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 18),
                   NodraTextField(
                     controller: firstName,
-                    decoration: const InputDecoration(labelText: 'Nombre'),
+                    decoration: InputDecoration(
+                      labelText: tr(context, 'Nombre'),
+                    ),
                     textCapitalization: TextCapitalization.words,
                     autofillHints: const [AutofillHints.givenName],
                     maxLength: 80,
                     validator: (value) => value == null || value.trim().isEmpty
-                        ? 'Escribe tu nombre.'
+                        ? tr(context, 'Escribe tu nombre.')
                         : null,
                   ),
                   const SizedBox(height: 10),
                   NodraTextField(
                     controller: lastName,
-                    decoration: const InputDecoration(labelText: 'Apellidos'),
+                    decoration: InputDecoration(
+                      labelText: tr(context, 'Apellidos'),
+                    ),
                     textCapitalization: TextCapitalization.words,
                     autofillHints: const [AutofillHints.familyName],
                     maxLength: 80,
                     validator: (value) => value == null || value.trim().isEmpty
-                        ? 'Escribe tus apellidos.'
+                        ? tr(context, 'Escribe tus apellidos.')
                         : null,
                   ),
                   const SizedBox(height: 18),
                   NodraButton(
-                    label: busy ? 'Guardando…' : 'Guardar cambios',
+                    label: busy
+                        ? tr(context, 'Guardando…')
+                        : tr(context, 'Guardar cambios'),
                     onPressed: busy ? null : _saveName,
                   ),
                   TextButton(
                     onPressed: busy
                         ? null
                         : () => setState(() => editing = false),
-                    child: const Text('Cancelar'),
+                    child: Text(tr(context, 'Cancelar')),
                   ),
                 ],
               ),
@@ -426,47 +440,53 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Información de la cuenta',
+                tr(context, 'Información de la cuenta'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 18),
               Text(
-                'Correo electrónico',
+                tr(context, 'Correo electrónico'),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 4),
               Text(user['email'] as String? ?? ''),
               if (organization != null) ...[
                 const Divider(height: 28),
-                Text('Espacio', style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  tr(context, 'Espacio'),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 const SizedBox(height: 4),
                 Text(organization['name'] as String),
               ],
               const Divider(height: 28),
               Text(
                 user['emailVerifiedAt'] == null
-                    ? 'Correo pendiente de verificación'
-                    : 'Correo verificado',
+                    ? tr(context, 'Correo pendiente de verificación')
+                    : tr(context, 'Correo verificado'),
               ),
               if (user['emailVerifiedAt'] == null) ...[
                 const SizedBox(height: 12),
                 NodraButton(
                   label: verificationSent
-                      ? 'Enviar otro enlace'
-                      : 'Verificar mi correo',
+                      ? tr(context, 'Enviar otro enlace')
+                      : tr(context, 'Verificar mi correo'),
                   secondary: true,
                   onPressed: busy ? null : _requestVerification,
                 ),
                 const SizedBox(height: 10),
                 NodraButton(
-                  label: 'Ya tengo el enlace',
+                  label: tr(context, 'Ya tengo el enlace'),
                   secondary: true,
                   onPressed: busy ? null : _verifyFromLink,
                 ),
                 if (verificationSent) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'Te hemos enviado un enlace. Ábrelo en el navegador o pégalo aquí.',
+                    tr(
+                      context,
+                      'Te hemos enviado un enlace. Ábrelo en el navegador o pégalo aquí.',
+                    ),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -478,8 +498,8 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
         if (widget.onJoin != null) ...[
           NodraButton(
             label: organization == null
-                ? 'Unirme con un código'
-                : 'Unirme a otra organización',
+                ? tr(context, 'Unirme con un código')
+                : tr(context, 'Unirme a otra organización'),
             secondary: true,
             onPressed: busy ? null : widget.onJoin,
           ),
@@ -499,14 +519,18 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
           ),
         if (role == 'OWNER' || role == 'ADMIN') ...[
           NodraButton(
-            label: busy ? 'Creando código…' : 'Crear código de invitación',
+            label: busy
+                ? tr(context, 'Creando código…')
+                : tr(context, 'Crear código de invitación'),
             secondary: true,
             onPressed: busy ? null : _issueInvitation,
           ),
           const SizedBox(height: 12),
         ],
+        const LanguageSelector(),
+        const SizedBox(height: 20),
         NodraButton(
-          label: 'Cerrar sesión',
+          label: tr(context, 'Cerrar sesión'),
           secondary: true,
           onPressed: busy ? null : widget.onLogout,
         ),
@@ -592,12 +616,15 @@ class _InvitationCodeSheetState extends ConsumerState<InvitationCodeSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Código de invitación',
+                tr(context, 'Código de invitación'),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 10),
-              const Text(
-                'Compártelo con una persona. Es válido durante 72 horas y sólo permite unirse una vez.',
+              Text(
+                tr(
+                  context,
+                  'Compártelo con una persona. Es válido durante 72 horas y sólo permite unirse una vez.',
+                ),
               ),
               const SizedBox(height: 20),
               SelectableText(
@@ -608,25 +635,27 @@ class _InvitationCodeSheetState extends ConsumerState<InvitationCodeSheet> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text('Guárdalo ahora: no volverá a mostrarse.'),
+              Text(tr(context, 'Guárdalo ahora: no volverá a mostrarse.')),
               if (error != null) ...[
                 const SizedBox(height: 14),
                 NodraInlineError(message: error!),
               ],
               const SizedBox(height: 22),
               NodraButton(
-                label: copied ? 'Código copiado' : 'Copiar código',
+                label: copied
+                    ? tr(context, 'Código copiado')
+                    : tr(context, 'Copiar código'),
                 onPressed: busy ? null : _copyCode,
               ),
               const SizedBox(height: 10),
               NodraButton(
-                label: 'Revocar invitación',
+                label: tr(context, 'Revocar invitación'),
                 secondary: true,
                 onPressed: busy ? null : _revoke,
               ),
               TextButton(
                 onPressed: busy ? null : () => Navigator.of(context).pop(),
-                child: const Text('Cerrar'),
+                child: Text(tr(context, 'Cerrar')),
               ),
             ],
           ),
@@ -691,11 +720,11 @@ class _VerifyEmailSheetState extends ConsumerState<VerifyEmailSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Verifica tu correo',
+              tr(context, 'Verifica tu correo'),
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 10),
-            const Text('Pega el enlace que recibiste en tu correo.'),
+            Text(tr(context, 'Pega el enlace que recibiste en tu correo.')),
             const SizedBox(height: 22),
             if (error != null) ...[
               NodraInlineError(message: error!),
@@ -703,26 +732,28 @@ class _VerifyEmailSheetState extends ConsumerState<VerifyEmailSheet> {
             ],
             NodraTextField(
               controller: link,
-              decoration: const InputDecoration(
-                labelText: 'Enlace de verificación',
+              decoration: InputDecoration(
+                labelText: tr(context, 'Enlace de verificación'),
               ),
               keyboardType: TextInputType.url,
               textCapitalization: TextCapitalization.none,
               autocorrect: false,
               validator: (value) =>
                   accountActionToken(value ?? '', AccountAction.verify) == null
-                  ? 'Pega un enlace de verificación válido.'
+                  ? tr(context, 'Pega un enlace de verificación válido.')
                   : null,
             ),
             const SizedBox(height: 22),
             NodraButton(
-              label: busy ? 'Verificando…' : 'Verificar correo',
+              label: busy
+                  ? tr(context, 'Verificando…')
+                  : tr(context, 'Verificar correo'),
               onPressed: busy ? null : _complete,
             ),
             const SizedBox(height: 8),
             TextButton(
               onPressed: busy ? null : () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
+              child: Text(tr(context, 'Cancelar')),
             ),
           ],
         ),

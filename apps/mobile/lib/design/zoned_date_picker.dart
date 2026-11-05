@@ -1,3 +1,5 @@
+import '../l10n/translation.dart';
+
 import 'package:flutter/material.dart';
 
 import '../core/zoned_time.dart';
@@ -126,7 +128,7 @@ class _ZonedDatePickerState extends State<ZonedDatePicker> {
             icon: const Icon(Icons.calendar_today_outlined, size: 18),
             label: Text(
               day == null
-                  ? 'Elegir fecha'
+                  ? tr(context, 'Elegir fecha')
                   : '${day!.day}/${day!.month}/${day!.year}',
             ),
           ),
@@ -137,7 +139,7 @@ class _ZonedDatePickerState extends State<ZonedDatePicker> {
             ),
           if (day != null)
             IconButton(
-              tooltip: 'Quitar ${widget.label.toLowerCase()}',
+              tooltip: tr(context, 'Quitar ${widget.label.toLowerCase()}'),
               onPressed: clear,
               icon: const Icon(Icons.close),
             ),
@@ -164,7 +166,10 @@ class _ZonedDatePickerState extends State<ZonedDatePicker> {
               for (var index = 0; index < options.length; index++)
                 RadioListTile<DateTime>(
                   title: Text(
-                    '${index == 0 ? 'Primera' : 'Segunda'} ocurrencia · ${utcOffset(options[index], widget.zone)}',
+                    tr(
+                      context,
+                      '${index == 0 ? 'Primera' : 'Segunda'} ocurrencia · ${utcOffset(options[index], widget.zone)}',
+                    ),
                   ),
                   value: options[index],
                 ),

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "../lib/locale-provider";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { z } from "zod";
 import {
@@ -26,6 +27,8 @@ export function OrganizationCustomizationEditor({
   organization: Organization;
   refresh: () => Promise<void>;
 }) {
+  const t = useTranslation();
+
   const baseline = useRef(
     resolveOrganizationCustomization(organization.customization),
   );
@@ -165,11 +168,11 @@ export function OrganizationCustomizationEditor({
 
   return (
     <Card className="organization-customization">
-      <h2>Terminología y acento</h2>
+      <h2>{t("Terminología y acento")}</h2>
       <form noValidate ref={formRef} onSubmit={save} aria-busy={busy}>
         <div className="customization-terms">
           <fieldset disabled={busy || needsReload}>
-            <legend>Servicios</legend>
+            <legend>{t("Servicios")}</legend>
             <Input
               name="terminology.service.singular"
               aria-invalid={
@@ -178,7 +181,7 @@ export function OrganizationCustomizationEditor({
               aria-describedby={
                 invalid === "terminology.service.singular" ? errorId : undefined
               }
-              label="En singular"
+              label={t("En singular")}
               required
               maxLength={40}
               value={draft.terminology.service.singular}
@@ -194,7 +197,7 @@ export function OrganizationCustomizationEditor({
               aria-describedby={
                 invalid === "terminology.service.plural" ? errorId : undefined
               }
-              label="En plural"
+              label={t("En plural")}
               required
               maxLength={40}
               value={draft.terminology.service.plural}
@@ -204,7 +207,7 @@ export function OrganizationCustomizationEditor({
             />
           </fieldset>
           <fieldset disabled={busy || needsReload}>
-            <legend>Roles laborales</legend>
+            <legend>{t("Roles laborales")}</legend>
             <Input
               name="terminology.jobRole.singular"
               aria-invalid={
@@ -213,7 +216,7 @@ export function OrganizationCustomizationEditor({
               aria-describedby={
                 invalid === "terminology.jobRole.singular" ? errorId : undefined
               }
-              label="En singular"
+              label={t("En singular")}
               required
               maxLength={40}
               value={draft.terminology.jobRole.singular}
@@ -229,7 +232,7 @@ export function OrganizationCustomizationEditor({
               aria-describedby={
                 invalid === "terminology.jobRole.plural" ? errorId : undefined
               }
-              label="En plural"
+              label={t("En plural")}
               required
               maxLength={40}
               value={draft.terminology.jobRole.plural}
@@ -240,7 +243,7 @@ export function OrganizationCustomizationEditor({
           </fieldset>
         </div>
         <fieldset disabled={busy || needsReload}>
-          <legend>Acento</legend>
+          <legend>{t("Acento")}</legend>
           <div className="customization-accents">
             {organizationCustomizationUpdateInput.shape.accent.options.map(
               (accent) => (
@@ -262,7 +265,7 @@ export function OrganizationCustomizationEditor({
                     }}
                     aria-hidden="true"
                   />
-                  {organizationAccents[accent].label}
+                  {t(organizationAccents[accent].label)}
                 </label>
               ),
             )}
@@ -277,7 +280,7 @@ export function OrganizationCustomizationEditor({
               ref={errorRef}
               id={errorId}
             >
-              {error}
+              {t(error)}
             </p>
             {!invalid && (
               <Button
@@ -288,7 +291,9 @@ export function OrganizationCustomizationEditor({
                   void loadCurrent();
                 }}
               >
-                {operation === "load" ? "Cargando…" : "Cargar versión actual"}
+                {operation === "load"
+                  ? t("Cargando…")
+                  : t("Cargar versión actual")}
               </Button>
             )}
           </div>
@@ -300,7 +305,7 @@ export function OrganizationCustomizationEditor({
         )}
         <div className="actions">
           <Button type="submit" disabled={busy || !changed || needsReload}>
-            {operation === "save" ? "Guardando…" : "Guardar cambios"}
+            {operation === "save" ? t("Guardando…") : t("Guardar cambios")}
           </Button>
           <Button
             secondary
@@ -313,7 +318,7 @@ export function OrganizationCustomizationEditor({
               setInvalid("");
             }}
           >
-            Valores de Nodra
+            {t("Valores de Nodra")}
           </Button>
         </div>
       </form>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "../lib/locale-provider";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Organization } from "@nodra/contracts";
@@ -39,6 +40,8 @@ export function OrganizationLogo({
   organization: Organization;
   refresh: () => Promise<void>;
 }) {
+  const t = useTranslation();
+
   const [logoUrl, setLogoUrl] = useState(organization.logoUrl);
   const [source, setSource] = useState("");
   const [busy, setBusy] = useState(false);
@@ -128,7 +131,7 @@ export function OrganizationLogo({
       <div className="organization-logo-editor" aria-busy={busy}>
         <OrganizationMark organization={{ name: organization.name, logoUrl }} />
         <div className="organization-logo-controls">
-          <span>Logo de la organización</span>
+          <span>{t("Logo de la organización")}</span>
           <div className="organization-logo-actions">
             <Button
               ref={trigger}
@@ -137,7 +140,11 @@ export function OrganizationLogo({
               disabled={busy}
               onClick={() => input.current?.click()}
             >
-              {busy ? "Guardando…" : logoUrl ? "Cambiar logo" : "Añadir logo"}
+              {busy
+                ? t("Guardando…")
+                : logoUrl
+                  ? t("Cambiar logo")
+                  : t("Añadir logo")}
             </Button>
             {logoUrl && (
               <Button
@@ -147,22 +154,23 @@ export function OrganizationLogo({
                 onClick={async () => {
                   if (
                     await confirm({
-                      title: "¿Quitar el logo?",
-                      description:
+                      title: t("¿Quitar el logo?"),
+                      description: t(
                         "Se mostrarán las iniciales de la organización. Puedes añadir otro logo cuando quieras.",
-                      confirmLabel: "Quitar logo",
+                      ),
+                      confirmLabel: t("Quitar logo"),
                       destructive: true,
                     })
                   )
                     await changeLogo();
                 }}
               >
-                Quitar
+                {t("Quitar")}
               </Button>
             )}
           </div>
           <p className="muted">
-            JPG, PNG o WebP. Ajusta el recorte antes de guardar.
+            {t("JPG, PNG o WebP. Ajusta el recorte antes de guardar.")}
           </p>
         </div>
         <input
@@ -170,7 +178,7 @@ export function OrganizationLogo({
           type="file"
           className="sr-only"
           accept="image/jpeg,image/png,image/webp"
-          aria-label="Elegir logo desde el dispositivo"
+          aria-label={t("Elegir logo desde el dispositivo")}
           disabled={busy}
           onChange={(event) => {
             select(event.currentTarget.files?.[0]);
@@ -180,7 +188,7 @@ export function OrganizationLogo({
       </div>
       {error && (
         <p className="inline-error" role="alert">
-          {error}
+          {t(error)}
         </p>
       )}
       {notice && (
@@ -193,7 +201,7 @@ export function OrganizationLogo({
           source={source}
           variant="logo"
           busy={busy}
-          error={cropError}
+          error={t(cropError)}
           onCancel={closeCrop}
           onSave={(blob) => void changeLogo(blob)}
           onError={setCropError}

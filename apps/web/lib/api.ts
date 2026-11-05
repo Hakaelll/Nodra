@@ -246,8 +246,12 @@ export const statusLabel: Record<string, string> = {
   ADMIN: "Administrador",
   COORDINATOR: "Coordinador",
 };
-export function date(value: string, timezone = "Europe/Madrid") {
-  return new Intl.DateTimeFormat("es-ES", {
+export function date(
+  value: string,
+  timezone = "Europe/Madrid",
+  locale = "es-ES",
+) {
+  return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
     hour: "2-digit",

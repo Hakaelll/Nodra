@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../core/organization_customization.dart';
+import '../l10n/translation.dart';
 
 class OrganizationPresentation extends InheritedWidget {
   const OrganizationPresentation({
@@ -22,4 +23,4 @@ class OrganizationPresentation extends InheritedWidget {
 }
 
 String organizationText(BuildContext context, String message) =>
-    OrganizationPresentation.of(context).text(message);
+    OrganizationPresentation.of(context).text(tr(context, message));

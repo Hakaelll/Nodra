@@ -5,8 +5,8 @@ import { ValidationNotice } from "../components/validation-notice";
 import { ConfirmationProvider } from "../components/confirmation-provider";
 import { cookies } from "next/headers";
 import { LocaleProvider } from "../lib/locale-provider";
-import { defaultLocale, isSupportedLocale } from "../lib/i18n";
-export const metadata: Metadata = {
+import { defaultLocale, isSupportedLocale, translate } from "../lib/i18n";
+const baseMetadata: Metadata = {
   title: "Nodra — Personas, en sintonía",
   description:
     "Tu equipo, tus servicios y cada confirmación. Un solo lugar para coordinar.",
@@ -18,6 +18,21 @@ export const metadata: Metadata = {
     apple: { url: "/brand/apple-touch-icon.png", sizes: "180x180" },
   },
 };
+async function requestLocale() {
+  const stored = (await cookies()).get("nodra_locale")?.value;
+  return isSupportedLocale(stored) ? stored : defaultLocale;
+}
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await requestLocale();
+  return {
+    ...baseMetadata,
+    title: translate(locale, "Nodra — Personas, en sintonía"),
+    description: translate(
+      locale,
+      "Tu equipo, tus servicios y cada confirmación. Un solo lugar para coordinar.",
+    ),
+  };
+}
 export const viewport: Viewport = {
   themeColor: "#ffffff",
   width: "device-width",
@@ -29,8 +44,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const storedLocale = (await cookies()).get("nodra_locale")?.value;
-  const locale = isSupportedLocale(storedLocale) ? storedLocale : defaultLocale;
+  const locale = await requestLocale();
   return (
     <html lang={locale}>
       <body>

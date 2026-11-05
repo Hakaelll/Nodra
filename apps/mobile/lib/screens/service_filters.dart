@@ -1,3 +1,4 @@
+import '../l10n/translation.dart';
 import '../design/organization_presentation.dart';
 
 import 'dart:async';
@@ -123,20 +124,44 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
         DropdownButtonFormField<String>(
           key: ValueKey('status-$status'),
           initialValue: status,
-          decoration: const InputDecoration(labelText: 'Estado'),
-          items: const [
-            DropdownMenuItem(value: '', child: Text('Todos los estados')),
-            DropdownMenuItem(value: 'DRAFT', child: Text('Borrador')),
-            DropdownMenuItem(value: 'OPEN', child: Text('Abierto')),
-            DropdownMenuItem(value: 'SELECTION', child: Text('En selección')),
+          decoration: InputDecoration(labelText: tr(context, 'Estado')),
+          items: [
+            DropdownMenuItem(
+              value: '',
+              child: Text(tr(context, 'Todos los estados')),
+            ),
+            DropdownMenuItem(
+              value: 'DRAFT',
+              child: Text(tr(context, 'Borrador')),
+            ),
+            DropdownMenuItem(
+              value: 'OPEN',
+              child: Text(tr(context, 'Abierto')),
+            ),
+            DropdownMenuItem(
+              value: 'SELECTION',
+              child: Text(tr(context, 'En selección')),
+            ),
             DropdownMenuItem(
               value: 'CONFIRMATION',
-              child: Text('En confirmación'),
+              child: Text(tr(context, 'En confirmación')),
             ),
-            DropdownMenuItem(value: 'READY', child: Text('Preparado')),
-            DropdownMenuItem(value: 'IN_PROGRESS', child: Text('En curso')),
-            DropdownMenuItem(value: 'CANCELLED', child: Text('Cancelado')),
-            DropdownMenuItem(value: 'COMPLETED', child: Text('Completado')),
+            DropdownMenuItem(
+              value: 'READY',
+              child: Text(tr(context, 'Preparado')),
+            ),
+            DropdownMenuItem(
+              value: 'IN_PROGRESS',
+              child: Text(tr(context, 'En curso')),
+            ),
+            DropdownMenuItem(
+              value: 'CANCELLED',
+              child: Text(tr(context, 'Cancelado')),
+            ),
+            DropdownMenuItem(
+              value: 'COMPLETED',
+              child: Text(tr(context, 'Completado')),
+            ),
           ],
           onChanged: (value) => setState(() => status = value ?? ''),
         ),
@@ -214,14 +239,14 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
                             onPressed: rolePage == 1
                                 ? null
                                 : () => setState(() => rolePage--),
-                            child: const Text("Página anterior"),
+                            child: Text(tr(context, "Página anterior")),
                           ),
-                          Text('Página $rolePage'),
+                          Text(tr(context, 'Página $rolePage')),
                           TextButton(
                             onPressed: rolePage * 10 >= total
                                 ? null
                                 : () => setState(() => rolePage++),
-                            child: const Text("Página siguiente"),
+                            child: Text(tr(context, "Página siguiente")),
                           ),
                         ],
                       ),
@@ -260,7 +285,7 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
         const SizedBox(height: 12),
         ZonedDatePicker(
           key: ValueKey('from-$dateReset-${widget.timezone}'),
-          label: 'Desde',
+          label: tr(context, 'Desde'),
           zone: widget.timezone,
           initial: from,
           onChanged: (value) => setState(() {
@@ -272,7 +297,7 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
         const SizedBox(height: 12),
         ZonedDatePicker(
           key: ValueKey('to-$dateReset-${widget.timezone}'),
-          label: 'Hasta',
+          label: tr(context, 'Hasta'),
           zone: widget.timezone,
           initial: to,
           onChanged: (value) => setState(() {
@@ -287,10 +312,13 @@ class _ServiceFiltersState extends ConsumerState<ServiceFilters> {
           children: [
             FilledButton(
               onPressed: apply,
-              child: const Text('Aplicar filtros'),
+              child: Text(tr(context, 'Aplicar filtros')),
             ),
             const SizedBox(width: 8),
-            TextButton(onPressed: clear, child: const Text('Limpiar filtros')),
+            TextButton(
+              onPressed: clear,
+              child: Text(tr(context, 'Limpiar filtros')),
+            ),
           ],
         ),
       ],

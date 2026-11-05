@@ -1,3 +1,4 @@
+import '../l10n/translation.dart';
 import '../design/organization_presentation.dart';
 
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
           children: [
             TextButton(
               onPressed: page > 1 ? () => change(page - 1) : null,
-              child: const Text('Anterior'),
+              child: Text(tr(context, 'Anterior')),
             ),
             Expanded(
               child: Text(
@@ -56,7 +57,7 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
             ),
             TextButton(
               onPressed: page * 5 < total ? () => change(page + 1) : null,
-              child: const Text('Siguiente'),
+              child: Text(tr(context, 'Siguiente')),
             ),
           ],
         )
@@ -66,13 +67,16 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
     final day = service['localStartDay'] as String;
     final time = service['localStartTime'] as String;
     final zone = service['timezone'] as String;
-    final label = attention
-        ? service['status'] == 'DRAFT'
-              ? 'Revisar borrador'
-              : 'Confirmación pendiente'
-        : service['status'] == 'OPEN'
-        ? 'Disponible'
-        : statusLabels[service['status']] ?? service['status'];
+    final label = tr(
+      context,
+      attention
+          ? service['status'] == 'DRAFT'
+                ? 'Revisar borrador'
+                : 'Confirmación pendiente'
+          : service['status'] == 'OPEN'
+          ? 'Disponible'
+          : statusLabels[service['status']] ?? service['status'] as String,
+    );
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(service['title'] as String),
@@ -117,7 +121,7 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Hola, ${widget.session.user!['firstName']}.',
+          tr(context, 'Hola, ${widget.session.user!['firstName']}.'),
           style: Theme.of(context).textTheme.headlineLarge,
         ),
         const SizedBox(height: 28),
@@ -128,7 +132,7 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
             actionLabel: 'Cerrar aviso',
           ),
         section(
-          'Acciones pendientes',
+          tr(context, 'Acciones pendientes'),
           ref.watch(dashboardProvider(attention)),
           () => ref.invalidate(dashboardProvider(attention)),
           (data) {
@@ -136,9 +140,9 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
             return Column(
               children: [
                 if (items.isEmpty)
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('Sin confirmaciones pendientes.'),
+                    child: Text(tr(context, 'Sin confirmaciones pendientes.')),
                   ),
                 ...items.map((item) => serviceRow(item, attention: true)),
                 pages(
@@ -151,7 +155,7 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
           },
         ),
         section(
-          'Avisos pendientes',
+          tr(context, 'Avisos pendientes'),
           ref.watch(pendingNoticesProvider(noticePage)),
           () => ref.invalidate(pendingNoticesProvider(noticePage)),
           (data) {
@@ -160,7 +164,7 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (items.isEmpty)
-                  const Text('No hay notificaciones pendientes.'),
+                  Text(tr(context, 'No hay notificaciones pendientes.')),
                 ...items.map(
                   (notice) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -179,8 +183,8 @@ class _WorkerHomeState extends ConsumerState<WorkerHome> {
                               : null,
                           child: Text(
                             busyNotice == notice['id']
-                                ? 'Guardando…'
-                                : 'He leído',
+                                ? tr(context, 'Guardando…')
+                                : tr(context, 'He leído'),
                           ),
                         ),
                         const Divider(),

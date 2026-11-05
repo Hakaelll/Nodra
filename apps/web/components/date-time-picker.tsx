@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslation } from "../lib/locale-provider";
 import { useEffect, useId, useRef, useState } from "react";
 import type { Ref } from "react";
 import {
@@ -16,11 +17,11 @@ const weekdays = ["L", "M", "X", "J", "V", "S", "D"];
 const pad = (value: number) => String(value).padStart(2, "0");
 const monthKey = (date: Date) =>
   `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
-const formatSelected = (value: string) => {
+const formatSelected = (value: string, locale: string) => {
   if (!value) return "Selecciona un día y una hora";
   const [day, time] = value.split("T");
   const date = new Date(`${day}T12:00:00`);
-  return `${new Intl.DateTimeFormat("es-ES", { weekday: "short", day: "numeric", month: "long" }).format(date)} · ${time}`;
+  return `${new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "long" }).format(date)} · ${time}`;
 };
 
 export function DateTimePicker({
@@ -48,6 +49,10 @@ export function DateTimePicker({
   error?: string;
   triggerRef?: Ref<HTMLButtonElement>;
 }) {
+  const { locale } = useLocale();
+
+  const t = useTranslation();
+
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
   const [visibleMonth, setVisibleMonth] = useState(
@@ -110,14 +115,14 @@ export function DateTimePicker({
           <CalendarDays size={19} strokeWidth={1.8} />
         </span>
         <span id={`${id}-value`} className={value ? "" : "is-placeholder"}>
-          {formatSelected(value)}
+          {t(formatSelected(value, locale))}
         </span>
         <ChevronDown size={17} aria-hidden="true" />
       </button>
       {error && (
         <p className="field-error" role="alert">
           <CircleAlert size={16} aria-hidden="true" />
-          <span>{error}</span>
+          <span>{t(error)}</span>
         </p>
       )}
       {open && (
@@ -136,7 +141,7 @@ export function DateTimePicker({
           >
             <div className="date-time-month">
               <strong>
-                {new Intl.DateTimeFormat("es-ES", {
+                {new Intl.DateTimeFormat(locale, {
                   month: "long",
                   year: "numeric",
                 }).format(first)}
@@ -145,7 +150,7 @@ export function DateTimePicker({
                 <button
                   type="button"
                   className="icon-button"
-                  aria-label={`Mes anterior de ${label.toLowerCase()}`}
+                  aria-label={t(`Mes anterior de ${label.toLowerCase()}`)}
                   onClick={() => moveMonth(-1)}
                 >
                   <ChevronLeft size={19} />
@@ -153,7 +158,7 @@ export function DateTimePicker({
                 <button
                   type="button"
                   className="icon-button"
-                  aria-label={`Mes siguiente de ${label.toLowerCase()}`}
+                  aria-label={t(`Mes siguiente de ${label.toLowerCase()}`)}
                   onClick={() => moveMonth(1)}
                 >
                   <ChevronRight size={19} />
@@ -162,7 +167,7 @@ export function DateTimePicker({
             </div>
             <div className="date-time-weekdays" aria-hidden="true">
               {weekdays.map((day) => (
-                <span key={day}>{day}</span>
+                <span key={day}>{t(day)}</span>
               ))}
             </div>
             <div className="date-time-days">
@@ -176,7 +181,7 @@ export function DateTimePicker({
                     key={day}
                     type="button"
                     disabled={!!minDay && day < minDay}
-                    aria-label={new Intl.DateTimeFormat("es-ES", {
+                    aria-label={new Intl.DateTimeFormat(locale, {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
@@ -192,9 +197,9 @@ export function DateTimePicker({
             </div>
             <div className="date-time-clock">
               <Clock3 size={18} aria-hidden="true" />
-              <span>Hora</span>
+              <span>{t("Hora")}</span>
               <Select
-                aria-label={`${label}: hora`}
+                aria-label={t(`${label}: hora`)}
                 value={chosenTime.slice(0, 2)}
                 disabled={!chosenDay}
                 onChange={(event) =>
@@ -209,7 +214,7 @@ export function DateTimePicker({
               </Select>
               <span aria-hidden="true">:</span>
               <Select
-                aria-label={`${label}: minutos`}
+                aria-label={t(`${label}: minutos`)}
                 value={chosenTime.slice(3, 5)}
                 disabled={!chosenDay}
                 onChange={(event) =>
@@ -233,7 +238,7 @@ export function DateTimePicker({
                   chooseDay(today);
                 }}
               >
-                Hoy
+                {t("Hoy")}
               </button>
               <button
                 type="button"
@@ -245,7 +250,7 @@ export function DateTimePicker({
                     ?.focus();
                 }}
               >
-                Listo
+                {t("Listo")}
               </button>
             </div>
           </div>

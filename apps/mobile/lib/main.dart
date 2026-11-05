@@ -50,6 +50,7 @@ class NodraApp extends ConsumerWidget {
     final customization =
         ref.watch(sessionProvider).asData?.value.customization ??
         OrganizationCustomization.defaults;
+    final language = ref.watch(localeProvider);
     return MaterialApp.router(
       title: 'Nodra',
       debugShowCheckedModeBanner: false,
@@ -58,9 +59,14 @@ class NodraApp extends ConsumerWidget {
         value: customization,
         child: child ?? const SizedBox.shrink(),
       ),
-      locale: ref.watch(localeProvider),
+      locale: language.languageCode == 'en'
+          ? const Locale('en', 'GB')
+          : language,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
+      supportedLocales: [
+        ...AppLocalizations.supportedLocales,
+        const Locale('en', 'GB'),
+      ],
       routerConfig: ref.watch(routerProvider),
     );
   }

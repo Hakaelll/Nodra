@@ -1,3 +1,4 @@
+import '../l10n/translation.dart';
 import '../design/organization_presentation.dart';
 
 import 'package:flutter/material.dart';
@@ -126,12 +127,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Calendario',
+                tr(context, 'Calendario'),
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               const SizedBox(height: 5),
               Text(
-                'Horarios en $timezone',
+                tr(context, 'Horarios en $timezone'),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 20),
@@ -139,7 +140,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      '${_months[first.month - 1]} ${first.year}',
+                      '${tr(context, _months[first.month - 1])} ${first.year}',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
@@ -148,10 +149,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       month = null;
                       selectedDay = null;
                     }),
-                    child: const Text('Hoy'),
+                    child: Text(tr(context, 'Hoy')),
                   ),
                   IconButton(
-                    tooltip: 'Mes anterior',
+                    tooltip: tr(context, 'Mes anterior'),
                     onPressed: visibleMonth == '1900-01'
                         ? null
                         : () => setState(() {
@@ -161,7 +162,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     icon: const Icon(Icons.chevron_left),
                   ),
                   IconButton(
-                    tooltip: 'Mes siguiente',
+                    tooltip: tr(context, 'Mes siguiente'),
                     onPressed: visibleMonth == '2199-12'
                         ? null
                         : () => setState(() {
@@ -179,7 +180,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       (label) => Expanded(
                         child: Center(
                           child: Text(
-                            label,
+                            tr(context, label),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
@@ -206,8 +207,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         child: Semantics(
                           button: true,
                           selected: selected == day,
-                          label:
-                              '$number de ${_months[first.month - 1]}, ${dayEvents.length} ${organizationText(context, dayEvents.length == 1 ? 'servicio' : 'servicios')}',
+                          label: tr(
+                            context,
+                            '$number de ${tr(context, _months[first.month - 1])}, ${dayEvents.length} ${organizationText(context, dayEvents.length == 1 ? 'servicio' : 'servicios')}',
+                          ),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(14),
                             onTap: () => setState(() => selectedDay = day),
@@ -269,13 +272,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               ),
               const SizedBox(height: 27),
               Text(
-                '${_weekdayNames[selectedDate.weekday - 1]} ${selectedDate.day} de ${_months[selectedDate.month - 1]}',
+                tr(
+                  context,
+                  '${tr(context, _weekdayNames[selectedDate.weekday - 1])} ${selectedDate.day} de ${tr(context, _months[selectedDate.month - 1])}',
+                ),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
               if (selectedEvents.isEmpty)
                 NodraEmptyState(
-                  title: 'Tu agenda está libre este día.',
+                  title: tr(context, 'Tu agenda está libre este día.'),
                   message: organizationText(
                     context,
                     "Elige otro día para consultar sus servicios.",
@@ -306,7 +312,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                 Text(
                                   event['localStartDay'] == selected
                                       ? '${event['localStartTime']} – ${event['localEndDay'] == selected ? event['localEndTime'] : 'continúa'}'
-                                      : 'Continúa – ${event['localEndDay'] == selected ? event['localEndTime'] : 'día siguiente'}',
+                                      : tr(
+                                          context,
+                                          'Continúa – ${event['localEndDay'] == selected ? event['localEndTime'] : 'día siguiente'}',
+                                        ),
                                   style: TextStyle(
                                     color: eventColors[event['id']]!,
                                     fontSize: 12,
@@ -329,8 +338,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                 ),
                                 const SizedBox(height: 5),
                                 Text(
-                                  statusLabels[event['status']] ??
-                                      event['status'] as String,
+                                  tr(
+                                    context,
+                                    statusLabels[event['status']] ??
+                                        event['status'] as String,
+                                  ),
                                 ),
                               ],
                             ),

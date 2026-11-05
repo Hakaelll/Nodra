@@ -14,6 +14,7 @@ Nodra helps organizations publish services, define positions, select participant
 - **Communication:** Notices with recipient snapshots and read acknowledgements, persistent notifications, and chats with unread counts.
 - **Profiles:** Editable names and device photo uploads with circular cropping.
 - **Clients:** A responsive web application and a Flutter client with Android and iOS project scaffolds.
+- **Languages:** Spanish and English, selectable before sign-in and in account preferences. The choice persists independently of the session. Names, messages and organization terminology stay as entered.
 
 Nodra is not an ERP, a marketplace, or a payment platform. Local development requires no paid services or external accounts.
 
@@ -87,6 +88,8 @@ The seed creates a Northline organization, job roles, a group, services, and loc
 | Participant | `worker1@nodra.local` | `Nodra-local-2026!`  |
 
 Use these credentials only in local development.
+
+New registrations require email verification before the first sign-in. Open the verification message in [Mailpit](http://localhost:8025) during local development and confirm the link with the password chosen at registration. Existing seeded accounts retain access. Mailpit stores mail locally and does not deliver to external inboxes.
 
 ### Run the mobile client
 

@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "../lib/locale-provider";
 import { useOrganizationText } from "./organization-customization-context";
 import { useId, useRef, useState } from "react";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
@@ -33,6 +34,8 @@ export function ServiceFilters({
   value: ServiceFiltersValue;
   onApply: (next: ServiceFiltersValue) => void;
 }) {
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const applied = Boolean(value.jobRoleId || value.from || value.to);
   return (
@@ -43,7 +46,7 @@ export function ServiceFilters({
     >
       <summary>
         <SlidersHorizontal size={17} aria-hidden="true" />{" "}
-        {text("Fechas y rol")} {applied && <span>· Aplicados</span>}
+        {text("Fechas y rol")} {applied && <span>{t("· Aplicados")}</span>}
         <ChevronDown size={16} aria-hidden="true" />
       </summary>
       <FilterForm
@@ -65,6 +68,8 @@ function FilterForm({
   value: ServiceFiltersValue;
   onApply: (next: ServiceFiltersValue) => void;
 }) {
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const id = useId();
   const [jobRoleId, setJobRoleId] = useState(value.jobRoleId);
@@ -81,13 +86,13 @@ function FilterForm({
   const controls = [
     {
       key: "start" as const,
-      label: "Desde (opcional)",
+      label: t("Desde (opcional)"),
       selected: start,
       change: setStart,
     },
     {
       key: "end" as const,
-      label: "Hasta (opcional)",
+      label: t("Hasta (opcional)"),
       selected: end,
       change: setEnd,
     },
@@ -159,15 +164,18 @@ function FilterForm({
                     setError("");
                   }}
                 >
-                  Quitar {control.key === "start" ? "inicio" : "fin"}
+                  {t("Quitar ")}
+                  {control.key === "start" ? t("inicio") : t("fin")}
                 </button>
               )}
               {options.length > 1 && (
                 <div className="schedule-overlap">
-                  <span>Esta hora ocurre dos veces</span>
+                  <span>{t("Esta hora ocurre dos veces")}</span>
                   <div
                     role="group"
-                    aria-label={`Horario de ${control.key === "start" ? "inicio" : "fin"}`}
+                    aria-label={t(
+                      `Horario de ${control.key === "start" ? "inicio" : "fin"}`,
+                    )}
                   >
                     {options.map((option, index) => (
                       <button
@@ -182,7 +190,7 @@ function FilterForm({
                           setError("");
                         }}
                       >
-                        {index === 0 ? "Primera vez" : "Segunda vez"} ·{" "}
+                        {index === 0 ? t("Primera vez") : t("Segunda vez")} ·{" "}
                         {formatUtcOffset(option.offsetMinutes)}
                       </button>
                     ))}
@@ -194,7 +202,8 @@ function FilterForm({
         })}
       </div>
       <small className="muted">
-        Horario de {timezone}
+        {t("Horario de ")}
+        {timezone}
         {text(". Muestra servicios en el intervalo indicado.")}
       </small>
       {error && (
@@ -205,12 +214,12 @@ function FilterForm({
           tabIndex={-1}
           className="inline-error"
         >
-          {error}
+          {t(error)}
         </p>
       )}
       <div className="service-filter-actions">
         <Button type="submit" secondary>
-          Aplicar filtros
+          {t("Aplicar filtros")}
         </Button>
       </div>
     </form>

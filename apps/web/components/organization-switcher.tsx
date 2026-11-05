@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "../lib/locale-provider";
 import { ChevronDown } from "lucide-react";
 import type { Membership } from "@nodra/contracts";
 import { Select } from "./ui";
@@ -17,9 +18,11 @@ export function OrganizationSwitcher({
   className?: string;
   showChevron?: boolean;
 }) {
+  const t = useTranslation();
+
   return (
     <label className={className}>
-      <span className="sr-only">Cambiar organización</span>
+      <span className="sr-only">{t("Cambiar organización")}</span>
       <Select
         value={value}
         onChange={(event) => onChange(event.currentTarget.value)}

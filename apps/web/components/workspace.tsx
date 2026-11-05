@@ -1,4 +1,6 @@
 "use client";
+import { LanguageSelector } from "./language-selector";
+import { useTranslation } from "../lib/locale-provider";
 import { useOrganizationText } from "./organization-customization-context";
 import {
   FormEvent,
@@ -132,19 +134,21 @@ function ErrorMessage({
   message: string;
   clear: () => void;
 }) {
+  const t = useTranslation();
+
   return message ? (
     <div className="error" role="alert">
       <span className="error-icon">
         <CircleAlert size={19} strokeWidth={1.8} />
       </span>
       <div className="error-copy">
-        <strong>No se pudo completar</strong>
-        <p>{message}</p>
+        <strong>{t("No se pudo completar")}</strong>
+        <p>{t(message)}</p>
       </div>
       <button
         type="button"
         className="icon-button"
-        aria-label="Cerrar mensaje"
+        aria-label={t("Cerrar mensaje")}
         onClick={clear}
       >
         <X size={17} />
@@ -153,6 +157,8 @@ function ErrorMessage({
   ) : null;
 }
 function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
+  const t = useTranslation();
+
   const [register, setRegister] = useState(false),
     [recover, setRecover] = useState(false),
     [busy, setBusy] = useState(false),
@@ -197,44 +203,54 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
         <Brand />
         <div className="auth-message">
           <h1>
-            Personas,
+            {t("Personas,")}
             <br />
-            <span>en sintonía.</span>
+            <span>{t("en sintonía.")}</span>
           </h1>
           <p className="muted">
-            El equipo adecuado. Cada detalle en su lugar. Coordina el trabajo
-            con la tranquilidad de saber quién está contigo.
+            {t(
+              "El equipo adecuado. Cada detalle en su lugar. Coordina el trabajo con la tranquilidad de saber quién está contigo.",
+            )}
           </p>
         </div>
         <div className="auth-footer">
-          <span>Tu equipo. Tu forma de trabajar.</span>
-          <span>Nodra / Coordinación</span>
+          <span>{t("Tu equipo. Tu forma de trabajar.")}</span>
+          <span>{t("Nodra / Coordinación")}</span>
         </div>
       </section>
       <section className="auth-form">
         <div>
+          <div className="auth-language">
+            <LanguageSelector />
+          </div>
           <h2>
             {recover
-              ? "Recupera tu acceso"
+              ? t("Recupera tu acceso")
               : register
-                ? "Crea tu cuenta"
-                : "Bienvenido de nuevo"}
+                ? t("Crea tu cuenta")
+                : t("Bienvenido de nuevo")}
           </h2>
           <p className="muted">
             {recover
-              ? "Te enviaremos un enlace si el correo pertenece a una cuenta."
+              ? t(
+                  "Te enviaremos un enlace si el correo pertenece a una cuenta.",
+                )
               : register
-                ? "Crea tu cuenta y conecta con tu equipo."
-                : "Entra en tu espacio de trabajo."}
+                ? t("Crea tu cuenta y conecta con tu equipo.")
+                : t("Entra en tu espacio de trabajo.")}
           </p>
-          <ErrorMessage message={error} clear={() => setError("")} />
+          <ErrorMessage message={t(error)} clear={() => setError("")} />
           {recoverySent || registrationSent ? (
             <div className="auth-feedback" role="status">
-              <h3>Revisa tu correo</h3>
+              <h3>{t("Revisa tu correo")}</h3>
               <p>
                 {registrationSent
-                  ? "Si el correo puede registrarse, recibirás un enlace para verificarlo. Si ya tienes cuenta, inicia sesión o recupera tu contraseña."
-                  : "Si existe una cuenta con esa dirección, recibirás un enlace para elegir una nueva contraseña. Comprueba también spam."}
+                  ? t(
+                      "Si el correo puede registrarse, recibirás un enlace para verificarlo. Si ya tienes cuenta, inicia sesión o recupera tu contraseña.",
+                    )
+                  : t(
+                      "Si existe una cuenta con esa dirección, recibirás un enlace para elegir una nueva contraseña. Comprueba también spam.",
+                    )}
               </p>
             </div>
           ) : (
@@ -242,14 +258,14 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
               {register && (
                 <div className="form-grid">
                   <Input
-                    label="Nombre"
+                    label={t("Nombre")}
                     name="firstName"
                     autoComplete="given-name"
                     required
                     maxLength={80}
                   />
                   <Input
-                    label="Apellidos"
+                    label={t("Apellidos")}
                     name="lastName"
                     autoComplete="family-name"
                     required
@@ -258,35 +274,35 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
                 </div>
               )}
               <Input
-                label="Correo electrónico"
+                label={t("Correo electrónico")}
                 name="email"
                 type="email"
-                placeholder="tu@organizacion.com"
+                placeholder={t("tu@organizacion.com")}
                 autoComplete="email"
                 required
               />
               {!recover && (
                 <Input
-                  label="Contraseña"
+                  label={t("Contraseña")}
                   name="password"
                   type="password"
                   minLength={12}
                   maxLength={128}
                   autoComplete={register ? "new-password" : "current-password"}
                   placeholder={
-                    register ? "Al menos 12 caracteres" : "Tu contraseña"
+                    register ? t("Al menos 12 caracteres") : t("Tu contraseña")
                   }
                   required
                 />
               )}
               <Button disabled={busy}>
                 {busy
-                  ? "Un momento…"
+                  ? t("Un momento…")
                   : recover
-                    ? "Enviar enlace"
+                    ? t("Enviar enlace")
                     : register
-                      ? "Crear mi cuenta"
-                      : "Entrar en Nodra"}
+                      ? t("Crear mi cuenta")
+                      : t("Entrar en Nodra")}
                 <ArrowRight size={16} />
               </Button>
             </form>
@@ -300,12 +316,14 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
                   setError("");
                 }}
               >
-                Volver a iniciar sesión
+                {t("Volver a iniciar sesión")}
               </TextLink>
             ) : (
               <>
                 <span className="muted">
-                  {register ? "¿Ya tienes cuenta? " : "¿Primera vez por aquí? "}
+                  {register
+                    ? t("¿Ya tienes cuenta? ")
+                    : t("¿Primera vez por aquí? ")}
                 </span>
                 <TextLink
                   onClick={() => {
@@ -314,7 +332,7 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
                     setError("");
                   }}
                 >
-                  {register ? "Inicia sesión" : "Crea tu cuenta"}
+                  {register ? t("Inicia sesión") : t("Crea tu cuenta")}
                 </TextLink>
               </>
             )}
@@ -328,11 +346,11 @@ function Auth({ onLogin }: { onLogin: (u: PublicUser) => Promise<void> }) {
                 setError("");
               }}
             >
-              ¿Has olvidado tu contraseña?
+              {t("¿Has olvidado tu contraseña?")}
             </button>
           )}
           <p className="auth-note">
-            Un espacio para tus servicios, tu equipo y cada confirmación.
+            {t("Un espacio para tus servicios, tu equipo y cada confirmación.")}
           </p>
         </div>
       </section>
@@ -348,6 +366,8 @@ function AccountLink({
   token: string;
   onDone: (completed: boolean) => void;
 }) {
+  const t = useTranslation();
+
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [completed, setCompleted] = useState(false);
@@ -382,51 +402,59 @@ function AccountLink({
         <Brand />
         <div className="auth-message">
           <h1>
-            Personas,
+            {t("Personas,")}
             <br />
-            <span>en sintonía.</span>
+            <span>{t("en sintonía.")}</span>
           </h1>
-          <p>Tu espacio y tu equipo siguen aquí.</p>
+          <p>{t("Tu espacio y tu equipo siguen aquí.")}</p>
         </div>
         <div className="auth-footer">
-          <span>Tu equipo. Tu forma de trabajar.</span>
-          <span>Nodra / Coordinación</span>
+          <span>{t("Tu equipo. Tu forma de trabajar.")}</span>
+          <span>{t("Nodra / Coordinación")}</span>
         </div>
       </section>
       <section className="auth-form">
         <div>
+          <div className="auth-language">
+            <LanguageSelector />
+          </div>
           <h2>
             {completed
               ? kind === "reset"
-                ? "Contraseña actualizada"
-                : "Correo verificado"
+                ? t("Contraseña actualizada")
+                : t("Correo verificado")
               : kind === "reset"
-                ? "Elige una nueva contraseña"
-                : "Verifica tu correo"}
+                ? t("Elige una nueva contraseña")
+                : t("Verifica tu correo")}
           </h2>
           {completed ? (
             <>
               <p className="muted">
                 {kind === "reset"
-                  ? "Todas tus sesiones anteriores se han cerrado. Ya puedes iniciar sesión."
-                  : "Tu dirección de correo ha quedado confirmada."}
+                  ? t(
+                      "Todas tus sesiones anteriores se han cerrado. Ya puedes iniciar sesión.",
+                    )
+                  : t("Tu dirección de correo ha quedado confirmada.")}
               </p>
               <Button onClick={() => onDone(true)}>
-                Continuar <ArrowRight size={16} />
+                {t("Continuar ")}
+                <ArrowRight size={16} />
               </Button>
             </>
           ) : (
             <>
               <p className="muted">
                 {kind === "reset"
-                  ? "El enlace sólo se puede usar una vez y caduca en una hora."
-                  : "Confirma la dirección asociada a tu cuenta."}
+                  ? t(
+                      "El enlace sólo se puede usar una vez y caduca en una hora.",
+                    )
+                  : t("Confirma la dirección asociada a tu cuenta.")}
               </p>
-              <ErrorMessage message={error} clear={() => setError("")} />
+              <ErrorMessage message={t(error)} clear={() => setError("")} />
               <form onSubmit={(event) => void submit(event)} aria-busy={busy}>
                 {kind === "verify" && (
                   <Input
-                    label="Contraseña de tu cuenta"
+                    label={t("Contraseña de tu cuenta")}
                     name="password"
                     type="password"
                     autoComplete="current-password"
@@ -438,7 +466,7 @@ function AccountLink({
                 {kind === "reset" && (
                   <>
                     <Input
-                      label="Nueva contraseña"
+                      label={t("Nueva contraseña")}
                       name="password"
                       type="password"
                       autoComplete="new-password"
@@ -447,7 +475,7 @@ function AccountLink({
                       required
                     />
                     <Input
-                      label="Repite la contraseña"
+                      label={t("Repite la contraseña")}
                       name="confirmPassword"
                       type="password"
                       autoComplete="new-password"
@@ -459,10 +487,10 @@ function AccountLink({
                 )}
                 <Button disabled={busy}>
                   {busy
-                    ? "Un momento…"
+                    ? t("Un momento…")
                     : kind === "reset"
-                      ? "Guardar contraseña"
-                      : "Verificar correo"}
+                      ? t("Guardar contraseña")
+                      : t("Verificar correo")}
                   <ArrowRight size={16} />
                 </Button>
               </form>
@@ -471,7 +499,7 @@ function AccountLink({
                 className="auth-recovery-link"
                 onClick={() => onDone(false)}
               >
-                Volver a Nodra
+                {t("Volver a Nodra")}
               </button>
             </>
           )}
@@ -491,6 +519,8 @@ function JoinOrganization({
   initialToken?: string;
   onAccepted?: () => void;
 }) {
+  const t = useTranslation();
+
   const [preview, setPreview] = useState<{ organizationName: string } | null>(
       null,
     ),
@@ -537,14 +567,15 @@ function JoinOrganization({
   }
   return (
     <Card>
-      <h2>Aceptar invitación</h2>
+      <h2>{t("Aceptar invitación")}</h2>
       <p className="muted">
-        Introduce el código de 12 cifras que te ha enviado tu organización o
-        abre su enlace de invitación.
+        {t(
+          "Introduce el código de 12 cifras que te ha enviado tu organización o abre su enlace de invitación.",
+        )}
       </p>
       <form onSubmit={inspect}>
         <Input
-          label="Código de 12 cifras o token del enlace"
+          label={t("Código de 12 cifras o token del enlace")}
           value={token}
           onChange={(e) => {
             setToken(e.target.value);
@@ -553,16 +584,17 @@ function JoinOrganization({
           required
         />
         <Button secondary disabled={busy}>
-          Consultar invitación
+          {t("Consultar invitación")}
         </Button>
       </form>
       {preview && (
         <div className="success" style={{ marginTop: 20 }}>
           <p>
-            Te han invitado a <strong>{preview.organizationName}</strong>.
+            {t("Te han invitado a ")}
+            <strong>{preview.organizationName}</strong>.
           </p>
           <Button onClick={accept} disabled={busy}>
-            Unirme a la organización
+            {t("Unirme a la organización")}
           </Button>
         </div>
       )}
@@ -582,6 +614,8 @@ function Onboarding({
   logout: () => void;
   openProfile: () => void;
 }) {
+  const t = useTranslation();
+
   const [busy, setBusy] = useState(false);
   async function create(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -603,29 +637,33 @@ function Onboarding({
   return (
     <main className="onboarding">
       <Brand />
-      <PageHeader eyebrow="TU PRIMER PASO" title="Un lugar para tu equipo.">
-        Crea una organización o únete a una que ya te espera.
+      <PageHeader
+        eyebrow={t("TU PRIMER PASO")}
+        title={t("Un lugar para tu equipo.")}
+      >
+        {t("Crea una organización o únete a una que ya te espera.")}
       </PageHeader>
-      <ErrorMessage message={error} clear={() => setError("")} />
+      <ErrorMessage message={t(error)} clear={() => setError("")} />
       <div className="two-columns">
         <Card>
-          <h2>Crear organización</h2>
+          <h2>{t("Crear organización")}</h2>
           <form onSubmit={create}>
             <Input
-              label="Nombre de la organización"
+              label={t("Nombre de la organización")}
               name="name"
               required
               minLength={2}
             />
             <Input
-              label="Identificador único"
+              label={t("Identificador único")}
               name="slug"
-              placeholder="mi-organizacion"
+              placeholder={t("mi-organizacion")}
               pattern="[a-z0-9]+(-[a-z0-9]+)*"
               required
             />
             <Button disabled={busy}>
-              Crear mi espacio <ArrowRight size={16} />
+              {t("Crear mi espacio ")}
+              <ArrowRight size={16} />
             </Button>
           </form>
         </Card>
@@ -633,16 +671,18 @@ function Onboarding({
       </div>
       <div className="actions">
         <Button secondary onClick={openProfile}>
-          Mi perfil
+          {t("Mi perfil")}
         </Button>
         <Button secondary onClick={logout}>
-          Cerrar sesión
+          {t("Cerrar sesión")}
         </Button>
       </div>
     </main>
   );
 }
 export function Workspace() {
+  const t = useTranslation();
+
   const { copy, locale } = useLocale();
   const [sessionLoader] = useState(createSessionLoader);
   const route = useWorkspaceRoute();
@@ -935,10 +975,10 @@ export function Workspace() {
     return (
       <main className="onboarding">
         <Brand />
-        <PageHeader eyebrow="INVITACIÓN" title="Únete a un equipo">
-          Comprueba la organización antes de aceptar la invitación.
+        <PageHeader eyebrow={t("INVITACIÓN")} title={t("Únete a un equipo")}>
+          {t("Comprueba la organización antes de aceptar la invitación.")}
         </PageHeader>
-        <ErrorMessage message={error} clear={() => setError("")} />
+        <ErrorMessage message={t(error)} clear={() => setError("")} />
         <JoinOrganization
           key={inviteToken}
           initialToken={inviteToken}
@@ -948,7 +988,7 @@ export function Workspace() {
         />
         <div className="actions">
           <Button secondary onClick={dismissInvite}>
-            {memberships.length ? "Volver a mi espacio" : "Otra opción"}
+            {memberships.length ? t("Volver a mi espacio") : t("Otra opción")}
           </Button>
         </div>
       </main>
@@ -960,7 +1000,7 @@ export function Workspace() {
           <main className="onboarding">
             <Brand />
             <Button secondary onClick={() => navigateWorkspace(homeRoute)}>
-              Volver
+              {t("Volver")}
             </Button>
             <Profile
               user={user}
@@ -971,7 +1011,7 @@ export function Workspace() {
         ) : (
           <Onboarding
             refresh={refresh}
-            error={error}
+            error={t(error)}
             setError={setError}
             logout={() => setLogoutOpen(true)}
             openProfile={() =>
@@ -997,11 +1037,17 @@ export function Workspace() {
         <Brand />
         <PageHeader
           eyebrow=""
-          title={route ? "Organización no disponible" : "Enlace no válido"}
+          title={
+            route ? t("Organización no disponible") : t("Enlace no válido")
+          }
         >
           {route
-            ? "Tu cuenta no tiene acceso activo a esta organización. Elige uno de tus espacios."
-            : "Este enlace no identifica una pantalla de Nodra. Puedes volver a tu espacio."}
+            ? t(
+                "Tu cuenta no tiene acceso activo a esta organización. Elige uno de tus espacios.",
+              )
+            : t(
+                "Este enlace no identifica una pantalla de Nodra. Puedes volver a tu espacio.",
+              )}
         </PageHeader>
         {memberships.map((m) => (
           <Button
@@ -1019,7 +1065,7 @@ export function Workspace() {
         ))}
       </main>
     );
-  const organizationText = createOrganizationText(customization);
+  const organizationText = createOrganizationText(customization, locale);
   const navigationLabel = (destination: View) =>
     destination === "Servicios"
       ? organizationText(copy.views[destination])
@@ -1037,11 +1083,11 @@ export function Workspace() {
           aria-atomic="true"
         >
           {unreadChats === 0
-            ? "No hay chats sin leer"
-            : `${unreadChats} ${unreadChats === 1 ? "chat sin leer" : "chats sin leer"}`}
+            ? t("No hay chats sin leer")
+            : `${unreadChats} ${unreadChats === 1 ? t("chat sin leer") : t("chats sin leer")}`}
         </span>
         <a className="skip-link" href="#main-content">
-          Saltar al contenido
+          {t("Saltar al contenido")}
         </a>
         <header className="mobile-header">
           {profileSection ? (
@@ -1050,8 +1096,8 @@ export function Workspace() {
                 className="mobile-header-action"
                 aria-label={
                   view === "Configuración"
-                    ? "Volver a Perfil"
-                    : "Volver a Inicio"
+                    ? t("Volver a Perfil")
+                    : t("Volver a Inicio")
                 }
                 onClick={() =>
                   setView(view === "Configuración" ? "Perfil" : "Inicio")
@@ -1059,11 +1105,11 @@ export function Workspace() {
               >
                 <ArrowLeft size={21} />
               </button>
-              <strong>{view}</strong>
+              <strong>{navigationLabel(view)}</strong>
               {view === "Perfil" ? (
                 <button
                   className="mobile-header-action"
-                  aria-label="Configuración"
+                  aria-label={t("Configuración")}
                   onClick={() => setView("Configuración")}
                 >
                   <Settings size={21} />
@@ -1081,7 +1127,7 @@ export function Workspace() {
               <button
                 id="mobile-more"
                 className="mobile-more-button"
-                aria-label="Más opciones"
+                aria-label={t("Más opciones")}
                 aria-expanded={menuOpen}
                 aria-controls="workspace-navigation"
                 onClick={() => setMenuOpen(!menuOpen)}
@@ -1095,7 +1141,7 @@ export function Workspace() {
           <button
             type="button"
             className="mobile-more-scrim"
-            aria-label="Cerrar opciones"
+            aria-label={t("Cerrar opciones")}
             onClick={() => setMenuOpen(false)}
           />
         )}
@@ -1110,10 +1156,10 @@ export function Workspace() {
           }}
         >
           <div className="mobile-more-heading">
-            <h2>Tu espacio</h2>
+            <h2>{t("Tu espacio")}</h2>
             <button
               className="icon-button"
-              aria-label="Cerrar opciones"
+              aria-label={t("Cerrar opciones")}
               onClick={() => {
                 setMenuOpen(false);
                 document.getElementById("mobile-more")?.focus();
@@ -1125,7 +1171,7 @@ export function Workspace() {
           <div
             className={`org-context ${memberships.length === 1 ? "is-single" : ""}`}
           >
-            <span>ESPACIO ACTUAL</span>
+            <span>{t("ESPACIO ACTUAL")}</span>
             {memberships.length === 1 ? (
               <strong>{membership.organization.name}</strong>
             ) : (
@@ -1157,7 +1203,9 @@ export function Workspace() {
                   aria-current={view === v ? "page" : undefined}
                   aria-label={
                     v === "Chat" && unreadChats
-                      ? `${navigationLabel(v)}, ${unreadChats} chats sin leer`
+                      ? t(
+                          `${navigationLabel(v)}, ${unreadChats} chats sin leer`,
+                        )
                       : navigationLabel(v)
                   }
                   key={v}
@@ -1194,7 +1242,7 @@ export function Workspace() {
               <Avatar user={user} />
               <div className="rail-user-details">
                 {user.firstName} {user.lastName}
-                <small>{statusLabel[membership.permissionRole]}</small>
+                <small>{t(statusLabel[membership.permissionRole])}</small>
               </div>
               <span className="sr-only">{copy.navigation.openProfile}</span>
             </button>
@@ -1245,7 +1293,7 @@ export function Workspace() {
             id="main-content"
             tabIndex={-1}
           >
-            <ErrorMessage message={error} clear={() => setError("")} />
+            <ErrorMessage message={t(error)} clear={() => setError("")} />
             <OrganizationWorkspace
               key={membership.organization.id}
               membership={membership}
@@ -1294,7 +1342,7 @@ export function Workspace() {
               key={v}
               aria-label={
                 v === "Chat" && unreadChats
-                  ? `${navigationLabel(v)}, ${unreadChats} chats sin leer`
+                  ? t(`${navigationLabel(v)}, ${unreadChats} chats sin leer`)
                   : navigationLabel(v)
               }
               aria-current={
@@ -1355,6 +1403,8 @@ function OrganizationWorkspace({
   onUser,
   refreshUnreadChats,
 }: Context) {
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const [services, setServices] = useState<Page<Service>>({
       items: [],
@@ -1433,7 +1483,7 @@ function OrganizationWorkspace({
       !["OWNER", "ADMIN"].includes(membership.permissionRole))
   )
     return (
-      <EmptyState title="No tienes permiso para esta sección">
+      <EmptyState title={t("No tienes permiso para esta sección")}>
         {text("Vuelve a Inicio o consulta servicios de tu organización.")}
       </EmptyState>
     );
@@ -1536,25 +1586,35 @@ function OrganizationWorkspace({
     return (
       <>
         <PageHeader
-          eyebrow="TU ESPACIO"
-          title="Configuración"
+          eyebrow={t("TU ESPACIO")}
+          title={t("Configuración")}
           action={
             <Button secondary onClick={() => setView("Perfil")}>
               <ArrowLeft size={17} aria-hidden="true" />
-              Volver al perfil
+              {t("Volver al perfil")}
             </Button>
           }
         >
-          Una cuenta, todos tus equipos.
+          {t("Una cuenta, todos tus equipos.")}
         </PageHeader>
         <div className="two-columns">
           <Card>
             <h2>{membership.organization.name}</h2>
-            <p>Zona horaria: {timezone}</p>
-            <p>Tu acceso: {statusLabel[membership.permissionRole]}</p>
-            <p>Cuenta: {user.email}</p>
             <p>
-              Correo: {user.emailVerifiedAt ? "verificado" : "sin verificar"}
+              {t("Zona horaria: ")}
+              {timezone}
+            </p>
+            <p>
+              {t("Tu acceso: ")}
+              {t(statusLabel[membership.permissionRole])}
+            </p>
+            <p>
+              {t("Cuenta: ")}
+              {user.email}
+            </p>
+            <p>
+              {t("Correo: ")}
+              {user.emailVerifiedAt ? "verificado" : t("sin verificar")}
             </p>
             {!user.emailVerifiedAt && (
               <div className="account-verification">
@@ -1574,18 +1634,18 @@ function OrganizationWorkspace({
                   }}
                 >
                   {verificationBusy
-                    ? "Enviando…"
-                    : "Enviar enlace de verificación"}
+                    ? t("Enviando…")
+                    : t("Enviar enlace de verificación")}
                 </Button>
                 {verificationSent && (
                   <p role="status" className="muted">
-                    Revisa tu correo. El enlace caduca en 24 horas.
+                    {t("Revisa tu correo. El enlace caduca en 24 horas.")}
                   </p>
                 )}
               </div>
             )}
             <Button secondary onClick={logout}>
-              Cerrar sesión
+              {t("Cerrar sesión")}
             </Button>
           </Card>
           <JoinOrganization refresh={refreshMemberships} onError={setError} />
@@ -1640,7 +1700,7 @@ function OrganizationWorkspace({
     <>
       <div className="directory-hero">
         <PageHeader
-          eyebrow="COORDINACIÓN"
+          eyebrow={t("COORDINACIÓN")}
           title={text("Servicios")}
           action={
             manage ? (
@@ -1651,14 +1711,14 @@ function OrganizationWorkspace({
             ) : undefined
           }
         >
-          Fechas, posiciones y confirmaciones.
+          {t("Fechas, posiciones y confirmaciones.")}
         </PageHeader>
       </div>
       {view === "Servicios" && (
         <div className="toolbar">
           <input
             aria-label={text("Buscar servicios")}
-            placeholder="Buscar por nombre…"
+            placeholder={t("Buscar por nombre…")}
             maxLength={120}
             value={search}
             onChange={(e) => {
@@ -1666,13 +1726,13 @@ function OrganizationWorkspace({
             }}
           />
           <Select
-            aria-label="Filtrar por estado"
+            aria-label={t("Filtrar por estado")}
             value={status}
             onChange={(e) => {
               updateListing({ status: e.target.value, page: 1 });
             }}
           >
-            <option value="">Todos los estados</option>
+            <option value="">{t("Todos los estados")}</option>
             {[
               "DRAFT",
               "OPEN",
@@ -1684,7 +1744,7 @@ function OrganizationWorkspace({
               "CANCELLED",
             ].map((s) => (
               <option key={s} value={s}>
-                {statusLabel[s]}
+                {t(statusLabel[s])}
               </option>
             ))}
           </Select>
@@ -1702,7 +1762,7 @@ function OrganizationWorkspace({
                 })
               }
             >
-              Limpiar filtros
+              {t("Limpiar filtros")}
             </button>
           )}
         </div>
@@ -1722,7 +1782,7 @@ function OrganizationWorkspace({
         <EmptyState
           title={
             pageBeyond
-              ? "Esta página no tiene resultados"
+              ? t("Esta página no tiene resultados")
               : filtered
                 ? text("No encontramos servicios")
                 : text("Todavía no hay servicios")
@@ -1731,7 +1791,7 @@ function OrganizationWorkspace({
           action={
             pageBeyond ? (
               <Button secondary onClick={() => updateListing({ page: 1 })}>
-                Ir a la primera página
+                {t("Ir a la primera página")}
               </Button>
             ) : manage && !filtered ? (
               <Button onClick={() => setCreating(true)}>
@@ -1741,11 +1801,11 @@ function OrganizationWorkspace({
           }
         >
           {pageBeyond
-            ? "Vuelve al inicio de la lista."
+            ? t("Vuelve al inicio de la lista.")
             : filtered
-              ? "Prueba otra búsqueda o elimina los filtros."
+              ? t("Prueba otra búsqueda o elimina los filtros.")
               : manage
-                ? "Organiza fechas, plazas y participantes desde aquí."
+                ? t("Organiza fechas, plazas y participantes desde aquí.")
                 : text("Aquí podrás consultar servicios de tu organización.")}
         </EmptyState>
       ) : (
@@ -1776,10 +1836,12 @@ function Pagination({
   limit: number;
   onPage: (n: number) => void;
 }) {
+  const t = useTranslation();
+
   return total > limit ? (
     <div className="pagination">
       <Button secondary disabled={page === 1} onClick={() => onPage(page - 1)}>
-        Anterior
+        {t("Anterior")}
       </Button>
       <span>
         {page} / {Math.ceil(total / limit)}
@@ -1789,7 +1851,7 @@ function Pagination({
         disabled={page * limit >= total}
         onClick={() => onPage(page + 1)}
       >
-        Siguiente
+        {t("Siguiente")}
       </Button>
     </div>
   ) : null;
@@ -1805,6 +1867,10 @@ function ServiceTable({
   userId: string;
   select: (id: string) => void;
 }) {
+  const { locale } = useLocale();
+
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const participation = (service: Service) => {
     if (service.status === "CANCELLED") return null;
@@ -1848,13 +1914,13 @@ function ServiceTable({
             {participation(s) && (
               <span className="service-participation">
                 <Check size={15} aria-hidden="true" />
-                {participation(s)}
+                {t(participation(s) ?? "")}
               </span>
             )}
-            <span>{s.locationText || "Ubicación por definir"}</span>
+            <span>{s.locationText || t("Ubicación por definir")}</span>
             <span className="mobile-service-time">
               <CalendarDays size={15} />
-              {date(s.startsAt, timezone)}
+              {date(s.startsAt, timezone, locale)}
             </span>
             <small>
               {
@@ -1862,8 +1928,8 @@ function ServiceTable({
                   .flatMap((p) => p.assignments ?? [])
                   .filter((a) => a.status === "CONFIRMED").length
               }{" "}
-              / {s.positions.reduce((n, p) => n + p.quantity, 0)} personas
-              confirmadas
+              / {s.positions.reduce((n, p) => n + p.quantity, 0)}{" "}
+              {t(" personas confirmadas")}
             </small>
           </button>
         ))}
@@ -1872,11 +1938,11 @@ function ServiceTable({
         <thead>
           <tr>
             <th>{text("Servicio")}</th>
-            <th>Cuándo</th>
-            <th>Equipo</th>
-            <th>Estado</th>
+            <th>{t("Cuándo")}</th>
+            <th>{t("Equipo")}</th>
+            <th>{t("Estado")}</th>
             <th>
-              <span className="sr-only">Abrir</span>
+              <span className="sr-only">{t("Abrir")}</span>
             </th>
           </tr>
         </thead>
@@ -1909,20 +1975,25 @@ function ServiceTable({
                       {participation(s) && (
                         <small className="service-participation">
                           <Check size={14} aria-hidden="true" />
-                          {participation(s)}
+                          {t(participation(s) ?? "")}
                         </small>
                       )}
-                      <small>{s.locationText || "Ubicación por definir"}</small>
+                      <small>
+                        {s.locationText || t("Ubicación por definir")}
+                      </small>
                     </div>
                   </div>
                 </td>
                 <td>
-                  {date(s.startsAt, timezone)}
-                  <small>Hasta {date(s.endsAt, timezone)}</small>
+                  {date(s.startsAt, timezone, locale)}
+                  <small>
+                    {t("Hasta ")}
+                    {date(s.endsAt, timezone, locale)}
+                  </small>
                 </td>
                 <td>
                   {confirmed} <span className="muted">/ {required}</span>
-                  <small>confirmados</small>
+                  <small>{t("confirmados")}</small>
                 </td>
                 <td>
                   <Badge status={s.status} />
@@ -1952,6 +2023,8 @@ function CreateService({
   back: () => void;
   existing?: Service;
 }) {
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const initialStart = existing
     ? serviceScheduleFields(existing.startsAt, timezone)
@@ -2036,15 +2109,17 @@ function CreateService({
     <>
       <Button secondary onClick={back}>
         <ArrowLeft size={15} />
-        Volver
+        {t("Volver")}
       </Button>
       <PageHeader
-        eyebrow="DE LA IDEA AL EQUIPO"
+        eyebrow={t("DE LA IDEA AL EQUIPO")}
         title={existing ? text("Editar servicio") : text("Crear servicio")}
       >
         {existing
-          ? "Actualiza los datos del borrador antes de publicarlo."
-          : "Empieza por lo esencial. Después añade las posiciones que necesitas."}
+          ? t("Actualiza los datos del borrador antes de publicarlo.")
+          : t(
+              "Empieza por lo esencial. Después añade las posiciones que necesitas.",
+            )}
       </PageHeader>
       <Card>
         <form onSubmit={submit}>
@@ -2052,14 +2127,14 @@ function CreateService({
             label={text("Servicio: nombre")}
             name="title"
             defaultValue={existing?.title}
-            placeholder="¿Qué vais a hacer?"
+            placeholder={t("¿Qué vais a hacer?")}
             required
             minLength={2}
             maxLength={160}
           />
           <div className="form-grid">
             <DateTimePicker
-              label="Inicio"
+              label={t("Inicio")}
               value={start}
               onChange={(next) => {
                 setStart(next);
@@ -2082,7 +2157,7 @@ function CreateService({
               triggerRef={startTrigger}
             />
             <DateTimePicker
-              label="Fin"
+              label={t("Fin")}
               value={end}
               onChange={(next) => {
                 setEnd(next);
@@ -2107,12 +2182,13 @@ function CreateService({
             />
           </div>
           <p className="schedule-help">
-            Horario de la organización: {timezone}.
+            {t("Horario de la organización: ")}
+            {timezone}.
           </p>
           {startOptions.length > 1 && (
             <div className="schedule-overlap">
-              <strong>El inicio ocurre dos veces este día</strong>
-              <div role="group" aria-label="Elegir horario de inicio">
+              <strong>{t("El inicio ocurre dos veces este día")}</strong>
+              <div role="group" aria-label={t("Elegir horario de inicio")}>
                 {startOptions.map((option, index) => (
                   <button
                     key={option.iso}
@@ -2123,7 +2199,7 @@ function CreateService({
                       setScheduleError("");
                     }}
                   >
-                    {index === 0 ? "Primera vez" : "Segunda vez"} ·{" "}
+                    {index === 0 ? t("Primera vez") : t("Segunda vez")} ·{" "}
                     {formatUtcOffset(option.offsetMinutes)}
                   </button>
                 ))}
@@ -2132,8 +2208,8 @@ function CreateService({
           )}
           {endOptions.length > 1 && (
             <div className="schedule-overlap">
-              <strong>El fin ocurre dos veces este día</strong>
-              <div role="group" aria-label="Elegir horario de fin">
+              <strong>{t("El fin ocurre dos veces este día")}</strong>
+              <div role="group" aria-label={t("Elegir horario de fin")}>
                 {endOptions.map((option, index) => (
                   <button
                     key={option.iso}
@@ -2144,7 +2220,7 @@ function CreateService({
                       setScheduleError("");
                     }}
                   >
-                    {index === 0 ? "Primera vez" : "Segunda vez"} ·{" "}
+                    {index === 0 ? t("Primera vez") : t("Segunda vez")} ·{" "}
                     {formatUtcOffset(option.offsetMinutes)}
                   </button>
                 ))}
@@ -2160,26 +2236,26 @@ function CreateService({
               </p>
             )}
           <Input
-            label="Ubicación"
+            label={t("Ubicación")}
             name="locationText"
             defaultValue={existing?.locationText}
-            placeholder="Dirección o punto de encuentro"
+            placeholder={t("Dirección o punto de encuentro")}
           />
           <label className="field">
-            <span>Información para el equipo</span>
+            <span>{t("Información para el equipo")}</span>
             <Textarea
               name="description"
               defaultValue={existing?.description}
-              placeholder="Todo lo que necesitan saber antes de apuntarse."
+              placeholder={t("Todo lo que necesitan saber antes de apuntarse.")}
               maxLength={5000}
             />
           </label>
           <Button disabled={busy}>
             {busy
-              ? "Guardando…"
+              ? t("Guardando…")
               : existing
-                ? "Guardar cambios"
-                : "Guardar borrador"}{" "}
+                ? t("Guardar cambios")
+                : t("Guardar borrador")}{" "}
             <ArrowRight size={16} />
           </Button>
         </form>
@@ -2206,6 +2282,10 @@ function ServiceDetail({
   openChat: (id: string) => void;
   chatEnabled: boolean;
 }) {
+  const { locale } = useLocale();
+
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const [service, setService] = useState<Service | null>(null),
     [busy, setBusy] = useState(false);
@@ -2317,7 +2397,7 @@ function ServiceDetail({
                 void load().catch(() => undefined);
               }}
             >
-              Reintentar
+              {t("Reintentar")}
             </Button>
           </div>
         </div>
@@ -2362,13 +2442,13 @@ function ServiceDetail({
         </Button>
         {manage && service.status === "DRAFT" && (
           <Button secondary onClick={() => setEditing(true)}>
-            Editar borrador
+            {t("Editar borrador")}
           </Button>
         )}
       </div>
       <div className="service-detail-heading" data-status={service.status}>
         <PageHeader
-          eyebrow="DETALLE DEL SERVICIO"
+          eyebrow={t("DETALLE DEL SERVICIO")}
           title={service.title}
           action={<Badge status={service.status} />}
         />
@@ -2381,11 +2461,12 @@ function ServiceDetail({
       <div className="detail-meta">
         <span>
           <CalendarDays size={15} style={{ display: "inline" }} />{" "}
-          {date(service.startsAt, timezone)} — {date(service.endsAt, timezone)}
+          {date(service.startsAt, timezone, locale)} —{" "}
+          {date(service.endsAt, timezone, locale)}
         </span>
         <span>
           <MapPin size={15} style={{ display: "inline" }} />{" "}
-          {service.locationText || "Ubicación por definir"}
+          {service.locationText || t("Ubicación por definir")}
         </span>
       </div>
       {manage &&
@@ -2426,11 +2507,13 @@ function ServiceDetail({
       <div className="two-columns">
         <Card>
           <div className="section-heading">
-            <h2>El equipo que necesitas</h2>
-            <span className="muted">{service.positions.length} posiciones</span>
+            <h2>{t("El equipo que necesitas")}</h2>
+            <span className="muted">
+              {service.positions.length} {t(" posiciones")}
+            </span>
           </div>
           {!service.positions.length && (
-            <EmptyState title="Define las posiciones">
+            <EmptyState title={t("Define las posiciones")}>
               {text("Añade rol y número de personas antes de publicar.")}
             </EmptyState>
           )}
@@ -2449,12 +2532,15 @@ function ServiceDetail({
               <section className="position" key={p.id}>
                 <div className="section-heading">
                   <h3 style={{ margin: 0 }}>{p.jobRole.name}</h3>
-                  <span className="muted">{p.quantity} plazas</span>
+                  <span className="muted">
+                    {p.quantity} {t(" plazas")}
+                  </span>
                 </div>
                 {p.description && <p>{p.description}</p>}
                 {p.compensation && (
                   <p className="muted">
-                    Compensación informativa: {p.compensation}
+                    {t("Compensación informativa: ")}
+                    {p.compensation}
                   </p>
                 )}
                 {!manage &&
@@ -2468,16 +2554,18 @@ function ServiceDetail({
                     <p className="participation-state">
                       <Check size={17} aria-hidden="true" />
                       {myAssignment.status === "CONFIRMED"
-                        ? "Tu participación está confirmada"
+                        ? t("Tu participación está confirmada")
                         : myAssignment.status === "COMPLETED"
-                          ? "Participación completada"
-                          : "Has sido seleccionado. Confirma tu participación abajo."}
+                          ? t("Participación completada")
+                          : t(
+                              "Has sido seleccionado. Confirma tu participación abajo.",
+                            )}
                     </p>
                   ) : subscribed ? (
                     <div className="participation-line">
                       <p className="participation-state">
                         <Check size={17} aria-hidden="true" />
-                        Ya estás inscrito en esta posición
+                        {t("Ya estás inscrito en esta posición")}
                       </p>
                       {["OPEN", "SELECTION", "CONFIRMATION"].includes(
                         service.status,
@@ -2492,7 +2580,7 @@ function ServiceDetail({
                             })
                           }
                         >
-                          Cancelar inscripción
+                          {t("Cancelar inscripción")}
                         </button>
                       )}
                     </div>
@@ -2505,18 +2593,19 @@ function ServiceDetail({
                         })
                       }
                     >
-                      Inscribirme <ArrowRight size={15} />
+                      {t("Inscribirme ")}
+                      <ArrowRight size={15} />
                     </Button>
                   ))}
                 {manage && (
                   <>
                     <p className="eyebrow" style={{ marginTop: 22 }}>
-                      PERSONAS INTERESADAS
+                      {t("PERSONAS INTERESADAS")}
                     </p>
                     {p.interests.filter((i) => i.status === "INTERESTED")
                       .length === 0 && (
                       <p className="muted">
-                        Todavía no hay personas interesadas.
+                        {t("Todavía no hay personas interesadas.")}
                       </p>
                     )}
                     {p.interests
@@ -2541,7 +2630,7 @@ function ServiceDetail({
                                 a.status,
                               ),
                           ) ? (
-                            <span className="muted">Seleccionado</span>
+                            <span className="muted">{t("Seleccionado")}</span>
                           ) : (
                             <Button
                               secondary
@@ -2557,7 +2646,7 @@ function ServiceDetail({
                                 })
                               }
                             >
-                              Seleccionar
+                              {t("Seleccionar")}
                             </Button>
                           )}
                         </div>
@@ -2565,10 +2654,10 @@ function ServiceDetail({
                   </>
                 )}
                 <p className="eyebrow" style={{ marginTop: 26 }}>
-                  ASIGNACIONES Y CONFIRMACIONES
+                  {t("ASIGNACIONES Y CONFIRMACIONES")}
                 </p>
                 {p.assignments.length === 0 && (
-                  <p className="muted">Sin asignaciones por ahora.</p>
+                  <p className="muted">{t("Sin asignaciones por ahora.")}</p>
                 )}
                 {p.assignments.map((a) => (
                   <div className="person-row" key={a.id}>
@@ -2598,7 +2687,7 @@ function ServiceDetail({
                             }
                           >
                             <Check size={15} />
-                            Confirmar
+                            {t("Confirmar")}
                           </Button>
                           <Button
                             secondary
@@ -2609,7 +2698,7 @@ function ServiceDetail({
                               })
                             }
                           >
-                            Rechazar
+                            {t("Rechazar")}
                           </Button>
                         </div>
                       )}
@@ -2620,10 +2709,11 @@ function ServiceDetail({
                         onClick={async () => {
                           if (
                             await confirm({
-                              title: "¿Cancelar tu participación?",
-                              description:
+                              title: t("¿Cancelar tu participación?"),
+                              description: t(
                                 "La organización recibirá un aviso y la plaza quedará libre.",
-                              confirmLabel: "Cancelar participación",
+                              ),
+                              confirmLabel: t("Cancelar participación"),
                               destructive: true,
                             })
                           )
@@ -2632,7 +2722,7 @@ function ServiceDetail({
                             });
                         }}
                       >
-                        Cancelar participación
+                        {t("Cancelar participación")}
                       </Button>
                     )}
                   </div>
@@ -2644,7 +2734,7 @@ function ServiceDetail({
         <div className="stack">
           {manage && service.status === "DRAFT" && (
             <Card>
-              <h2>Añadir posición</h2>
+              <h2>{t("Añadir posición")}</h2>
               <form
                 onSubmit={position}
                 noValidate
@@ -2666,7 +2756,7 @@ function ServiceDetail({
                   refreshKey={roleRefresh}
                 />
                 <Input
-                  label="Personas necesarias"
+                  label={t("Personas necesarias")}
                   disabled={busy}
                   name="quantity"
                   type="number"
@@ -2676,17 +2766,17 @@ function ServiceDetail({
                   required
                 />
                 <Input
-                  label="Indicaciones de la posición"
+                  label={t("Indicaciones de la posición")}
                   disabled={busy}
                   name="description"
                   maxLength={2000}
                 />
                 <Input
-                  label="Compensación (opcional)"
+                  label={t("Compensación (opcional)")}
                   disabled={busy}
                   name="compensation"
                   maxLength={200}
-                  placeholder="Información, sin pagos"
+                  placeholder={t("Información, sin pagos")}
                 />
                 {positionError && (
                   <p
@@ -2700,7 +2790,7 @@ function ServiceDetail({
                   </p>
                 )}
                 <Button disabled={busy}>
-                  {busy ? "Guardando…" : "Añadir posición"}
+                  {busy ? t("Guardando…") : t("Añadir posición")}
                 </Button>
               </form>
               <RoleForm
@@ -2729,13 +2819,15 @@ function ServiceDetail({
             <Card>
               <h2>
                 {service.status === "DRAFT"
-                  ? "Hazlo llegar al equipo."
-                  : "Avanza con claridad."}
+                  ? t("Hazlo llegar al equipo.")
+                  : t("Avanza con claridad.")}
               </h2>
               <p className="muted">
                 {service.status === "DRAFT"
-                  ? "Al publicar, las personas de tu organización podrán mostrar interés."
-                  : "Las confirmaciones y el historial se conservan aquí."}
+                  ? t(
+                      "Al publicar, las personas de tu organización podrán mostrar interés.",
+                    )
+                  : t("Las confirmaciones y el historial se conservan aquí.")}
               </p>
               {next[service.status] && (
                 <Button
@@ -2748,7 +2840,9 @@ function ServiceDetail({
                 >
                   {service.status === "DRAFT"
                     ? text("Publicar servicio")
-                    : `Pasar a ${statusLabel[next[service.status]].toLowerCase()}`}
+                    : t(
+                        `Pasar a ${t(statusLabel[next[service.status]]).toLowerCase()}`,
+                      )}
                   <ArrowRight size={15} />
                 </Button>
               )}
@@ -2760,9 +2854,10 @@ function ServiceDetail({
                     onClick={async () => {
                       if (
                         await confirm({
-                          title: "¿Confirmas la cancelación?",
-                          description:
+                          title: t("¿Confirmas la cancelación?"),
+                          description: t(
                             "Se cancelarán sus asignaciones activas y se avisará al equipo. El historial se conservará.",
+                          ),
                           confirmLabel: text("Cancelar servicio"),
                           destructive: true,
                         })
@@ -2788,6 +2883,8 @@ function RoleForm({
   onError,
   onCreated,
 }: ActionProps & { onCreated: () => Promise<void> }) {
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -2840,7 +2937,7 @@ function RoleForm({
       <Input
         label={text("Crear rol")}
         name="name"
-        placeholder="Nombre definido por tu organización"
+        placeholder={t("Nombre definido por tu organización")}
         required
         minLength={2}
         maxLength={80}
@@ -2848,7 +2945,7 @@ function RoleForm({
       />
       {error && (
         <p className="inline-error" role="alert" tabIndex={-1} ref={errorRef}>
-          {error}
+          {t(error)}
         </p>
       )}
       <Button secondary disabled={busy}>
@@ -2866,6 +2963,8 @@ function Team({
   actor: Membership;
   refreshMemberships: () => Promise<void>;
 }) {
+  const t = useTranslation();
+
   const [editing, setEditing] = useState<Membership | null>(null);
   const [reload, setReload] = useState(0);
   const [members, setMembers] = useState<Page<Membership> | null>(null),
@@ -2907,8 +3006,8 @@ function Team({
   return (
     <>
       <PageHeader
-        eyebrow="LAS PERSONAS, PRIMERO"
-        title="Equipo"
+        eyebrow={t("LAS PERSONAS, PRIMERO")}
+        title={t("Equipo")}
         action={
           <Button
             disabled={busy}
@@ -2929,22 +3028,23 @@ function Team({
             }}
           >
             <Plus size={16} />
-            Invitar persona
+            {t("Invitar persona")}
           </Button>
         }
       >
-        Personas que forman parte de tu organización.
+        {t("Personas que forman parte de tu organización.")}
       </PageHeader>
       {invitation && (
         <Card>
-          <h3>Invitación creada · Un uso · 72 horas</h3>
+          <h3>{t("Invitación creada · Un uso · 72 horas")}</h3>
           <p className="muted">
-            Comparte el código o el enlace. Ambos abren la misma invitación y
-            solo se muestran una vez.
+            {t(
+              "Comparte el código o el enlace. Ambos abren la misma invitación y solo se muestran una vez.",
+            )}
           </p>
           <p
             className="invitation-code"
-            aria-label={`Código ${invitation.code}`}
+            aria-label={t(`Código ${invitation.code}`)}
           >
             {invitation.code.replace(/(\d{4})(?=\d)/g, "$1 ")}
           </p>
@@ -2961,10 +3061,10 @@ function Team({
                 }
               }}
             >
-              Copiar código
+              {t("Copiar código")}
             </Button>
           </div>
-          <p className="muted">También puedes compartir el enlace:</p>
+          <p className="muted">{t("También puedes compartir el enlace:")}</p>
           <p className="code">
             {typeof window !== "undefined" ? window.location.origin : ""}
             /#invite={invitation.token}
@@ -2984,7 +3084,7 @@ function Team({
                 }
               }}
             >
-              Copiar enlace
+              {t("Copiar enlace")}
             </Button>
             <Button
               secondary
@@ -3001,34 +3101,34 @@ function Team({
                 }
               }}
             >
-              Revocar invitación
+              {t("Revocar invitación")}
             </Button>
           </div>
         </Card>
       )}
       <div className="toolbar" style={{ marginTop: 24 }}>
         <input
-          aria-label="Buscar miembros"
+          aria-label={t("Buscar miembros")}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setPage(1);
           }}
-          placeholder="Buscar por nombre o email…"
+          placeholder={t("Buscar por nombre o email…")}
         />
       </div>
       {!members ? (
         <Skeleton />
       ) : (
         <>
-          <DataTable label="Equipo">
+          <DataTable label={t("Equipo")}>
             <thead>
               <tr>
-                <th>Persona</th>
-                <th>Permisos</th>
-                <th>Estado</th>
+                <th>{t("Persona")}</th>
+                <th>{t("Permisos")}</th>
+                <th>{t("Estado")}</th>
                 <th>
-                  <span className="sr-only">Acciones</span>
+                  <span className="sr-only">{t("Acciones")}</span>
                 </th>
               </tr>
             </thead>
@@ -3039,7 +3139,7 @@ function Team({
                     {m.user.firstName} {m.user.lastName}
                     <small>{m.user.email}</small>
                   </td>
-                  <td>{statusLabel[m.permissionRole]}</td>
+                  <td>{t(statusLabel[m.permissionRole])}</td>
                   <td>
                     <Badge status={m.status} />
                   </td>
@@ -3049,9 +3149,11 @@ function Team({
                       <Button
                         secondary
                         onClick={() => setEditing(m)}
-                        aria-label={`Editar acceso de ${m.user.firstName} ${m.user.lastName}`}
+                        aria-label={t(
+                          `Editar acceso de ${m.user.firstName} ${m.user.lastName}`,
+                        )}
                       >
-                        Editar acceso
+                        {t("Editar acceso")}
                       </Button>
                     )}
                   </td>
@@ -3083,6 +3185,8 @@ function MemberEditor({
   back: () => void;
   saved: () => Promise<void>;
 }) {
+  const t = useTranslation();
+
   const [role, setRole] = useState(member.permissionRole);
   const [status, setStatus] = useState(
     member.status === "INVITED" ? "ACTIVE" : member.status,
@@ -3094,9 +3198,11 @@ function MemberEditor({
     e.preventDefault();
     if (
       !(await confirm({
-        title: "¿Guardar cambios de acceso?",
-        description: `${member.user.firstName} ${member.user.lastName} tendrá el rol ${statusLabel[role]} y el estado ${statusLabel[status]}.${status !== "ACTIVE" ? " Dejará de tener acceso a esta organización. Sus asignaciones e historial se conservan." : ""}`,
-        confirmLabel: "Guardar cambios",
+        title: t("¿Guardar cambios de acceso?"),
+        description: t(
+          `${member.user.firstName} ${member.user.lastName} tendrá el rol ${t(statusLabel[role])} y el estado ${t(statusLabel[status])}.${status !== "ACTIVE" ? t(" Dejará de tener acceso a esta organización. Sus asignaciones e historial se conservan.") : ""}`,
+        ),
+        confirmLabel: t("Guardar cambios"),
         destructive: status !== "ACTIVE",
       }))
     )
@@ -3126,16 +3232,16 @@ function MemberEditor({
         style={{ marginBottom: 24 }}
       >
         <ArrowLeft size={16} />
-        Volver al equipo
+        {t("Volver al equipo")}
       </Button>
-      <PageHeader eyebrow="" title="Editar acceso">
+      <PageHeader eyebrow="" title={t("Editar acceso")}>
         {member.user.firstName} {member.user.lastName} · {member.user.email}
       </PageHeader>
       <Card>
-        <ErrorMessage message={error} clear={() => setError("")} />
+        <ErrorMessage message={t(error)} clear={() => setError("")} />
         <form onSubmit={submit} aria-busy={busy}>
           <label className="field">
-            Permisos
+            {t("Permisos")}
             <Select
               value={role}
               onChange={(e) =>
@@ -3148,13 +3254,13 @@ function MemberEditor({
                 : ["COORDINATOR", "MEMBER"]
               ).map((r) => (
                 <option value={r} key={r}>
-                  {statusLabel[r]}
+                  {t(statusLabel[r])}
                 </option>
               ))}
             </Select>
           </label>
           <label className="field">
-            Estado
+            {t("Estado")}
             <Select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
@@ -3162,20 +3268,21 @@ function MemberEditor({
             >
               {["ACTIVE", "SUSPENDED", "LEFT"].map((s) => (
                 <option value={s} key={s}>
-                  {statusLabel[s]}
+                  {t(statusLabel[s])}
                 </option>
               ))}
             </Select>
           </label>
           <p>
-            Un propietario puede gestionar todos los accesos. Un administrador
-            gestiona coordinadores y miembros. Siempre debe quedar un
-            propietario activo.
+            {t(
+              "Un propietario puede gestionar todos los accesos. Un administrador gestiona coordinadores y miembros. Siempre debe quedar un propietario activo.",
+            )}
           </p>
           {status !== "ACTIVE" && (
             <p>
-              Este cambio retira el acceso, pero no cancela asignaciones ni
-              elimina el historial.
+              {t(
+                "Este cambio retira el acceso, pero no cancela asignaciones ni elimina el historial.",
+              )}
             </p>
           )}
           <div className="actions">
@@ -3185,10 +3292,10 @@ function MemberEditor({
                 (role === member.permissionRole && status === member.status)
               }
             >
-              {busy ? "Guardando…" : "Guardar acceso"}
+              {busy ? t("Guardando…") : t("Guardar acceso")}
             </Button>
             <Button secondary type="button" onClick={back} disabled={busy}>
-              Cancelar
+              {t("Cancelar")}
             </Button>
           </div>
         </form>
@@ -3197,6 +3304,8 @@ function MemberEditor({
   );
 }
 function Groups({ base, manage, onError }: ActionProps & { manage: boolean }) {
+  const t = useTranslation();
+
   const confirm = useConfirm();
   const requestSequence = useRef(0);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
@@ -3238,8 +3347,8 @@ function Groups({ base, manage, onError }: ActionProps & { manage: boolean }) {
     );
   return (
     <>
-      <PageHeader eyebrow="EQUIPOS CON SENTIDO" title="Grupos">
-        Reúne a las personas que trabajan juntas.
+      <PageHeader eyebrow={t("EQUIPOS CON SENTIDO")} title={t("Grupos")}>
+        {t("Reúne a las personas que trabajan juntas.")}
       </PageHeader>
       {manage && (
         <form
@@ -3260,26 +3369,26 @@ function Groups({ base, manage, onError }: ActionProps & { manage: boolean }) {
           }}
         >
           <input
-            aria-label="Nombre del grupo"
+            aria-label={t("Nombre del grupo")}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Nombre del nuevo grupo"
+            placeholder={t("Nombre del nuevo grupo")}
             required
             minLength={2}
           />
           <Button disabled={busy}>
             <Plus size={16} />
-            Crear grupo
+            {t("Crear grupo")}
           </Button>
         </form>
       )}
       {!groups ? (
         <Skeleton />
       ) : !groups.total ? (
-        <EmptyState title="Un equipo, muchas formas de organizarse.">
+        <EmptyState title={t("Un equipo, muchas formas de organizarse.")}>
           {manage
-            ? "Crea tu primer grupo para reunir a las personas adecuadas."
-            : "Tus grupos aparecerán aquí cuando te añadan."}
+            ? t("Crea tu primer grupo para reunir a las personas adecuadas.")
+            : t("Tus grupos aparecerán aquí cuando te añadan.")}
         </EmptyState>
       ) : (
         <div className="stack">
@@ -3288,8 +3397,8 @@ function Groups({ base, manage, onError }: ActionProps & { manage: boolean }) {
               <h2>{g.name}</h2>
               <p className="muted">
                 {g.members.length}{" "}
-                {g.members.length === 1 ? "miembro" : "miembros"} ·{" "}
-                {statusLabel[g.type] ?? g.type}
+                {g.members.length === 1 ? t("miembro") : "miembros"} ·{" "}
+                {t(statusLabel[g.type] ?? g.type)}
               </p>
               {g.members.map((m) => (
                 <p key={m.membershipId}>
@@ -3299,17 +3408,18 @@ function Groups({ base, manage, onError }: ActionProps & { manage: boolean }) {
               {manage && (
                 <div className="actions">
                   <Button secondary onClick={() => setSelectedGroup(g.id)}>
-                    Editar grupo
+                    {t("Editar grupo")}
                   </Button>
                   <Button
                     secondary
                     onClick={async () => {
                       if (
                         !(await confirm({
-                          title: "¿Archivar este grupo?",
-                          description:
+                          title: t("¿Archivar este grupo?"),
+                          description: t(
                             "Sus miembros y su historial se conservarán.",
-                          confirmLabel: "Archivar grupo",
+                          ),
+                          confirmLabel: t("Archivar grupo"),
                           destructive: true,
                         }))
                       )
@@ -3324,7 +3434,7 @@ function Groups({ base, manage, onError }: ActionProps & { manage: boolean }) {
                       }
                     }}
                   >
-                    Archivar grupo
+                    {t("Archivar grupo")}
                   </Button>
                 </div>
               )}
@@ -3355,6 +3465,8 @@ function GroupEditor({
   refresh: () => Promise<void>;
   back: () => void;
 }) {
+  const t = useTranslation();
+
   const confirm = useConfirm();
   const [name, setName] = useState(group.name),
     [search, setSearch] = useState(""),
@@ -3386,10 +3498,11 @@ function GroupEditor({
     if (
       !add &&
       !(await confirm({
-        title: "¿Quitar esta persona del grupo?",
-        description:
+        title: t("¿Quitar esta persona del grupo?"),
+        description: t(
           "Seguirá perteneciendo a la organización y su historial se conservará.",
-        confirmLabel: "Quitar del grupo",
+        ),
+        confirmLabel: t("Quitar del grupo"),
         destructive: true,
       }))
     )
@@ -3417,12 +3530,12 @@ function GroupEditor({
         style={{ marginBottom: 24 }}
       >
         <ArrowLeft size={16} />
-        Volver a grupos
+        {t("Volver a grupos")}
       </Button>
       <PageHeader eyebrow="" title={group.name}>
-        Organiza las personas que participan en este grupo.
+        {t("Organiza las personas que participan en este grupo.")}
       </PageHeader>
-      <ErrorMessage message={error} clear={() => setError("")} />
+      <ErrorMessage message={t(error)} clear={() => setError("")} />
       <form
         className="toolbar"
         onSubmit={async (e) => {
@@ -3442,7 +3555,7 @@ function GroupEditor({
         }}
       >
         <Input
-          label="Nombre del grupo"
+          label={t("Nombre del grupo")}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
@@ -3451,38 +3564,43 @@ function GroupEditor({
           disabled={busy}
         />
         <Button disabled={busy || name.trim() === group.name}>
-          Guardar nombre
+          {t("Guardar nombre")}
         </Button>
       </form>
-      <h2>Participantes · {group.members.length}</h2>
+      <h2>
+        {t("Participantes · ")}
+        {group.members.length}
+      </h2>
       {group.members.length ? (
         <div className="stack">
           {group.members.map((m) => (
             <div className="actions" key={m.membershipId}>
               <span>
                 {m.membership.user.firstName} {m.membership.user.lastName} ·{" "}
-                {statusLabel[m.membership.status] ?? m.membership.status}
+                {t(statusLabel[m.membership.status] ?? m.membership.status)}
               </span>
               <Button
                 secondary
                 disabled={busy}
                 onClick={() => void updateMember(m.membershipId, false)}
-                aria-label={`Quitar del grupo a ${m.membership.user.firstName} ${m.membership.user.lastName}`}
+                aria-label={t(
+                  `Quitar del grupo a ${m.membership.user.firstName} ${m.membership.user.lastName}`,
+                )}
               >
-                Quitar
+                {t("Quitar")}
               </Button>
             </div>
           ))}
         </div>
       ) : (
         <p className="muted">
-          Añade participantes desde la lista de tu organización.
+          {t("Añade participantes desde la lista de tu organización.")}
         </p>
       )}
-      <h2 style={{ marginTop: 40 }}>Añadir personas</h2>
+      <h2 style={{ marginTop: 40 }}>{t("Añadir personas")}</h2>
       <Input
-        label="Buscar en la organización"
-        placeholder="Nombre o correo"
+        label={t("Buscar en la organización")}
+        placeholder={t("Nombre o correo")}
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
@@ -3498,7 +3616,7 @@ function GroupEditor({
               setReload((n) => n + 1);
             }}
           >
-            Volver a intentar
+            {t("Volver a intentar")}
           </Button>
         ) : (
           <Skeleton />
@@ -3507,7 +3625,7 @@ function GroupEditor({
         <>
           {!candidates.items.length && (
             <p className="muted">
-              No hay miembros activos que coincidan con la búsqueda.
+              {t("No hay miembros activos que coincidan con la búsqueda.")}
             </p>
           )}
           <div className="stack">
@@ -3525,9 +3643,11 @@ function GroupEditor({
                     secondary
                     disabled={busy || included}
                     onClick={() => void updateMember(m.id, true)}
-                    aria-label={`Añadir al grupo a ${m.user.firstName} ${m.user.lastName}`}
+                    aria-label={t(
+                      `Añadir al grupo a ${m.user.firstName} ${m.user.lastName}`,
+                    )}
                   >
-                    {included ? "En el grupo" : "Añadir"}
+                    {included ? t("En el grupo") : t("Añadir")}
                   </Button>
                 </div>
               );
@@ -3564,6 +3684,10 @@ function Notices({
   user: PublicUser;
   openService: (id: string) => void;
 }) {
+  const { locale } = useLocale();
+
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const [notices, setNotices] = useState<Page<Notice> | null>(null),
     [activity, setActivity] = useState<Page<ServiceActivity> | null>(null),
@@ -3595,13 +3719,13 @@ function Notices({
   return (
     <>
       <PageHeader
-        eyebrow="LA INFORMACIÓN, A TIEMPO"
-        title="Avisos"
+        eyebrow={t("LA INFORMACIÓN, A TIEMPO")}
+        title={t("Avisos")}
         action={
           manage ? (
             <Button onClick={() => setCompose(!compose)}>
               <Plus size={16} />
-              Crear aviso
+              {t("Crear aviso")}
             </Button>
           ) : undefined
         }
@@ -3627,7 +3751,7 @@ function Notices({
       )}
       {noNotifications && !compose && (
         <p className="notification-empty" role="status">
-          No hay notificaciones pendientes.
+          {t("No hay notificaciones pendientes.")}
         </p>
       )}
       {(!activity || activity.total > 0) && (
@@ -3662,8 +3786,10 @@ function Notices({
                       </span>
                       <strong>{item.title}</strong>
                       <span className="service-activity-meta">
-                        {date(item.createdAt)} ·{" "}
-                        {statusLabel[item.serviceStatus] ?? item.serviceStatus}
+                        {date(item.createdAt, undefined, locale)} ·{" "}
+                        {t(
+                          statusLabel[item.serviceStatus] ?? item.serviceStatus,
+                        )}
                       </span>
                     </span>
                     <ArrowUpRight size={19} aria-hidden="true" />
@@ -3687,8 +3813,8 @@ function Notices({
         >
           <div className="section-heading">
             <div>
-              <h2 id="team-notices-heading">Mensajes del equipo</h2>
-              <p>Comunicaciones de tu organización.</p>
+              <h2 id="team-notices-heading">{t("Mensajes del equipo")}</h2>
+              <p>{t("Comunicaciones de tu organización.")}</p>
             </div>
           </div>
           {!notices ? (
@@ -3723,7 +3849,7 @@ function Notices({
                       }}
                     >
                       <Check size={15} />
-                      He leído este aviso
+                      {t("He leído este aviso")}
                     </Button>
                   ))}
                 {manage &&
@@ -3734,9 +3860,9 @@ function Notices({
                         <span>
                           {n.acknowledgements.length}{" "}
                           {n.acknowledgements.length === 1
-                            ? "persona confirmó"
-                            : "personas confirmaron"}{" "}
-                          la lectura
+                            ? t("persona confirmó")
+                            : t("personas confirmaron")}{" "}
+                          {t("la lectura")}
                         </span>
                         <ArrowRight size={16} aria-hidden="true" />
                       </summary>
@@ -3759,7 +3885,7 @@ function Notices({
                     </details>
                   ) : (
                     <p className="page-footnote">
-                      Aún no hay confirmaciones de lectura.
+                      {t("Aún no hay confirmaciones de lectura.")}
                     </p>
                   ))}
               </article>
@@ -3785,11 +3911,13 @@ function PasswordForm({
   onError: (s: string) => void;
   onChanged: () => void;
 }) {
+  const t = useTranslation();
+
   const [busy, setBusy] = useState(false);
   return (
     <div style={{ marginTop: 24 }}>
       <Card>
-        <h2>Cambiar contraseña</h2>
+        <h2>{t("Cambiar contraseña")}</h2>
         <form
           onSubmit={async (e) => {
             e.preventDefault();
@@ -3810,14 +3938,14 @@ function PasswordForm({
         >
           <div className="form-grid">
             <Input
-              label="Contraseña actual"
+              label={t("Contraseña actual")}
               name="current"
               type="password"
               autoComplete="current-password"
               required
             />
             <Input
-              label="Nueva contraseña"
+              label={t("Nueva contraseña")}
               name="new"
               type="password"
               autoComplete="new-password"
@@ -3826,7 +3954,7 @@ function PasswordForm({
             />
           </div>
           <Button secondary disabled={busy}>
-            Cambiar y cerrar sesiones
+            {t("Cambiar y cerrar sesiones")}
           </Button>
         </form>
       </Card>

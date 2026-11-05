@@ -15,10 +15,11 @@ import {
   createOrganizationText,
   organizationAccents,
 } from "../lib/organization-customization";
+import { useLocale } from "../lib/locale-provider";
 
-const OrganizationText = createContext(
-  createOrganizationText(defaultOrganizationCustomization),
-);
+const OrganizationText = createContext<ReturnType<
+  typeof createOrganizationText
+> | null>(null);
 
 export function OrganizationCustomizationProvider({
   value,
@@ -27,7 +28,11 @@ export function OrganizationCustomizationProvider({
   value: OrganizationCustomization;
   children: ReactNode;
 }) {
-  const text = useMemo(() => createOrganizationText(value), [value]);
+  const { locale } = useLocale();
+  const text = useMemo(
+    () => createOrganizationText(value, locale),
+    [value, locale],
+  );
   useLayoutEffect(() => {
     const accent = organizationAccents[value.accent];
     const rgb = [1, 3, 5]
@@ -67,5 +72,12 @@ export function OrganizationCustomizationProvider({
 }
 
 export function useOrganizationText() {
-  return useContext(OrganizationText);
+  const configured = useContext(OrganizationText);
+  const { locale } = useLocale();
+  return useMemo(
+    () =>
+      configured ??
+      createOrganizationText(defaultOrganizationCustomization, locale),
+    [configured, locale],
+  );
 }

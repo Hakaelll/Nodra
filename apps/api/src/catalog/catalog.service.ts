@@ -422,12 +422,24 @@ export class CatalogService {
   }
   async notifications(user: string, org: string, page: number, limit: number) {
     await this.policy.require(user, org);
-    return this.db.notification.findMany({
+    const notifications = await this.db.notification.findMany({
       where: { organizationId: org, userId: user },
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * limit,
       take: limit,
     });
+    const events = await this.db.domainEvent.findMany({
+      where: {
+        organizationId: org,
+        id: { in: notifications.map((item) => item.eventId) },
+      },
+      select: { id: true, kind: true },
+    });
+    const kinds = new Map(events.map((item) => [item.id, item.kind]));
+    return notifications.map((item) => ({
+      ...item,
+      kind: kinds.get(item.eventId) ?? "UNKNOWN",
+    }));
   }
   async serviceActivity(
     user: string,

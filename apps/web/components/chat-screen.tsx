@@ -1,4 +1,5 @@
 "use client";
+import { useLocale, useTranslation } from "../lib/locale-provider";
 import { useOrganizationText } from "./organization-customization-context";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
@@ -35,8 +36,8 @@ const initials = (name: string) =>
     .map((part) => part[0] || "")
     .join("")
     .toUpperCase();
-const clock = (value: string) =>
-  new Intl.DateTimeFormat("es-ES", {
+const clock = (value: string, locale: string) =>
+  new Intl.DateTimeFormat(locale, {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(value));
@@ -56,6 +57,9 @@ export function ChatScreen({
   onError: (message: string) => void;
   refreshUnreadChats: () => Promise<void>;
 }) {
+  const t = useTranslation();
+  const { locale } = useLocale();
+
   const text = useOrganizationText();
   const [chats, setChats] = useState<Chat[]>([]);
   const [chatPage, setChatPage] = useState(1);
@@ -87,10 +91,11 @@ export function ChatScreen({
     const scope = messageScope.current;
     if (
       !(await confirm({
-        title: "¿Borrar de tu lista?",
-        description:
+        title: t("¿Borrar de tu lista?"),
+        description: t(
           "Los demás participantes conservarán la conversación. Si llega un mensaje nuevo, volverá a aparecer.",
-        confirmLabel: "Borrar de mi lista",
+        ),
+        confirmLabel: t("Borrar de mi lista"),
         destructive: true,
       }))
     )
@@ -307,12 +312,12 @@ export function ChatScreen({
   return (
     <section
       className={`chat-layout ${chatId ? "chat-open" : ""}`}
-      aria-label="Chat"
+      aria-label={t("Chat")}
     >
       <div className="chat-list-pane">
         <div className="chat-list-header">
           <div>
-            <h1>Chat</h1>
+            <h1>{t("Chat")}</h1>
           </div>
           <button
             type="button"
@@ -321,18 +326,18 @@ export function ChatScreen({
               setLocalError("");
               setCreating(true);
             }}
-            aria-label="Nuevo chat"
+            aria-label={t("Nuevo chat")}
           >
             <Plus size={21} />
           </button>
         </div>
         {loading ? (
-          <p className="chat-list-note">Cargando conversaciones…</p>
+          <p className="chat-list-note">{t("Cargando conversaciones…")}</p>
         ) : chats.length === 0 ? (
           <div className="chat-list-empty">
             <MessageCircle size={32} strokeWidth={1.4} />
-            <h2>No hay chats</h2>
-            <Button onClick={() => setCreating(true)}>Nuevo chat</Button>
+            <h2>{t("No hay chats")}</h2>
+            <Button onClick={() => setCreating(true)}>{t("Nuevo chat")}</Button>
           </div>
         ) : (
           <div className="chat-thread-list" role="list">
@@ -360,21 +365,24 @@ export function ChatScreen({
                     <time
                       dateTime={chat.lastMessage?.createdAt ?? chat.updatedAt}
                     >
-                      {clock(chat.lastMessage?.createdAt ?? chat.updatedAt)}
+                      {clock(
+                        chat.lastMessage?.createdAt ?? chat.updatedAt,
+                        locale,
+                      )}
                     </time>
                   </span>
                   <span className="chat-thread-preview">
                     {chat.lastMessage
-                      ? `${chat.lastMessage.senderId === userId ? "Tú: " : ""}${chat.lastMessage.body}`
+                      ? `${chat.lastMessage.senderId === userId ? t("Tú: ") : ""}${chat.lastMessage.body}`
                       : chat.kind === "SERVICE"
-                        ? "Chat de coordinación"
-                        : "Sin mensajes"}
+                        ? t("Chat de coordinación")
+                        : t("Sin mensajes")}
                   </span>
                 </span>
                 {chat.unreadCount > 0 && (
                   <span
                     className="chat-thread-unread"
-                    aria-label={`${chat.unreadCount} mensajes sin leer`}
+                    aria-label={t(`${chat.unreadCount} mensajes sin leer`)}
                   >
                     {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
                   </span>
@@ -384,13 +392,16 @@ export function ChatScreen({
           </div>
         )}
         {totalChats > 100 && (
-          <nav className="chat-list-pagination" aria-label="Páginas de chats">
+          <nav
+            className="chat-list-pagination"
+            aria-label={t("Páginas de chats")}
+          >
             <Button
               secondary
               disabled={loading || chatPage === 1}
               onClick={() => setChatPage((page) => page - 1)}
             >
-              Anterior
+              {t("Anterior")}
             </Button>
             <span aria-live="polite">
               {chatPage} / {Math.ceil(totalChats / 100)}
@@ -400,7 +411,7 @@ export function ChatScreen({
               disabled={loading || chatPage * 100 >= totalChats}
               onClick={() => setChatPage((page) => page + 1)}
             >
-              Siguiente
+              {t("Siguiente")}
             </Button>
           </nav>
         )}
@@ -409,7 +420,7 @@ export function ChatScreen({
         {!chatId || active?.id !== chatId ? (
           <div className="chat-placeholder">
             <MessageCircle size={37} strokeWidth={1.2} />
-            <p>Selecciona un chat</p>
+            <p>{t("Selecciona un chat")}</p>
           </div>
         ) : (
           <>
@@ -418,7 +429,7 @@ export function ChatScreen({
                 type="button"
                 className="chat-back"
                 onClick={() => onChat(null)}
-                aria-label="Volver a los chats"
+                aria-label={t("Volver a los chats")}
               >
                 <ArrowLeft size={21} />
               </button>
@@ -436,12 +447,12 @@ export function ChatScreen({
                 <strong>{displayTitle(active)}</strong>
                 <small>
                   {active.kind === "SERVICE" ? text("Servicio · ") : ""}
-                  {active.participants.length} participantes
+                  {active.participants.length} {t(" participantes")}
                 </small>
               </div>
               <Dropdown
                 key={active.id}
-                label="Opciones del chat"
+                label={t("Opciones del chat")}
                 icon={<Ellipsis size={21} />}
                 disabled={deleting}
                 className="chat-actions"
@@ -449,7 +460,7 @@ export function ChatScreen({
                 panelClassName="chat-actions-panel"
                 actions={[
                   {
-                    label: "Borrar de mi lista",
+                    label: t("Borrar de mi lista"),
                     icon: <Trash2 size={17} aria-hidden="true" />,
                     onSelect: deleteChat,
                   },
@@ -467,11 +478,13 @@ export function ChatScreen({
                     )
                   }
                 >
-                  Cargar mensajes anteriores
+                  {t("Cargar mensajes anteriores")}
                 </button>
               )}
               {messages.length === 0 && (
-                <p className="chat-first-message">Todavía no hay mensajes</p>
+                <p className="chat-first-message">
+                  {t("Todavía no hay mensajes")}
+                </p>
               )}
               {messages.map((message) => (
                 <div
@@ -480,7 +493,7 @@ export function ChatScreen({
                 >
                   <span className="chat-message-sender">
                     {message.senderId === userId
-                      ? "Tú"
+                      ? t("Tú")
                       : fullName(
                           active.participants.find(
                             (person) => person.userId === message.senderId,
@@ -493,7 +506,7 @@ export function ChatScreen({
                   </span>
                   <p>{message.body}</p>
                   <time dateTime={message.createdAt}>
-                    {clock(message.createdAt)}
+                    {clock(message.createdAt, locale)}
                   </time>
                 </div>
               ))}
@@ -506,14 +519,14 @@ export function ChatScreen({
             )}
             <form className="chat-composer" onSubmit={send}>
               <label htmlFor="chat-draft" className="sr-only">
-                Mensaje
+                {t("Mensaje")}
               </label>
               <Textarea
                 id="chat-draft"
                 value={draft}
                 maxLength={4000}
                 rows={1}
-                placeholder="Escribe un mensaje"
+                placeholder={t("Escribe un mensaje")}
                 onChange={(event) => {
                   setDraft(event.target.value);
                   setNonce(null);
@@ -528,7 +541,7 @@ export function ChatScreen({
               <button
                 type="submit"
                 disabled={sending || !draft.trim()}
-                aria-label="Enviar mensaje"
+                aria-label={t("Enviar mensaje")}
               >
                 <Send size={20} />
               </button>
@@ -551,12 +564,12 @@ export function ChatScreen({
           >
             <header>
               <div>
-                <span className="chat-eyebrow">TU EQUIPO</span>
-                <h2 id="chat-create-title">Nuevo chat</h2>
+                <span className="chat-eyebrow">{t("TU EQUIPO")}</span>
+                <h2 id="chat-create-title">{t("Nuevo chat")}</h2>
               </div>
               <button
                 type="button"
-                aria-label="Cerrar"
+                aria-label={t("Cerrar")}
                 onClick={() => setCreating(false)}
               >
                 <X size={20} />
@@ -564,7 +577,7 @@ export function ChatScreen({
             </header>
             <form onSubmit={create}>
               <label className="chat-create-label" htmlFor="chat-search">
-                Personas
+                {t("Personas")}
               </label>
               <div className="chat-candidate-search">
                 <Search size={18} />
@@ -572,7 +585,7 @@ export function ChatScreen({
                   id="chat-search"
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Buscar en tu equipo"
+                  placeholder={t("Buscar en tu equipo")}
                   autoFocus
                 />
               </div>
@@ -596,19 +609,21 @@ export function ChatScreen({
                   </label>
                 ))}
                 {candidates.length === 0 && (
-                  <p className="muted">No hay personas con ese nombre.</p>
+                  <p className="muted">
+                    {t("No hay personas con ese nombre.")}
+                  </p>
                 )}
               </div>
               {selected.length > 1 && (
                 <>
                   <label className="chat-create-label" htmlFor="chat-title">
-                    Nombre del grupo
+                    {t("Nombre del grupo")}
                   </label>
                   <input
                     id="chat-title"
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
-                    placeholder="Nombre del grupo"
+                    placeholder={t("Nombre del grupo")}
                     maxLength={120}
                     required
                   />
@@ -623,8 +638,8 @@ export function ChatScreen({
                 <span>
                   {selected.length}{" "}
                   {selected.length === 1
-                    ? "persona seleccionada"
-                    : "personas seleccionadas"}
+                    ? t("persona seleccionada")
+                    : t("personas seleccionadas")}
                 </span>
                 <Button
                   disabled={
@@ -633,7 +648,7 @@ export function ChatScreen({
                     (selected.length > 1 && !title.trim())
                   }
                 >
-                  {saving ? "Creando…" : "Crear chat"}
+                  {saving ? t("Creando…") : t("Crear chat")}
                 </Button>
               </div>
             </form>

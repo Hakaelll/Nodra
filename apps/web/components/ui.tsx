@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "../lib/locale-provider";
 import {
   ButtonHTMLAttributes,
   ComponentProps,
@@ -39,6 +40,8 @@ export function Input({
   label: string;
   ref?: Ref<HTMLInputElement>;
 }) {
+  const t = useTranslation();
+
   const generatedId = useId();
   const [visible, setVisible] = useState(false);
   const fieldId = id ?? generatedId;
@@ -55,7 +58,9 @@ export function Input({
           <button
             type="button"
             className="password-toggle"
-            aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
+            aria-label={
+              visible ? t("Ocultar contraseña") : t("Mostrar contraseña")
+            }
             aria-pressed={visible}
             onClick={() => setVisible(!visible)}
           >
@@ -106,9 +111,11 @@ export function SectionHeader({
   );
 }
 export function Badge({ status }: { status: string }) {
+  const t = useTranslation();
+
   return (
     <span className="badge" data-status={status}>
-      <i aria-hidden="true" /> {statusLabel[status] ?? status}
+      <i aria-hidden="true" /> {t(statusLabel[status] ?? status)}
     </span>
   );
 }
@@ -168,9 +175,11 @@ export function Card({
   );
 }
 export function Skeleton() {
+  const t = useTranslation();
+
   return (
     <div className="skeleton" role="status">
-      <span className="sr-only">Cargando tu espacio de trabajo…</span>
+      <span className="sr-only">{t("Cargando tu espacio de trabajo…")}</span>
       <div className="skeleton-line" />
       <div className="skeleton-line" />
       <div className="skeleton-line" />

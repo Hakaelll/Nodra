@@ -1,4 +1,5 @@
 "use client";
+import { useLocale, useTranslation } from "../lib/locale-provider";
 import { useOrganizationText } from "./organization-customization-context";
 
 import { useEffect, useState } from "react";
@@ -54,6 +55,10 @@ export function CalendarView({
   route: WorkspaceRoute;
   openService: (id: string) => void;
 }) {
+  const { locale } = useLocale();
+
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const today = localDay(new Date(), timezone);
   const month = route.month ?? today.slice(0, 7);
@@ -116,12 +121,12 @@ export function CalendarView({
       return event.localStartDay <= day && event.localEndDay >= day;
     });
   const selectedEvents = forDay(selected);
-  const monthTitle = new Intl.DateTimeFormat("es-ES", {
+  const monthTitle = new Intl.DateTimeFormat(locale, {
     month: "long",
     year: "numeric",
     timeZone: "UTC",
   }).format(new Date(Date.UTC(year, monthNumber - 1, 1)));
-  const selectedTitle = new Intl.DateTimeFormat("es-ES", {
+  const selectedTitle = new Intl.DateTimeFormat(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -135,7 +140,7 @@ export function CalendarView({
     >
       <header className="calendar-heading">
         <div>
-          <h1>Calendario</h1>
+          <h1>{t("Calendario")}</h1>
           <p>
             {text("Servicios y horarios en ")}
             {timezone}.
@@ -153,12 +158,12 @@ export function CalendarView({
               });
             }}
           >
-            Hoy
+            {t("Hoy")}
           </Button>
           <button
             type="button"
             className="icon-button"
-            aria-label="Mes anterior"
+            aria-label={t("Mes anterior")}
             onClick={() => navigateMonth(changeMonth(month, -1))}
           >
             <ArrowLeft size={19} />
@@ -166,7 +171,7 @@ export function CalendarView({
           <button
             type="button"
             className="icon-button"
-            aria-label="Mes siguiente"
+            aria-label={t("Mes siguiente")}
             onClick={() => navigateMonth(changeMonth(month, 1))}
           >
             <ArrowRight size={19} />
@@ -185,7 +190,7 @@ export function CalendarView({
         </div>
         {error ? (
           <div className="calendar-feedback" role="alert">
-            <p>{error}</p>
+            <p>{t(error)}</p>
             <Button
               secondary
               onClick={() => {
@@ -193,7 +198,7 @@ export function CalendarView({
                 setRetry((value) => value + 1);
               }}
             >
-              Reintentar
+              {t("Reintentar")}
             </Button>
           </div>
         ) : loading ? (
@@ -202,7 +207,7 @@ export function CalendarView({
           <>
             <div className="calendar-weekdays" aria-hidden="true">
               {weekdays.map((day) => (
-                <span key={day}>{day}</span>
+                <span key={day}>{t(day)}</span>
               ))}
             </div>
             <div className="calendar-grid">
@@ -213,7 +218,7 @@ export function CalendarView({
                     key={day}
                     className="calendar-day"
                     aria-pressed={selected === day}
-                    aria-label={`${new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T12:00:00Z`))}, ${forDay(day).length} ${text(forDay(day).length === 1 ? "servicio" : "servicios")}`}
+                    aria-label={`${new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T12:00:00Z`))}, ${forDay(day).length} ${text(forDay(day).length === 1 ? "servicio" : "servicios")}`}
                     onClick={() => navigateWorkspace({ ...route, month, day })}
                   >
                     <span className={day === today ? "is-today" : ""}>
@@ -254,7 +259,7 @@ export function CalendarView({
               <p>
                 {selectedEvents.length
                   ? `${selectedEvents.length} ${selectedEvents.length === 1 ? text("servicio") : text("servicios")}`
-                  : "Sin actividad programada"}
+                  : t("Sin actividad programada")}
               </p>
             </div>
           </div>
@@ -281,11 +286,11 @@ export function CalendarView({
                       <strong>{event.title}</strong>
                       <small>
                         <MapPin size={14} />{" "}
-                        {event.locationText || "Ubicación pendiente"}
+                        {event.locationText || t("Ubicación pendiente")}
                       </small>
                     </span>
                     <span className="calendar-event-status">
-                      {statusLabel[event.status] ?? event.status}
+                      {t(statusLabel[event.status] ?? event.status)}
                     </span>
                     <ArrowRight size={17} aria-hidden="true" />
                   </button>
@@ -295,13 +300,13 @@ export function CalendarView({
           ) : (
             <div className="calendar-agenda-empty">
               <CalendarDays size={25} strokeWidth={1.5} />
-              <p>Tu agenda está libre este día.</p>
+              <p>{t("Tu agenda está libre este día.")}</p>
             </div>
           )}
           {upcoming.length > 0 && (
             <div className="calendar-upcoming">
               <h3>{text("Agenda de servicios")}</h3>
-              <p>Próximos y en curso este mes</p>
+              <p>{t("Próximos y en curso este mes")}</p>
               <div className="calendar-upcoming-list">
                 {upcoming.map((event) => (
                   <button
@@ -311,7 +316,7 @@ export function CalendarView({
                     onClick={() => openService(event.id)}
                   >
                     <span className="calendar-upcoming-date">
-                      {new Intl.DateTimeFormat("es-ES", {
+                      {new Intl.DateTimeFormat(locale, {
                         day: "2-digit",
                         month: "short",
                         timeZone: timezone,
@@ -321,7 +326,7 @@ export function CalendarView({
                       <strong>{event.title}</strong>
                       <small>
                         {event.localStartTime} ·{" "}
-                        {statusLabel[event.status] ?? event.status}
+                        {t(statusLabel[event.status] ?? event.status)}
                       </small>
                     </span>
                     <ArrowRight size={16} aria-hidden="true" />

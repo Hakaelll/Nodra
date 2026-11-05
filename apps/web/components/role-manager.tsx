@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "../lib/locale-provider";
 import { useOrganizationText } from "./organization-customization-context";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { roleInput, type JobRole, type Page } from "@nodra/contracts";
@@ -18,6 +19,8 @@ export function RoleManager({
   onChanged: () => Promise<void>;
   onError: (message: string) => void;
 }) {
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const [editing, setEditing] = useState<string>();
   const [busy, setBusy] = useState(false);
@@ -156,7 +159,7 @@ export function RoleManager({
             className="text-link"
             onClick={() => setReload((n) => n + 1)}
           >
-            Reintentar
+            {t("Reintentar")}
           </button>
         </p>
       ) : (
@@ -179,7 +182,7 @@ export function RoleManager({
                       disabled={busy}
                     />
                     <Input
-                      label="Descripción"
+                      label={t("Descripción")}
                       name="description"
                       defaultValue={role.description}
                       maxLength={1000}
@@ -187,7 +190,7 @@ export function RoleManager({
                     />
                     <div className="actions">
                       <Button disabled={busy}>
-                        {busy ? "Guardando…" : "Guardar cambios"}
+                        {busy ? t("Guardando…") : t("Guardar cambios")}
                       </Button>
                       <Button
                         type="button"
@@ -198,7 +201,7 @@ export function RoleManager({
                           setFormError("");
                         }}
                       >
-                        Cancelar
+                        {t("Cancelar")}
                       </Button>
                     </div>
                   </form>
@@ -206,7 +209,7 @@ export function RoleManager({
                   <>
                     <strong>{role.name}</strong>
                     {!role.active && (
-                      <span className="muted"> · Archivado</span>
+                      <span className="muted"> {t(" · Archivado")}</span>
                     )}
                     {role.description && (
                       <p className="muted">{role.description}</p>
@@ -221,7 +224,7 @@ export function RoleManager({
                           setFormError("");
                         }}
                       >
-                        Editar
+                        {t("Editar")}
                       </Button>
                       <Button
                         type="button"
@@ -231,9 +234,10 @@ export function RoleManager({
                           if (
                             role.active &&
                             !(await confirm({
-                              title: `¿Archivar ${role.name}?`,
-                              description:
+                              title: t(`¿Archivar ${role.name}?`),
+                              description: t(
                                 "Dejará de estar disponible para nuevas posiciones. El historial se conservará.",
+                              ),
                               confirmLabel: text("Archivar rol"),
                             }))
                           )
@@ -241,7 +245,7 @@ export function RoleManager({
                           void update(role, { active: !role.active });
                         }}
                       >
-                        {role.active ? "Archivar" : "Reactivar"}
+                        {role.active ? t("Archivar") : t("Reactivar")}
                       </Button>
                     </div>
                   </>
@@ -260,10 +264,11 @@ export function RoleManager({
                 disabled={busy || Boolean(editing) || page === 1}
                 onClick={() => setPage((n) => n - 1)}
               >
-                Anterior
+                {t("Anterior")}
               </button>
               <small>
-                Página {page} de{" "}
+                {t("Página ")}
+                {page} {t(" de")}{" "}
                 {Math.max(1, Math.ceil(catalog.total / catalog.limit))}
               </small>
               <button
@@ -276,7 +281,7 @@ export function RoleManager({
                 }
                 onClick={() => setPage((n) => n + 1)}
               >
-                Siguiente
+                {t("Siguiente")}
               </button>
             </nav>
           )}

@@ -1,5 +1,7 @@
 "use client";
 
+import { LanguageSelector } from "./language-selector";
+import { useLocale, useTranslation } from "../lib/locale-provider";
 import Image from "next/image";
 import {
   ArrowRight,
@@ -48,6 +50,10 @@ export function Profile({
   onNotices?: () => void;
   onLogout: () => void;
 }) {
+  const { locale } = useLocale();
+
+  const t = useTranslation();
+
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cropOpen, setCropOpen] = useState(false);
@@ -156,12 +162,12 @@ export function Profile({
   return (
     <>
       <div className="profile-screen">
-        <PageHeader eyebrow="TU CUENTA" title="Perfil">
+        <PageHeader eyebrow={t("TU CUENTA")} title={t("Perfil")}>
           {organization
-            ? `Tu cuenta y actividad en ${organization}.`
-            : "Tu cuenta en Nodra."}
+            ? t(`Tu cuenta y actividad en ${organization}.`)
+            : t("Tu cuenta en Nodra.")}
         </PageHeader>
-        <section className="profile-page" aria-label="Perfil de usuario">
+        <section className="profile-page" aria-label={t("Perfil de usuario")}>
           <div className="profile-identity">
             <div className="profile-photo-wrap">
               <Avatar user={user} size="large" />
@@ -169,7 +175,7 @@ export function Profile({
                 ref={cameraButton}
                 className="profile-camera"
                 type="button"
-                aria-label="Cambiar foto de perfil"
+                aria-label={t("Cambiar foto de perfil")}
                 onClick={() => input.current?.click()}
               >
                 <Camera size={18} />
@@ -179,7 +185,7 @@ export function Profile({
                 className="sr-only"
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
-                aria-label="Elegir foto de perfil desde el dispositivo"
+                aria-label={t("Elegir foto de perfil desde el dispositivo")}
                 onChange={(e) => {
                   void selectFile(e.currentTarget.files?.[0]);
                   e.currentTarget.value = "";
@@ -190,7 +196,7 @@ export function Profile({
               <h2>
                 {user.firstName} {user.lastName}
               </h2>
-              {role && <p>{statusLabel[role] ?? role}</p>}
+              {role && <p>{t(statusLabel[role] ?? role)}</p>}
               {organization && <p>{organization}</p>}
               <Button
                 ref={editButton}
@@ -198,29 +204,29 @@ export function Profile({
                 onClick={() => setEditing((current) => !current)}
               >
                 <Pencil size={16} />
-                {editing ? "Cancelar edición" : "Editar perfil"}
+                {editing ? t("Cancelar edición") : t("Editar perfil")}
               </Button>
             </div>
           </div>
 
           {error && (
             <p className="profile-error" role="alert">
-              {error}
+              {t(error)}
             </p>
           )}
           {saved && (
             <p className="profile-saved" role="status">
-              <Check size={16} /> Cambios guardados
+              <Check size={16} /> {t(" Cambios guardados")}
             </p>
           )}
 
           {editing && (
             <Card className="profile-edit">
-              <h2>Datos personales</h2>
+              <h2>{t("Datos personales")}</h2>
               <form onSubmit={(e) => void save(e)} aria-busy={saving}>
                 <div className="form-grid">
                   <Input
-                    label="Nombre"
+                    label={t("Nombre")}
                     name="firstName"
                     autoComplete="given-name"
                     defaultValue={user.firstName}
@@ -228,7 +234,7 @@ export function Profile({
                     required
                   />
                   <Input
-                    label="Apellidos"
+                    label={t("Apellidos")}
                     name="lastName"
                     autoComplete="family-name"
                     defaultValue={user.lastName}
@@ -238,7 +244,7 @@ export function Profile({
                 </div>
                 <div className="actions">
                   <Button disabled={saving}>
-                    {saving ? "Guardando…" : "Guardar cambios"}
+                    {saving ? t("Guardando…") : t("Guardar cambios")}
                   </Button>
                   <Button
                     secondary
@@ -251,7 +257,7 @@ export function Profile({
                       );
                     }}
                   >
-                    Cancelar
+                    {t("Cancelar")}
                   </Button>
                 </div>
               </form>
@@ -259,32 +265,32 @@ export function Profile({
           )}
 
           <section className="profile-account">
-            <h2>Información de la cuenta</h2>
+            <h2>{t("Información de la cuenta")}</h2>
             <dl>
               <div>
-                <dt>Correo electrónico</dt>
+                <dt>{t("Correo electrónico")}</dt>
                 <dd>{user.email}</dd>
               </div>
               {organization && role && (
                 <div>
-                  <dt>Espacio principal</dt>
+                  <dt>{t("Espacio principal")}</dt>
                   <dd>
                     {organization}
-                    <small>{statusLabel[role] ?? role}</small>
+                    <small>{t(statusLabel[role] ?? role)}</small>
                   </dd>
                 </div>
               )}
               {timezone && (
                 <div>
-                  <dt>Zona horaria</dt>
+                  <dt>{t("Zona horaria")}</dt>
                   <dd>{timezone}</dd>
                 </div>
               )}
               {joinedAt && (
                 <div>
-                  <dt>Miembro desde</dt>
+                  <dt>{t("Miembro desde")}</dt>
                   <dd>
-                    {new Intl.DateTimeFormat("es-ES", {
+                    {new Intl.DateTimeFormat(locale, {
                       month: "long",
                       year: "numeric",
                       timeZone: timezone,
@@ -300,22 +306,23 @@ export function Profile({
               <section className="profile-activity">
                 <div className="profile-section-heading">
                   <div>
-                    <h2>Actividad reciente</h2>
-                    <p>Notificaciones de tu equipo.</p>
+                    <h2>{t("Actividad reciente")}</h2>
+                    <p>{t("Notificaciones de tu equipo.")}</p>
                   </div>
                   <button className="text-link" onClick={onNotices}>
-                    Ver avisos <ArrowRight size={16} />
+                    {t("Ver avisos ")}
+                    <ArrowRight size={16} />
                   </button>
                 </div>
                 {activityLoading ? (
                   <p className="muted" role="status">
-                    Cargando actividad…
+                    {t("Cargando actividad…")}
                   </p>
                 ) : activityError ? (
                   <p className="muted">
-                    No se pudo cargar la actividad.{" "}
+                    {t("No se pudo cargar la actividad.")}{" "}
                     <button className="text-link" onClick={onNotices}>
-                      Abrir avisos
+                      {t("Abrir avisos")}
                     </button>
                   </p>
                 ) : activity.length ? (
@@ -326,9 +333,13 @@ export function Profile({
                           <Bell size={18} />
                         </span>
                         <span>
-                          <strong>{item.title}</strong>
+                          <strong>
+                            {item.kind === "AssignmentSelected"
+                              ? t(item.title)
+                              : item.title}
+                          </strong>
                           <small>
-                            {new Intl.DateTimeFormat("es-ES", {
+                            {new Intl.DateTimeFormat(locale, {
                               day: "numeric",
                               month: "short",
                               year: "numeric",
@@ -342,22 +353,25 @@ export function Profile({
                   </div>
                 ) : (
                   <p className="profile-activity-empty">
-                    Todavía no hay actividad reciente en este equipo.
+                    {t("Todavía no hay actividad reciente en este equipo.")}
                   </p>
                 )}
               </section>
             )}
             <div className="profile-actions">
               <Card>
-                <h2>Cuenta y preferencias</h2>
+                <h2>{t("Cuenta y preferencias")}</h2>
+                <LanguageSelector />
                 {onSettings && (
                   <button className="profile-link" onClick={onSettings}>
                     <span className="profile-link-icon">
                       <Settings size={18} />
                     </span>
                     <span>
-                      Configuración
-                      <small>Preferencias y acceso a tu organización</small>
+                      {t("Configuración")}
+                      <small>
+                        {t("Preferencias y acceso a tu organización")}
+                      </small>
                     </span>
                     <ChevronRight size={18} />
                   </button>
@@ -367,8 +381,8 @@ export function Profile({
                     <LogOut size={18} />
                   </span>
                   <span>
-                    Cerrar sesión
-                    <small>Finalizar sesión en este dispositivo</small>
+                    {t("Cerrar sesión")}
+                    <small>{t("Finalizar sesión en este dispositivo")}</small>
                   </span>
                   <ChevronRight size={18} />
                 </button>
@@ -382,7 +396,7 @@ export function Profile({
         <CropDialog
           source={imageSource}
           busy={saving}
-          error={cropError}
+          error={t(cropError)}
           onCancel={closeCrop}
           onSave={upload}
           onError={setCropError}

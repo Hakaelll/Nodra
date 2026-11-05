@@ -1,3 +1,4 @@
+import '../l10n/translation.dart';
 import '../design/organization_presentation.dart';
 
 import 'package:flutter/material.dart';
@@ -151,7 +152,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         actions: [
           if (session.organizationId != null && session.chatEnabled)
             IconButton(
-              tooltip: 'Chat',
+              tooltip: tr(context, 'Chat'),
               onPressed: () => context.push('/chats'),
               icon: Badge(
                 alignment: Alignment.topLeft,
@@ -255,7 +256,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               )
             else if (session.organizationId == null) ...[
               Text(
-                'Encuentra a tu equipo.',
+                tr(context, 'Encuentra a tu equipo.'),
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 16),
@@ -264,13 +265,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const JoinCard(),
               const SizedBox(height: 24),
               NodraButton(
-                label: 'Cerrar sesión',
+                label: tr(context, 'Cerrar sesión'),
                 secondary: true,
                 onPressed: confirmLogout,
               ),
             ] else if (tab == 2) ...[
               Text(
-                'Lo que necesitas saber.',
+                tr(context, 'Lo que necesitas saber.'),
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 24),
@@ -280,7 +281,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                "Selecciones y cambios que te afectan.",
+                tr(context, "Selecciones y cambios que te afectan."),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 18),
@@ -312,9 +313,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ...items.map((item) {
                             final cancelled =
                                 item['serviceStatus'] == 'CANCELLED';
-                            final status =
-                                statusLabels[item['serviceStatus']] ??
-                                item['serviceStatus'] as String;
+                            final status = tr(
+                              context,
+                              statusLabels[item['serviceStatus']] ??
+                                  item['serviceStatus'] as String,
+                            );
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: NodraCard(
@@ -402,7 +405,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   onPressed: activityPage > 1
                                       ? () => setState(() => activityPage--)
                                       : null,
-                                  child: const Text('Anterior'),
+                                  child: Text(tr(context, 'Anterior')),
                                 ),
                                 Text(
                                   '$activityPage / ${((data['total'] as int) / 25).ceil()}',
@@ -412,7 +415,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       activityPage * 25 < (data['total'] as int)
                                       ? () => setState(() => activityPage++)
                                       : null,
-                                  child: const Text('Siguiente'),
+                                  child: Text(tr(context, 'Siguiente')),
                                 ),
                               ],
                             ),
@@ -422,12 +425,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
               const SizedBox(height: 30),
               Text(
-                'Mensajes del equipo',
+                tr(context, 'Mensajes del equipo'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 4),
               Text(
-                'Comunicaciones publicadas para toda la organización.',
+                tr(
+                  context,
+                  'Comunicaciones publicadas para toda la organización.',
+                ),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 18),
@@ -446,9 +452,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           if (notices.isEmpty)
-                            const NodraEmptyState(
-                              title: 'Todavía no hay mensajes.',
-                              message: 'Los avisos de tu organización aparecerán aquí.',
+                            NodraEmptyState(
+                              title: tr(context, 'Todavía no hay mensajes.'),
+                              message: tr(
+                                context,
+                                'Los avisos de tu organización aparecerán aquí.',
+                              ),
                             ),
                           ...notices.map(
                             (n) => Padding(
@@ -475,7 +484,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           )
                                           ? const NodraBadge(status: 'Leído')
                                           : NodraButton(
-                                              label: 'He leído este aviso',
+                                              label: tr(
+                                                context,
+                                                'He leído este aviso',
+                                              ),
                                               secondary: true,
                                               onPressed: () => run(() async {
                                                 await CoordinationRepository(
@@ -497,7 +509,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       if ((n['acknowledgements'] as List)
                                           .isEmpty)
                                         Text(
-                                          'Aún no hay confirmaciones de lectura.',
+                                          tr(
+                                            context,
+                                            'Aún no hay confirmaciones de lectura.',
+                                          ),
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall,
@@ -510,8 +525,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             (n['acknowledgements'] as List)
                                                         .length ==
                                                     1
-                                                ? '1 persona confirmó la lectura'
-                                                : '${(n['acknowledgements'] as List).length} personas confirmaron la lectura',
+                                                ? tr(
+                                                    context,
+                                                    '1 persona confirmó la lectura',
+                                                  )
+                                                : tr(
+                                                    context,
+                                                    '${(n['acknowledgements'] as List).length} personas confirmaron la lectura',
+                                                  ),
                                           ),
                                           children: [
                                             ...(n['acknowledgements'] as List)
@@ -566,14 +587,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ] else ...[
               Text(
                 tab == 0
-                    ? 'Hola, ${session.user!['firstName']}.'
+                    ? tr(context, 'Hola, ${session.user!['firstName']}.')
                     : organizationText(context, "Servicios."),
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               const SizedBox(height: 12),
               Text(
                 tab == 0
-                    ? 'Tu próximo paso, sin perderte nada.'
+                    ? tr(context, 'Tu próximo paso, sin perderte nada.')
                     : organizationText(
                         context,
                         "Consulta servicios de tu organización.",
@@ -650,7 +671,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       serviceRole.isNotEmpty ||
                                       serviceFrom.isNotEmpty ||
                                       serviceTo.isNotEmpty
-                                  ? 'Prueba con otros filtros.'
+                                  ? tr(context, 'Prueba con otros filtros.')
                                   : organizationText(
                                       context,
                                       "Consulta fechas y participa cuando haya servicios disponibles.",
@@ -767,14 +788,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             TextButton(
               onPressed: page > 1 ? () => setState(() => page--) : null,
-              child: const Text('Anterior'),
+              child: Text(tr(context, 'Anterior')),
             ),
             Text('$page / ${(total / 25).ceil()}'),
             TextButton(
               onPressed: page * 25 < total
                   ? () => setState(() => page++)
                   : null,
-              child: const Text('Siguiente'),
+              child: Text(tr(context, 'Siguiente')),
             ),
           ],
         )
@@ -842,12 +863,15 @@ class _JoinCardState extends ConsumerState<JoinCard> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Aceptar invitación',
+          tr(context, 'Aceptar invitación'),
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Introduce el código de 12 cifras que te ha enviado tu organización.',
+        Text(
+          tr(
+            context,
+            'Introduce el código de 12 cifras que te ha enviado tu organización.',
+          ),
         ),
         const SizedBox(height: 20),
         TextField(
@@ -859,14 +883,16 @@ class _JoinCardState extends ConsumerState<JoinCard> {
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(12),
           ],
-          decoration: const InputDecoration(labelText: 'Código de 12 cifras'),
+          decoration: InputDecoration(
+            labelText: tr(context, 'Código de 12 cifras'),
+          ),
           onChanged: (_) => setState(() => preview = null),
         ),
         const SizedBox(height: 20),
         if (preview != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
-            child: Text('Te han invitado a $preview.'),
+            child: Text(tr(context, 'Te han invitado a $preview.')),
           ),
         if (error != null)
           Padding(
@@ -875,10 +901,10 @@ class _JoinCardState extends ConsumerState<JoinCard> {
           ),
         NodraButton(
           label: busy
-              ? 'Un momento…'
+              ? tr(context, 'Un momento…')
               : preview == null
-              ? 'Consultar invitación'
-              : 'Unirme a la organización',
+              ? tr(context, 'Consultar invitación')
+              : tr(context, 'Unirme a la organización'),
           onPressed: busy ? null : submit,
         ),
       ],

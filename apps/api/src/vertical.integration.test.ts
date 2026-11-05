@@ -2035,6 +2035,33 @@ it("publishes notices to selected active memberships without leaking content or 
     where: { entityId: noticeId, kind: "NoticePublished" },
   });
   expect(event.recipientIds).toEqual([chosen.id]);
+  await db.notification.create({
+    data: {
+      eventId: event.id,
+      organizationId: fixture.id,
+      userId: chosen.id,
+      title: "Inicio",
+      body: "Servicios",
+    },
+  });
+  const notifications = await request(
+    "GET",
+    `organizations/${fixture.id}/notifications`,
+    chosen.access,
+  );
+  expect(notifications.statusCode).toBe(200);
+  expect(notifications.json()).toMatchObject([
+    { kind: "NoticePublished", title: "Inicio", body: "Servicios" },
+  ]);
+  expect(
+    (
+      await request(
+        "GET",
+        `organizations/${fixture.id}/notifications`,
+        excluded.access,
+      )
+    ).json(),
+  ).toEqual([]);
   expect(
     (await request("GET", `${base}?limit=1`, chosen.access)).json(),
   ).toMatchObject({ total: 1, items: [{ id: noticeId, isRecipient: true }] });

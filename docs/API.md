@@ -1,5 +1,7 @@
 # API
 
+05/11 — Las respuestas paginadas de GET organizations/:org/notifications incluyen kind, leído de DomainEvent mediante una única consulta acotada al tenant y los eventos de la página. UNKNOWN conserva compatibilidad si falta el evento. Esto permite traducir títulos de sistema sin alterar títulos de avisos o servicios escritos por usuarios. No añade migración ni cambia IDs, paginación o permisos.
+
 05/11 — Chat (inputs y outputs), Notification y ServiceActivity tienen esquemas compartidos en packages/contracts/src/communications.ts, exportados por @nodra/contracts. Controladores y servicio de chat consumen esa fuente; sus tipos web se infieren con z.infer. El archivo chats.schemas.ts anterior se retiró después de migrar sus consumidores. La extracción conserva exactamente el OpenAPI previo: 55 paths y 69 operaciones. No cambia serialización, validación, permisos ni rutas.
 
 Inicio Flutter consulta el dashboard paginado con filter=attention/upcoming; ambos filtros se aplican antes de paginar. Cada servicio del resumen incluye timezone, localStartDay/localStartTime y localEndDay/localEndTime, además de sus instantes UTC. MEMBER recibe únicamente sus asignaciones pendientes en attention; los roles operativos conservan borradores y pendientes de gestión.

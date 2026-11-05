@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "../lib/locale-provider";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Page, PublicUser } from "@nodra/contracts";
 import { api } from "../lib/api";
@@ -14,6 +15,8 @@ export function NoticeComposer({
   published: () => Promise<void>;
   cancel: () => void;
 }) {
+  const t = useTranslation();
+
   const [target, setTarget] = useState("ORGANIZATION");
   const [selected, setSelected] = useState<Person[]>([]);
   const [search, setSearch] = useState("");
@@ -106,7 +109,7 @@ export function NoticeComposer({
   return (
     <form className="notice-composer" onSubmit={submit} noValidate>
       <Input
-        label="Título"
+        label={t("Título")}
         name="title"
         minLength={2}
         maxLength={160}
@@ -114,11 +117,11 @@ export function NoticeComposer({
         disabled={busy}
       />
       <label className="field">
-        <span>Mensaje</span>
+        <span>{t("Mensaje")}</span>
         <Textarea name="body" maxLength={5000} required disabled={busy} />
       </label>
       <fieldset disabled={busy} className="notice-audience">
-        <legend>Destinatarios</legend>
+        <legend>{t("Destinatarios")}</legend>
         <div className="notice-audience-options">
           <label className="inline-check">
             <input
@@ -131,7 +134,7 @@ export function NoticeComposer({
                 setError("");
               }}
             />
-            Toda la organización
+            {t("Toda la organización")}
           </label>
           <label className="inline-check">
             <input
@@ -144,13 +147,13 @@ export function NoticeComposer({
                 setError("");
               }}
             />
-            Elegir personas
+            {t("Elegir personas")}
           </label>
         </div>
         {target === "USERS" && (
           <div className="notice-recipient-picker">
             <Input
-              label="Buscar personas"
+              label={t("Buscar personas")}
               type="search"
               value={search}
               maxLength={120}
@@ -162,7 +165,7 @@ export function NoticeComposer({
               }}
             />
             <p className="muted" role="status">
-              {selected.length} seleccionadas · máximo 100
+              {selected.length} {t(" seleccionadas · máximo 100")}
             </p>
             {selected.length > 0 && (
               <div className="notice-selection">
@@ -175,7 +178,9 @@ export function NoticeComposer({
                         items.filter((item) => item.id !== person.id),
                       )
                     }
-                    aria-label={`Quitar a ${person.user.firstName} ${person.user.lastName}`}
+                    aria-label={t(
+                      `Quitar a ${person.user.firstName} ${person.user.lastName}`,
+                    )}
                   >
                     {person.user.firstName} {person.user.lastName}{" "}
                     <span aria-hidden="true">×</span>
@@ -191,12 +196,12 @@ export function NoticeComposer({
                   secondary
                   onClick={() => setRetry(retry + 1)}
                 >
-                  Reintentar
+                  {t("Reintentar")}
                 </Button>
               </div>
             ) : loading || !people ? (
               <p className="muted" role="status">
-                Cargando personas…
+                {t("Cargando personas…")}
               </p>
             ) : (
               <>
@@ -223,7 +228,9 @@ export function NoticeComposer({
                     </label>
                   ))}
                   {people.total === 0 && (
-                    <p className="muted">No hay personas que coincidan.</p>
+                    <p className="muted">
+                      {t("No hay personas que coincidan.")}
+                    </p>
                   )}
                 </div>
                 {people.total > 10 && (
@@ -237,7 +244,7 @@ export function NoticeComposer({
                         setLoading(true);
                       }}
                     >
-                      Anterior
+                      {t("Anterior")}
                     </Button>
                     <span>
                       {page} / {Math.ceil(people.total / 10)}
@@ -251,7 +258,7 @@ export function NoticeComposer({
                         setLoading(true);
                       }}
                     >
-                      Siguiente
+                      {t("Siguiente")}
                     </Button>
                   </div>
                 )}
@@ -262,7 +269,7 @@ export function NoticeComposer({
       </fieldset>
       <label className="inline-check">
         <Checkbox name="ack" disabled={busy} />
-        Solicitar confirmación de lectura
+        {t("Solicitar confirmación de lectura")}
       </label>
       {error && (
         <p
@@ -271,15 +278,15 @@ export function NoticeComposer({
           tabIndex={-1}
           ref={errorRef}
         >
-          {error}
+          {t(error)}
         </p>
       )}
       <div className="notice-compose-actions">
         <Button type="submit" disabled={busy}>
-          {busy ? "Publicando…" : "Publicar aviso"}
+          {busy ? t("Publicando…") : t("Publicar aviso")}
         </Button>
         <Button type="button" secondary disabled={busy} onClick={cancel}>
-          Cancelar
+          {t("Cancelar")}
         </Button>
       </div>
     </form>

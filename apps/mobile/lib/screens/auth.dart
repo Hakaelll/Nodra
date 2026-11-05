@@ -1,3 +1,6 @@
+import '../design/language_selector.dart';
+import '../l10n/translation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -110,33 +113,57 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           padding: const EdgeInsets.all(28),
           children: [
             const SizedBox(height: 36),
-            Text('nodra.', style: Theme.of(context).textTheme.headlineLarge),
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              runSpacing: 16,
+              spacing: 24,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  'nodra.',
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+                const SizedBox(width: 160, child: LanguageSelector()),
+              ],
+            ),
             const SizedBox(height: 65),
             Text(
               _verificationDone
-                  ? 'Correo verificado.'
+                  ? tr(context, 'Correo verificado.')
                   : _verifying
-                  ? 'Verifica tu correo.'
+                  ? tr(context, 'Verifica tu correo.')
                   : _resetDone
-                  ? 'Contraseña actualizada.'
+                  ? tr(context, 'Contraseña actualizada.')
                   : _enteringReset
-                  ? 'Elige una nueva contraseña.'
+                  ? tr(context, 'Elige una nueva contraseña.')
                   : _recovering
-                  ? 'Recupera tu acceso.'
+                  ? tr(context, 'Recupera tu acceso.')
                   : _register
-                  ? 'Tu equipo empieza contigo.'
-                  : 'Todo listo.\nSolo faltas tú.',
+                  ? tr(context, 'Tu equipo empieza contigo.')
+                  : tr(context, 'Todo listo.\nSolo faltas tú.'),
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: 16),
             Text(
               _resetDone
-                  ? 'Ya puedes iniciar sesión. Las sesiones anteriores se han cerrado.'
+                  ? tr(
+                      context,
+                      'Ya puedes iniciar sesión. Las sesiones anteriores se han cerrado.',
+                    )
                   : _enteringReset
-                  ? 'Pega el enlace que recibiste por correo y guarda una contraseña nueva.'
+                  ? tr(
+                      context,
+                      'Pega el enlace que recibiste por correo y guarda una contraseña nueva.',
+                    )
                   : _recovering
-                  ? 'Te enviaremos un enlace para elegir una nueva contraseña.'
-                  : 'Tus servicios, tus avisos y tu próximo paso. En un solo lugar.',
+                  ? tr(
+                      context,
+                      'Te enviaremos un enlace para elegir una nueva contraseña.',
+                    )
+                  : tr(
+                      context,
+                      'Tus servicios, tus avisos y tu próximo paso. En un solo lugar.',
+                    ),
             ),
             const SizedBox(height: 32),
             if (_error != null)
@@ -146,7 +173,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               ),
             if (_resetDone || _verificationDone) ...[
               NodraButton(
-                label: 'Iniciar sesión',
+                label: tr(context, 'Iniciar sesión'),
                 onPressed: () => setState(() {
                   _enteringReset = false;
                   _resetDone = false;
@@ -159,12 +186,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             ] else if (_sent || _registrationSent) ...[
               Text(
                 _registrationSent
-                    ? 'Si el correo puede registrarse, recibirás un enlace para verificarlo. Si ya tienes cuenta, inicia sesión o recupera tu contraseña.'
-                    : 'Si existe una cuenta con ese correo, recibirás un enlace. Puedes abrirlo o pegarlo aquí para continuar.',
+                    ? tr(
+                        context,
+                        'Si el correo puede registrarse, recibirás un enlace para verificarlo. Si ya tienes cuenta, inicia sesión o recupera tu contraseña.',
+                      )
+                    : tr(
+                        context,
+                        'Si existe una cuenta con ese correo, recibirás un enlace. Puedes abrirlo o pegarlo aquí para continuar.',
+                      ),
               ),
               const SizedBox(height: 24),
               NodraButton(
-                label: 'Pegar enlace recibido',
+                label: tr(context, 'Pegar enlace recibido'),
                 onPressed: () => setState(() {
                   _sent = false;
                   _recovering = false;
@@ -177,7 +210,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               ),
               const SizedBox(height: 12),
               NodraButton(
-                label: 'Volver a iniciar sesión',
+                label: tr(context, 'Volver a iniciar sesión'),
                 secondary: true,
                 onPressed: () => setState(() {
                   _recovering = false;
@@ -198,18 +231,22 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     if (_register && !_enteringReset && !_verifying) ...[
                       NodraTextField(
                         controller: _first,
-                        decoration: const InputDecoration(labelText: 'Nombre'),
-                        validator: (v) =>
-                            v!.trim().isEmpty ? 'Escribe tu nombre.' : null,
+                        decoration: InputDecoration(
+                          labelText: tr(context, 'Nombre'),
+                        ),
+                        validator: (v) => v!.trim().isEmpty
+                            ? tr(context, 'Escribe tu nombre.')
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       NodraTextField(
                         controller: _last,
-                        decoration: const InputDecoration(
-                          labelText: 'Apellidos',
+                        decoration: InputDecoration(
+                          labelText: tr(context, 'Apellidos'),
                         ),
-                        validator: (v) =>
-                            v!.trim().isEmpty ? 'Escribe tus apellidos.' : null,
+                        validator: (v) => v!.trim().isEmpty
+                            ? tr(context, 'Escribe tus apellidos.')
+                            : null,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -218,10 +255,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         controller: _resetLink,
                         decoration: InputDecoration(
                           labelText: _verifying
-                              ? 'Enlace de verificación'
-                              : 'Enlace de recuperación',
-                          helperText:
-                              'Pega el enlace completo recibido por correo.',
+                              ? tr(context, 'Enlace de verificación')
+                              : tr(context, 'Enlace de recuperación'),
+                          helperText: tr(
+                            context,
+                            'Pega el enlace completo recibido por correo.',
+                          ),
                         ),
                         keyboardType: TextInputType.url,
                         textCapitalization: TextCapitalization.none,
@@ -234,19 +273,21 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                       : AccountAction.reset,
                                 ) ==
                                 null
-                            ? 'Pega un enlace válido.'
+                            ? tr(context, 'Pega un enlace válido.')
                             : null,
                       ),
                       const SizedBox(height: 16),
                     ] else ...[
                       NodraTextField(
                         controller: _email,
-                        decoration: const InputDecoration(labelText: 'Email'),
+                        decoration: InputDecoration(
+                          labelText: tr(context, 'Email'),
+                        ),
                         keyboardType: TextInputType.emailAddress,
                         autofillHints: const [AutofillHints.email],
                         validator: (v) => v!.contains('@')
                             ? null
-                            : 'Escribe un email válido.',
+                            : tr(context, 'Escribe un email válido.'),
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -255,8 +296,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         controller: _password,
                         decoration: InputDecoration(
                           labelText: _enteringReset
-                              ? 'Nueva contraseña'
-                              : 'Contraseña',
+                              ? tr(context, 'Nueva contraseña')
+                              : tr(context, 'Contraseña'),
                         ),
                         obscureText: true,
                         autofillHints: [
@@ -265,36 +306,36 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                               : AutofillHints.password,
                         ],
                         validator: (v) => v!.length < 12
-                            ? 'Utiliza al menos 12 caracteres.'
+                            ? tr(context, 'Utiliza al menos 12 caracteres.')
                             : null,
                       ),
                     if (_enteringReset) ...[
                       const SizedBox(height: 16),
                       NodraTextField(
                         controller: _confirmPassword,
-                        decoration: const InputDecoration(
-                          labelText: 'Repite la contraseña',
+                        decoration: InputDecoration(
+                          labelText: tr(context, 'Repite la contraseña'),
                         ),
                         obscureText: true,
                         autofillHints: const [AutofillHints.newPassword],
                         validator: (v) => v != _password.text
-                            ? 'Las contraseñas no coinciden.'
+                            ? tr(context, 'Las contraseñas no coinciden.')
                             : null,
                       ),
                     ],
                     const SizedBox(height: 24),
                     NodraButton(
                       label: _busy
-                          ? 'Un momento…'
+                          ? tr(context, 'Un momento…')
                           : _recovering
-                          ? 'Enviar enlace'
+                          ? tr(context, 'Enviar enlace')
                           : _verifying
-                          ? 'Verificar correo'
+                          ? tr(context, 'Verificar correo')
                           : _enteringReset
-                          ? 'Guardar contraseña'
+                          ? tr(context, 'Guardar contraseña')
                           : _register
-                          ? 'Crear mi cuenta'
-                          : 'Entrar en Nodra',
+                          ? tr(context, 'Crear mi cuenta')
+                          : tr(context, 'Entrar en Nodra'),
                       onPressed: _busy ? null : _submit,
                     ),
                     const SizedBox(height: 16),
@@ -310,7 +351,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 _resetLink.clear();
                                 _password.clear();
                               }),
-                        child: const Text('Volver a iniciar sesión'),
+                        child: Text(tr(context, 'Volver a iniciar sesión')),
                       )
                     else if (!_recovering) ...[
                       TextButton(
@@ -321,7 +362,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 _error = null;
                               }),
                         child: Text(
-                          _register ? 'Ya tengo cuenta' : 'Crear una cuenta',
+                          _register
+                              ? tr(context, 'Ya tengo cuenta')
+                              : tr(context, 'Crear una cuenta'),
                         ),
                       ),
                       if (!_register)
@@ -332,7 +375,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   _recovering = true;
                                   _error = null;
                                 }),
-                          child: const Text('He olvidado mi contraseña'),
+                          child: Text(tr(context, 'He olvidado mi contraseña')),
                         ),
                       if (!_register)
                         TextButton(
@@ -343,7 +386,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   _error = null;
                                   _password.clear();
                                 }),
-                          child: const Text('Ya tengo un enlace'),
+                          child: Text(tr(context, 'Ya tengo un enlace')),
                         ),
                       if (!_register)
                         TextButton(
@@ -354,7 +397,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                   _error = null;
                                   _password.clear();
                                 }),
-                          child: const Text('Verificar mi correo'),
+                          child: Text(tr(context, 'Verificar mi correo')),
                         ),
                     ] else
                       TextButton(
@@ -364,7 +407,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 _recovering = false;
                                 _error = null;
                               }),
-                        child: const Text('Volver a iniciar sesión'),
+                        child: Text(tr(context, 'Volver a iniciar sesión')),
                       ),
                   ],
                 ),

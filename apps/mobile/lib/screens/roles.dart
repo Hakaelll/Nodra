@@ -1,3 +1,4 @@
+import '../l10n/translation.dart';
 import '../design/organization_presentation.dart';
 
 import 'dart:async';
@@ -109,14 +110,17 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
       final accepted = await showDialog<bool>(
         context: context,
         builder: (ctx) => NodraDialog(
-          title: Text('¿Archivar ${role['name']}?'),
-          content: const Text(
-            'Dejará de estar disponible para nuevas posiciones. El historial se conservará.',
+          title: Text(tr(context, '¿Archivar ${role['name']}?')),
+          content: Text(
+            tr(
+              context,
+              'Dejará de estar disponible para nuevas posiciones. El historial se conservará.',
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancelar'),
+              child: Text(tr(context, 'Cancelar')),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
@@ -146,8 +150,8 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
     if (!canManage) {
       return Scaffold(
         appBar: AppBar(title: Text(organizationText(context, "Roles"))),
-        body: const Center(
-          child: Text('No tienes acceso a esta organización.'),
+        body: Center(
+          child: Text(tr(context, 'No tienes acceso a esta organización.')),
         ),
       );
     }
@@ -200,7 +204,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                     NodraInlineError(message: failure.toString()),
                     TextButton(
                       onPressed: () => ref.invalidate(rolesProvider(query)),
-                      child: const Text('Reintentar'),
+                      child: Text(tr(context, 'Reintentar')),
                     ),
                   ],
                 ),
@@ -220,16 +224,19 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                             onPressed: busy || page == 1
                                 ? null
                                 : () => setState(() => page--),
-                            child: const Text('Anterior'),
+                            child: Text(tr(context, 'Anterior')),
                           ),
                           Text(
-                            'Página $page de ${((total / 10).ceil()).clamp(1, 100000)}',
+                            tr(
+                              context,
+                              'Página $page de ${((total / 10).ceil()).clamp(1, 100000)}',
+                            ),
                           ),
                           TextButton(
                             onPressed: busy || page * 10 >= total
                                 ? null
                                 : () => setState(() => page++),
-                            child: const Text('Siguiente'),
+                            child: Text(tr(context, 'Siguiente')),
                           ),
                         ],
                       ),
@@ -254,7 +261,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                         subtitle: Text(
                           role['active'] == true
                               ? role['description'] as String
-                              : 'Archivado',
+                              : tr(context, 'Archivado'),
                         ),
                         onTap: busy ? null : () => edit(role),
                         trailing: PopupMenuButton<String>(
@@ -263,16 +270,16 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                           onSelected: (action) =>
                               action == 'edit' ? edit(role) : toggle(role),
                           itemBuilder: (_) => [
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'edit',
-                              child: Text('Editar'),
+                              child: Text(tr(context, 'Editar')),
                             ),
                             PopupMenuItem(
                               value: 'toggle',
                               child: Text(
                                 role['active'] == true
-                                    ? 'Archivar'
-                                    : 'Reactivar',
+                                    ? tr(context, 'Archivar')
+                                    : tr(context, 'Reactivar'),
                               ),
                             ),
                           ],
@@ -357,7 +364,7 @@ class _RoleEditorState extends State<_RoleEditor> {
                   labelText: organizationText(context, "Rol: nombre"),
                 ),
                 validator: (value) => (value?.trim().length ?? 0) < 2
-                    ? 'Escribe al menos dos caracteres.'
+                    ? tr(context, 'Escribe al menos dos caracteres.')
                     : null,
               ),
               NodraTextField(
@@ -365,7 +372,9 @@ class _RoleEditorState extends State<_RoleEditor> {
                 enabled: !busy,
                 maxLength: 1000,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Descripción'),
+                decoration: InputDecoration(
+                  labelText: tr(context, 'Descripción'),
+                ),
               ),
               if (error != null) NodraInlineError(message: error!),
             ],
@@ -375,11 +384,13 @@ class _RoleEditorState extends State<_RoleEditor> {
       actions: [
         TextButton(
           onPressed: busy ? null : () => Navigator.pop(context),
-          child: const Text('Cancelar'),
+          child: Text(tr(context, 'Cancelar')),
         ),
         FilledButton(
           onPressed: busy ? null : save,
-          child: Text(busy ? 'Guardando…' : 'Guardar cambios'),
+          child: Text(
+            busy ? tr(context, 'Guardando…') : tr(context, 'Guardar cambios'),
+          ),
         ),
       ],
     ),

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "../lib/locale-provider";
 import Image from "next/image";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
@@ -22,6 +23,8 @@ export function CropDialog({
   onSave: (blob: Blob) => void;
   onError: (message: string) => void;
 }) {
+  const t = useTranslation();
+
   const viewport = 264;
   const [dimensions, setDimensions] = useState({
     width: viewport,
@@ -158,14 +161,14 @@ export function CropDialog({
           <div>
             <p className="eyebrow">
               {variant === "logo"
-                ? "LOGO DE LA ORGANIZACIÓN"
-                : "FOTO DE PERFIL"}
+                ? t("LOGO DE LA ORGANIZACIÓN")
+                : t("FOTO DE PERFIL")}
             </p>
-            <h2 id="crop-title">Ajusta tu imagen</h2>
+            <h2 id="crop-title">{t("Ajusta tu imagen")}</h2>
           </div>
           <button
             className="icon-button"
-            aria-label="Cerrar recorte"
+            aria-label={t("Cerrar recorte")}
             disabled={busy}
             onClick={onCancel}
           >
@@ -174,12 +177,14 @@ export function CropDialog({
         </div>
         <p className="muted">
           {variant === "logo"
-            ? "Arrastra para centrar el logo dentro del cuadrado."
-            : "Arrastra para centrarla. La imagen se guarda dentro del círculo."}
+            ? t("Arrastra para centrar el logo dentro del cuadrado.")
+            : t(
+                "Arrastra para centrarla. La imagen se guarda dentro del círculo.",
+              )}
         </p>
         {error && (
           <p className="profile-error" role="alert">
-            {error}
+            {t(error)}
           </p>
         )}
         <div className="crop-preview-shell">
@@ -188,7 +193,9 @@ export function CropDialog({
             className={`crop-preview ${variant === "logo" ? "is-square" : ""} ${dragging ? "is-dragging" : ""}`}
             tabIndex={0}
             role="application"
-            aria-label="Área de recorte. Usa las flechas para mover la imagen"
+            aria-label={t(
+              "Área de recorte. Usa las flechas para mover la imagen",
+            )}
             onPointerDown={pointerDown}
             onPointerMove={pointerMove}
             onPointerUp={() => {
@@ -203,7 +210,7 @@ export function CropDialog({
             <Image
               ref={imageRef}
               src={source}
-              alt="Vista previa de la imagen que estás ajustando"
+              alt={t("Vista previa de la imagen que estás ajustando")}
               width={width}
               height={height}
               unoptimized
@@ -226,14 +233,14 @@ export function CropDialog({
           </div>
         </div>
         <label className="crop-zoom">
-          Zoom{" "}
+          {t("Zoom")}{" "}
           <input
             type="range"
             min="1"
             max="3"
             step="0.01"
             value={zoom}
-            aria-label="Zoom de la imagen"
+            aria-label={t("Zoom de la imagen")}
             onChange={(e) => {
               const nextZoom = Number(e.target.value);
               setZoom(nextZoom);
@@ -256,7 +263,7 @@ export function CropDialog({
         </label>
         <div className="crop-actions">
           <Button secondary type="button" disabled={busy} onClick={onCancel}>
-            Cancelar
+            {t("Cancelar")}
           </Button>
           <Button
             type="button"
@@ -264,10 +271,10 @@ export function CropDialog({
             onClick={() => void save()}
           >
             {busy
-              ? "Guardando…"
+              ? t("Guardando…")
               : variant === "logo"
-                ? "Usar este logo"
-                : "Usar esta foto"}
+                ? t("Usar este logo")
+                : t("Usar esta foto")}
           </Button>
         </div>
       </section>

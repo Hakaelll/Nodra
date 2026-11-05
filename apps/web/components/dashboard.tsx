@@ -1,4 +1,5 @@
 "use client";
+import { useLocale, useTranslation } from "../lib/locale-provider";
 import { useOrganizationText } from "./organization-customization-context";
 import { useEffect, useState } from "react";
 import {
@@ -44,6 +45,10 @@ export function Dashboard({
   browse: () => void;
   calendar: () => void;
 }) {
+  const { locale } = useLocale();
+
+  const t = useTranslation();
+
   const text = useOrganizationText();
   const { filter, day: selectedDay, page } = route;
   const updateRoute = (changes: Partial<WorkspaceRoute>) =>
@@ -98,7 +103,7 @@ export function Dashboard({
       <div className="dashboard-hero">
         <PageHeader
           eyebrow=""
-          title={`Hola, ${firstName}`}
+          title={t(`Hola, ${firstName}`)}
           action={
             manage ? (
               <Button onClick={create}>
@@ -108,7 +113,7 @@ export function Dashboard({
             ) : undefined
           }
         >
-          {new Intl.DateTimeFormat("es", {
+          {new Intl.DateTimeFormat(locale, {
             weekday: "long",
             day: "numeric",
             month: "long",
@@ -116,16 +121,17 @@ export function Dashboard({
           }).format(now)}
         </PageHeader>
         <p className="dashboard-hero-signature">
-          Personas,
+          {t("Personas,")}
           <br />
-          en sintonía.<small>Nodra</small>
+          {t("en sintonía.")}
+          <small>Nodra</small>
         </p>
       </div>
       {error ? (
         <div role="alert">
-          <p>{error}</p>
+          <p>{t(error)}</p>
           <Button secondary onClick={() => setRetry((n) => n + 1)}>
-            Volver a intentar
+            {t("Volver a intentar")}
           </Button>
         </div>
       ) : !summary ? (
@@ -135,14 +141,15 @@ export function Dashboard({
           <section className="schedule-panel" aria-busy={loading}>
             <SectionHeader
               className="week-heading"
-              title="Tu agenda"
+              title={t("Tu agenda")}
               action={
                 <button className="text-link" onClick={calendar}>
-                  Ver calendario <ArrowUpRight size={16} />
+                  {t("Ver calendario ")}
+                  <ArrowUpRight size={16} />
                 </button>
               }
             />
-            <div className="week-strip" aria-label="Filtrar por día">
+            <div className="week-strip" aria-label={t("Filtrar por día")}>
               {week.map((d) => {
                 const key = d.toISOString().slice(0, 10);
                 const hasService = summary.days.some(
@@ -152,7 +159,7 @@ export function Dashboard({
                   <button
                     key={key}
                     aria-pressed={selectedDay === key}
-                    aria-label={new Intl.DateTimeFormat("es", {
+                    aria-label={new Intl.DateTimeFormat(locale, {
                       weekday: "long",
                       day: "numeric",
                       month: "long",
@@ -168,7 +175,7 @@ export function Dashboard({
                     }}
                   >
                     <span>
-                      {new Intl.DateTimeFormat("es", {
+                      {new Intl.DateTimeFormat(locale, {
                         weekday: "short",
                         timeZone: "UTC",
                       })
@@ -205,7 +212,7 @@ export function Dashboard({
                       updateRoute({ filter: id, day: null, page: 1 });
                     }}
                   >
-                    {label}
+                    {text(label)}
                     <span>{count}</span>
                   </button>
                 ))}
@@ -217,7 +224,7 @@ export function Dashboard({
                     updateRoute({ day: null, page: 1 });
                   }}
                 >
-                  Quitar filtro
+                  {t("Quitar filtro")}
                 </button>
               )}
             </div>
@@ -236,13 +243,13 @@ export function Dashboard({
                     >
                       <span className="schedule-date">
                         <strong>
-                          {new Intl.DateTimeFormat("es", {
+                          {new Intl.DateTimeFormat(locale, {
                             day: "2-digit",
                             timeZone: timezone,
                           }).format(new Date(s.startsAt))}
                         </strong>
                         <span>
-                          {new Intl.DateTimeFormat("es", {
+                          {new Intl.DateTimeFormat(locale, {
                             month: "short",
                             timeZone: timezone,
                           })
@@ -255,17 +262,17 @@ export function Dashboard({
                         <span className="schedule-title">{s.title}</span>
                         <span className="schedule-location">
                           <MapPin size={13} />
-                          {s.locationText || "Ubicación por definir"}
+                          {s.locationText || t("Ubicación por definir")}
                         </span>
                         <span className="schedule-time">
                           <Clock3 size={13} />
-                          {new Intl.DateTimeFormat("es", {
+                          {new Intl.DateTimeFormat(locale, {
                             hour: "2-digit",
                             minute: "2-digit",
                             timeZone: timezone,
                           }).format(new Date(s.startsAt))}{" "}
                           —{" "}
-                          {new Intl.DateTimeFormat("es", {
+                          {new Intl.DateTimeFormat(locale, {
                             hour: "2-digit",
                             minute: "2-digit",
                             timeZone: timezone,
@@ -274,7 +281,8 @@ export function Dashboard({
                       </span>
                       <span className="schedule-status">
                         <span>
-                          {confirmed} de {required} confirmados
+                          {confirmed} {t(" de ")}
+                          {required} {t(" confirmados")}
                         </span>
                       </span>
                       <ArrowUpRight className="schedule-arrow" size={18} />
@@ -288,7 +296,7 @@ export function Dashboard({
                   pageBeyond
                     ? text("Esta página ya no tiene servicios")
                     : filter === "drafts"
-                      ? "No hay borradores"
+                      ? t("No hay borradores")
                       : filter === "attention"
                         ? text("No hay servicios que requieran atención")
                         : selectedDay
@@ -298,13 +306,13 @@ export function Dashboard({
                 action={
                   pageBeyond ? (
                     <Button secondary onClick={() => updateRoute({ page: 1 })}>
-                      Ir a la primera página
+                      {t("Ir a la primera página")}
                     </Button>
                   ) : undefined
                 }
               >
                 {pageBeyond
-                  ? "Vuelve al inicio de la lista."
+                  ? t("Vuelve al inicio de la lista.")
                   : manage
                     ? text(
                         "Añade fechas y plazas a la agenda desde «Crear servicio».",
@@ -320,7 +328,8 @@ export function Dashboard({
                 {shown.length
                   ? Math.min(page * summary.limit, summary.total)
                   : 0}{" "}
-                de {summary.total} {text("servicios · ")}
+                {t("de ")}
+                {summary.total} {text("servicios · ")}
                 {timezone}
               </span>
               <TextLink onClick={browse}>{text("Ver servicios")}</TextLink>
@@ -332,7 +341,7 @@ export function Dashboard({
                   disabled={page === 1}
                   onClick={() => updateRoute({ page: page - 1 })}
                 >
-                  Anterior
+                  {t("Anterior")}
                 </Button>
                 <span>
                   {page} / {Math.ceil(summary.total / summary.limit)}
@@ -342,7 +351,7 @@ export function Dashboard({
                   disabled={page * summary.limit >= summary.total}
                   onClick={() => updateRoute({ page: page + 1 })}
                 >
-                  Siguiente
+                  {t("Siguiente")}
                 </Button>
               </div>
             )}
@@ -350,7 +359,7 @@ export function Dashboard({
           <aside className="inbox-panel">
             <SectionHeader
               className="section-heading"
-              title="Pendiente"
+              title={t("Pendiente")}
               action={
                 <span className="count-label">{summary.attention.total}</span>
               }
@@ -358,11 +367,11 @@ export function Dashboard({
             {summary.attention.total === 0 ? (
               <div className="attention-clear">
                 <Check size={22} />
-                <h3>Sin tareas pendientes</h3>
+                <h3>{t("Sin tareas pendientes")}</h3>
                 <p>
                   {manage
-                    ? "En tu organización."
-                    : "No tienes confirmaciones pendientes."}
+                    ? t("En tu organización.")
+                    : t("No tienes confirmaciones pendientes.")}
                 </p>
               </div>
             ) : (
@@ -373,13 +382,13 @@ export function Dashboard({
                     <span>
                       <strong>
                         {s.status === "DRAFT"
-                          ? "Terminar borrador"
+                          ? t("Terminar borrador")
                           : manage
-                            ? "Revisar confirmaciones"
-                            : "Responder a la selección"}
+                            ? t("Revisar confirmaciones")
+                            : t("Responder a la selección")}
                       </strong>
                       <span>{s.title}</span>
-                      <small>{date(s.startsAt, timezone)}</small>
+                      <small>{date(s.startsAt, timezone, locale)}</small>
                     </span>
                     <ArrowRight size={16} />
                   </button>
@@ -392,7 +401,7 @@ export function Dashboard({
                   updateRoute({ filter: "attention", day: null, page: 1 });
                 }}
               >
-                Ver todos los pendientes
+                {t("Ver todos los pendientes")}
               </TextLink>
             )}
           </aside>

@@ -1,3 +1,5 @@
+import '../l10n/translation.dart';
+
 import 'package:flutter/material.dart';
 
 import 'theme.dart';
@@ -76,7 +78,7 @@ class NodraSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'Cargando',
+    label: tr(context, 'Cargando'),
     liveRegion: true,
     child: ExcludeSemantics(
       child: Column(
@@ -159,12 +161,12 @@ class NodraEmptyState extends StatelessWidget {
         const Icon(Icons.inbox_outlined, color: mutedColor, size: 32),
         const SizedBox(height: 16),
         Text(
-          title,
+          tr(context, title),
           style: Theme.of(context).textTheme.titleLarge,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 10),
-        Text(message, textAlign: TextAlign.center),
+        Text(tr(context, message), textAlign: TextAlign.center),
       ],
     ),
   );
@@ -211,7 +213,7 @@ class NodraBadge extends StatelessWidget {
         ),
         const SizedBox(width: 9),
         Text(
-          statusLabels[status] ?? status,
+          tr(context, statusLabels[status] ?? status),
           style: Theme.of(context).textTheme.bodySmall
               ?.copyWith(color: color, fontWeight: FontWeight.w500),
         ),
@@ -256,19 +258,26 @@ class NodraError extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'No se pudo completar',
+                  Text(
+                    tr(context, 'No se pudo completar'),
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
-                  Text(message, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    tr(context, message),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
           ],
         ),
         const SizedBox(height: 15),
-        NodraButton(label: actionLabel, onPressed: retry, secondary: true),
+        NodraButton(
+          label: tr(context, actionLabel),
+          onPressed: retry,
+          secondary: true,
+        ),
       ],
     ),
   );
@@ -300,7 +309,7 @@ class NodraInlineError extends StatelessWidget {
           const SizedBox(width: 11),
           Expanded(
             child: Text(
-              message,
+              tr(context, message),
               style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: const Color(0xff713c32), height: 1.4),
             ),

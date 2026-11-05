@@ -1,3 +1,4 @@
+import '../l10n/translation.dart';
 import '../design/organization_presentation.dart';
 
 import 'package:flutter/material.dart';
@@ -126,8 +127,11 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                 ),
                 if (service['status'] == 'CANCELLED') ...[
                   const SizedBox(height: 12),
-                  const Text(
-                    "Registro cancelado. El historial se conserva para consulta.",
+                  Text(
+                    tr(
+                      context,
+                      "Registro cancelado. El historial se conserva para consulta.",
+                    ),
                     style: TextStyle(color: mutedColor),
                   ),
                 ],
@@ -136,7 +140,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                   '${formatServiceDate(service)} — ${formatServiceEndDate(service)}',
                 ),
                 Text(
-                  'Horario de ${service['timezone']}',
+                  tr(context, 'Horario de ${service['timezone']}'),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 8),
@@ -152,7 +156,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                   OutlinedButton.icon(
                     onPressed: busy ? null : openChat,
                     icon: const Icon(Icons.chat_bubble_outline),
-                    label: const Text("Abrir chat"),
+                    label: Text(tr(context, "Abrir chat")),
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -191,9 +195,16 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 10),
-                          Text('${p['quantity']} plazas · ${p['description']}'),
+                          Text(
+                            tr(
+                              context,
+                              '${p['quantity']} plazas · ${p['description']}',
+                            ),
+                          ),
                           if (p['compensation'] != null)
-                            Text('Compensación: ${p['compensation']}'),
+                            Text(
+                              tr(context, 'Compensación: ${p['compensation']}'),
+                            ),
                           const SizedBox(height: 20),
                           if ((selected != null || interested) &&
                               service['status'] != 'CANCELLED') ...[
@@ -208,10 +219,16 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                 Expanded(
                                   child: Text(
                                     selected?['status'] == 'CONFIRMED'
-                                        ? 'Tu participación está confirmada'
+                                        ? tr(
+                                            context,
+                                            'Tu participación está confirmada',
+                                          )
                                         : selected != null
-                                        ? 'Has sido seleccionado'
-                                        : 'Ya estás inscrito en esta posición',
+                                        ? tr(context, 'Has sido seleccionado')
+                                        : tr(
+                                            context,
+                                            'Ya estás inscrito en esta posición',
+                                          ),
                                   ),
                                 ),
                               ],
@@ -228,12 +245,14 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                             false,
                                           ),
                                         ),
-                                  child: const Text('Cancelar inscripción'),
+                                  child: Text(
+                                    tr(context, 'Cancelar inscripción'),
+                                  ),
                                 ),
                               ),
                           ] else if (acceptsEntries)
                             NodraButton(
-                              label: 'Inscribirme',
+                              label: tr(context, 'Inscribirme'),
                               onPressed: busy
                                   ? null
                                   : () => act(
@@ -255,7 +274,10 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                         'AWAITING_CONFIRMATION') ...[
                                       const SizedBox(height: 16),
                                       NodraButton(
-                                        label: 'Confirmar participación',
+                                        label: tr(
+                                          context,
+                                          'Confirmar participación',
+                                        ),
                                         onPressed: busy
                                             ? null
                                             : () => act(
@@ -267,7 +289,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                       ),
                                       const SizedBox(height: 10),
                                       NodraButton(
-                                        label: 'No puedo asistir',
+                                        label: tr(context, 'No puedo asistir'),
                                         secondary: true,
                                         onPressed: busy
                                             ? null
@@ -282,7 +304,10 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                     if (a['status'] == 'CONFIRMED') ...[
                                       const SizedBox(height: 16),
                                       NodraButton(
-                                        label: 'Cancelar participación',
+                                        label: tr(
+                                          context,
+                                          'Cancelar participación',
+                                        ),
                                         secondary: true,
                                         onPressed: busy
                                             ? null
@@ -291,11 +316,17 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                                     await showDialog<bool>(
                                                       context: context,
                                                       builder: (ctx) => NodraDialog(
-                                                        title: const Text(
-                                                          '¿Cancelar tu participación?',
+                                                        title: Text(
+                                                          tr(
+                                                            context,
+                                                            '¿Cancelar tu participación?',
+                                                          ),
                                                         ),
-                                                        content: const Text(
-                                                          'Se avisará a tu organización y la plaza quedará libre. El historial se conservará.',
+                                                        content: Text(
+                                                          tr(
+                                                            context,
+                                                            'Se avisará a tu organización y la plaza quedará libre. El historial se conservará.',
+                                                          ),
                                                         ),
                                                         actions: [
                                                           TextButton(
@@ -304,8 +335,11 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                                                   ctx,
                                                                   false,
                                                                 ),
-                                                            child: const Text(
-                                                              'Volver',
+                                                            child: Text(
+                                                              tr(
+                                                                context,
+                                                                'Volver',
+                                                              ),
                                                             ),
                                                           ),
                                                           TextButton(
@@ -314,8 +348,11 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                                                   ctx,
                                                                   true,
                                                                 ),
-                                                            child: const Text(
-                                                              'Cancelar participación',
+                                                            child: Text(
+                                                              tr(
+                                                                context,
+                                                                'Cancelar participación',
+                                                              ),
                                                             ),
                                                           ),
                                                         ],

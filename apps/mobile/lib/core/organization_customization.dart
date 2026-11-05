@@ -12,7 +12,7 @@ class OrganizationCustomization {
   final OrganizationAccent accent;
   static const defaults = OrganizationCustomization();
   static final _words = RegExp(
-    r'\b(servicios|servicio|roles|rol)\b',
+    r'\b(servicios|servicio|services|service|roles|rol|role)\b',
     caseSensitive: false,
     unicode: true,
   );
@@ -51,12 +51,20 @@ class OrganizationCustomization {
   String text(String message) => message.replaceAllMapped(_words, (match) {
     final word = match[0]!;
     var label = switch (word.toLowerCase()) {
-      'servicio' => service.singular,
-      'servicios' => service.plural,
-      'rol' => jobRole.singular,
+      'servicio' || 'service' => service.singular,
+      'servicios' || 'services' => service.plural,
+      'rol' || 'role' => jobRole.singular,
       'roles' => jobRole.plural,
       _ => word,
     };
+    final original = switch (word.toLowerCase()) {
+      'servicio' || 'service' => defaults.service.singular,
+      'servicios' || 'services' => defaults.service.plural,
+      'rol' || 'role' => defaults.jobRole.singular,
+      'roles' => defaults.jobRole.plural,
+      _ => word,
+    };
+    if (label == original) return word;
     label = label.trim();
     if (label.isEmpty) return word;
     if (word == word.toUpperCase()) return label.toUpperCase();
