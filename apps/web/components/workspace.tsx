@@ -77,7 +77,7 @@ import type {
   Group,
 } from "@nodra/contracts";
 import { api, date, statusLabel } from "../lib/api";
-import { copy, defaultLocale } from "../lib/i18n";
+import { useLocale } from "../lib/locale-provider";
 import { Avatar, Profile, type ProfileUser } from "./profile";
 import {
   Badge,
@@ -643,6 +643,7 @@ function Onboarding({
   );
 }
 export function Workspace() {
+  const { copy, locale } = useLocale();
   const [sessionLoader] = useState(createSessionLoader);
   const route = useWorkspaceRoute();
   const orgId = route?.orgId ?? "";
@@ -1230,7 +1231,7 @@ export function Workspace() {
               className="topbar-date"
               dateTime={organizationToday(membership.organization.timezone)}
             >
-              {new Intl.DateTimeFormat(defaultLocale, {
+              {new Intl.DateTimeFormat(locale, {
                 weekday: "long",
                 day: "numeric",
                 month: "short",

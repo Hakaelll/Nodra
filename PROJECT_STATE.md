@@ -31,6 +31,8 @@ REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Wor
 
 ## Web y móvil
 
+05/11 — NOD-026: preferencia de idioma conectada a cookie/contexto web y secure storage/Riverpod móvil. SSR React y HTTP Next verifican es-ES/en-GB y fallback inválido; sonda Flutter verifica restauración y escrituras rápidas, analyze y las tres regresiones de sesión pasan. Sonda retirada de tests permanentes. Falta selector visible y traducción completa; [plan](docs/superpowers/plans/2026-11-05-english.md). Inventario local de textos es orientativo y no traduce datos de usuario.
+
 05/11 — NOD-026 en curso: catálogos base de navegación español/inglés en web y ARB inglés generado con Flutter, con paridad de claves y tipos web comprobados. La aplicación conserva todavía el idioma fijo español; faltan selector persistente, migración del resto de textos/errores/fechas y APK actualizado. Esta base no se anuncia como traducción completa.
 
 05/11 — Registro verificado activado en API/web, migración compatible aplicada sin reset/seed y readiness 200. Flujo HTTP/BFF, contratos, suite esencial y sonda Flutter comprobados; [evidencia](docs/validation/2026-11-05-verified-registration.md). Fuente móvil actualizada; APK nuevo pendiente del inglés para evitar recompilar y recrear cachés dos veces.

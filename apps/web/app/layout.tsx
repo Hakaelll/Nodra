@@ -3,6 +3,9 @@ import "@fontsource-variable/inter-tight";
 import "./globals.css";
 import { ValidationNotice } from "../components/validation-notice";
 import { ConfirmationProvider } from "../components/confirmation-provider";
+import { cookies } from "next/headers";
+import { LocaleProvider } from "../lib/locale-provider";
+import { defaultLocale, isSupportedLocale } from "../lib/i18n";
 export const metadata: Metadata = {
   title: "Nodra — Personas, en sintonía",
   description:
@@ -21,16 +24,20 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
 };
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const storedLocale = (await cookies()).get("nodra_locale")?.value;
+  const locale = isSupportedLocale(storedLocale) ? storedLocale : defaultLocale;
   return (
-    <html lang="es">
+    <html lang={locale}>
       <body>
-        <ConfirmationProvider>{children}</ConfirmationProvider>
-        <ValidationNotice />
+        <LocaleProvider initialLocale={locale}>
+          <ConfirmationProvider>{children}</ConfirmationProvider>
+          <ValidationNotice />
+        </LocaleProvider>
       </body>
     </html>
   );

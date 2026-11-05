@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/session.dart';
+import 'core/locale.dart';
 import 'l10n/app_localizations.dart';
 import 'design/theme.dart';
 import 'core/organization_customization.dart';
@@ -57,7 +58,7 @@ class NodraApp extends ConsumerWidget {
         value: customization,
         child: child ?? const SizedBox.shrink(),
       ),
-      locale: const Locale('es'),
+      locale: ref.watch(localeProvider),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: ref.watch(routerProvider),

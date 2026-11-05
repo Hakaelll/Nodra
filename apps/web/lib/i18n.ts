@@ -44,4 +44,6 @@ const english = {
 
 export const dictionaries = { "es-ES": spanish, "en-GB": english } as const;
 export type SupportedLocale = keyof typeof dictionaries;
-export const copy = dictionaries[defaultLocale];
+export function isSupportedLocale(value: unknown): value is SupportedLocale {
+  return value === "es-ES" || value === "en-GB";
+}
