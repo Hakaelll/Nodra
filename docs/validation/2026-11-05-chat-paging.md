@@ -18,3 +18,7 @@ Both clients previously requested only the first 100 conversations. Web and Flut
 The permanent suite remains twenty cases. The temporary scripts/widget check are excluded from Git and are not commands available in a fresh clone. Backend source, contracts, schema and migrations did not change; the thirteen backend cases were not repeated for this client-only change. No new dependency, provider or CI workflow was added.
 
 The emulator remains uninstalled as requested. The earlier native startup record applies to the previous APK hash; the newly compiled APK was not run on an emulator or physical phone. Full browser interaction and visual acceptance remain unverified. This correction does not replace offset pagination with a cursor or claim an exhaustive concurrency test.
+
+## Current APK handoff
+
+A later read-back verified the existing APK SHA-256 against the value above, APK Signature Scheme v2 with one signer, and the compiled debug kernel containing `http://192.168.1.133:4000/api/v1`. The file is 211,046,639 bytes at `apps/mobile/build/app/outputs/flutter-apk/app-debug.apk`. These are artifact checks, not native execution. A temporary ADB server on port 5041 listed no attached devices and was stopped; no ADB, emulator or QEMU process remained. No emulator, image, AVD or Android cache was reintroduced. Physical-device verification is awaiting an available phone.
