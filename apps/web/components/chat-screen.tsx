@@ -58,6 +58,8 @@ export function ChatScreen({
 }) {
   const text = useOrganizationText();
   const [chats, setChats] = useState<Chat[]>([]);
+  const [chatPage, setChatPage] = useState(1);
+  const [totalChats, setTotalChats] = useState(0);
   const [active, setActive] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [totalMessages, setTotalMessages] = useState(0);
@@ -74,11 +76,15 @@ export function ChatScreen({
   const [loading, setLoading] = useState(true);
   const [localError, setLocalError] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
+  const messageScope = useRef(0);
+  const chatRequest = useRef(0);
+  const scrollToSent = useRef(false);
   const confirm = useConfirm();
   const [deleting, setDeleting] = useState(false);
   async function deleteChat() {
     if (!active || deleting) return;
     const target = active.id;
+    const scope = messageScope.current;
     if (
       !(await confirm({
         title: "¿Borrar de tu lista?",
@@ -89,25 +95,37 @@ export function ChatScreen({
       }))
     )
       return;
+    if (scope !== messageScope.current) return;
     setDeleting(true);
     try {
       await api(`${base}/chats/${target}`, "DELETE");
       setChats((current) => current.filter((chat) => chat.id !== target));
-      onChat(null);
-      await refreshUnreadChats();
+      if (scope === messageScope.current) onChat(null);
+      await Promise.all([loadChats(), refreshUnreadChats()]);
     } catch (error) {
       onError((error as Error).message);
     } finally {
-      setDeleting(false);
+      if (scope === messageScope.current) setDeleting(false);
     }
   }
 
   const loadChats = useCallback(async () => {
-    const result = await api<Page<Chat>>(`${base}/chats?page=1&limit=100`);
+    const request = ++chatRequest.current;
+    const result = await api<Page<Chat>>(
+      `${base}/chats?page=${chatPage}&limit=100`,
+    );
+    if (request !== chatRequest.current) return;
+    setTotalChats(result.total);
+    const lastPage = Math.max(1, Math.ceil(result.total / 100));
+    if (chatPage > lastPage) {
+      setChatPage(lastPage);
+      return;
+    }
     setChats(result.items);
-  }, [base]);
+  }, [base, chatPage]);
   useEffect(() => {
     let live = true;
+    setLoading(true);
     loadChats()
       .catch((error: Error) => {
         if (live) onError(error.message);
@@ -120,6 +138,7 @@ export function ChatScreen({
     }, 8000);
     return () => {
       live = false;
+      ++chatRequest.current;
       window.clearInterval(timer);
     };
   }, [loadChats, onError]);
@@ -146,11 +165,14 @@ export function ChatScreen({
   const loadMessages = useCallback(
     async (page: number) => {
       if (!chatId) return;
+      const scope = messageScope.current;
       const result = await api<Page<Message>>(
         `${base}/chats/${chatId}/messages?page=${page}&limit=50`,
       );
+      if (scope !== messageScope.current) return;
       if (page === 1 && !document.hidden) {
         await api(`${base}/chats/${chatId}/read`, "POST", {});
+        if (scope !== messageScope.current) return;
         setChats((current) =>
           current.map((chat) =>
             chat.id === chatId ? { ...chat, unreadCount: 0 } : chat,
@@ -159,7 +181,7 @@ export function ChatScreen({
         void refreshUnreadChats().catch(() => {});
       }
       setTotalMessages(result.total);
-      setMessagePage(page);
+      setMessagePage((current) => Math.max(current, page));
       setMessages((current) => {
         const keep = page > 1 || current.length > 50 ? current : [];
         const byId = new Map(
@@ -174,18 +196,33 @@ export function ChatScreen({
     [base, chatId, refreshUnreadChats],
   );
   useEffect(() => {
-    if (!chatId) return;
+    const scope = ++messageScope.current;
     setMessages([]);
-    void loadMessages(1).catch((error: Error) => onError(error.message));
+    setMessagePage(1);
+    setTotalMessages(0);
+    setDraft("");
+    setNonce(null);
+    setSending(false);
+    setDeleting(false);
+    setLocalError("");
+    if (!chatId) return;
+    void loadMessages(1).catch((error: Error) => {
+      if (scope === messageScope.current) onError(error.message);
+    });
     const timer = window.setInterval(() => {
       if (!document.hidden) void loadMessages(1).catch(() => {});
     }, 3500);
-    return () => window.clearInterval(timer);
+    return () => {
+      ++messageScope.current;
+      window.clearInterval(timer);
+    };
   }, [chatId, loadMessages, onError]);
   useEffect(() => {
-    if (messagePage === 1)
+    if (messagePage === 1 || scrollToSent.current) {
       endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length, messagePage]);
+      scrollToSent.current = false;
+    }
+  }, [messages.length, messagePage, sending]);
 
   useEffect(() => {
     if (!creating) return;
@@ -239,19 +276,23 @@ export function ChatScreen({
     setSending(true);
     setLocalError("");
     const currentNonce = nonce ?? clientNonce();
+    const scope = messageScope.current;
     setNonce(currentNonce);
     try {
       await api<Message>(`${base}/chats/${chatId}/messages`, "POST", {
         body: draft.trim(),
         clientNonce: currentNonce,
       });
+      if (scope !== messageScope.current) return;
       setDraft("");
       setNonce(null);
+      scrollToSent.current = true;
       await Promise.all([loadMessages(1), loadChats()]);
     } catch (error) {
-      setLocalError((error as Error).message);
+      if (scope === messageScope.current)
+        setLocalError((error as Error).message);
     } finally {
-      setSending(false);
+      if (scope === messageScope.current) setSending(false);
     }
   }
 
@@ -342,9 +383,30 @@ export function ChatScreen({
             ))}
           </div>
         )}
+        {totalChats > 100 && (
+          <nav className="chat-list-pagination" aria-label="Páginas de chats">
+            <Button
+              secondary
+              disabled={loading || chatPage === 1}
+              onClick={() => setChatPage((page) => page - 1)}
+            >
+              Anterior
+            </Button>
+            <span aria-live="polite">
+              {chatPage} / {Math.ceil(totalChats / 100)}
+            </span>
+            <Button
+              secondary
+              disabled={loading || chatPage * 100 >= totalChats}
+              onClick={() => setChatPage((page) => page + 1)}
+            >
+              Siguiente
+            </Button>
+          </nav>
+        )}
       </div>
       <div className="chat-conversation-pane">
-        {!chatId || !active ? (
+        {!chatId || active?.id !== chatId ? (
           <div className="chat-placeholder">
             <MessageCircle size={37} strokeWidth={1.2} />
             <p>Selecciona un chat</p>

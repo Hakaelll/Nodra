@@ -59,6 +59,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   String? error, nonce;
   bool loading = true, sending = false, foreground = true;
   int messagePage = 1, totalMessages = 0, sequence = 0;
+  int chatPage = 1, totalChats = 0, chatRequest = 0;
   Timer? timer;
 
   ChatRepository get repository =>
@@ -103,18 +104,32 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     super.dispose();
   }
 
-  Future<void> loadChats({bool quiet = false}) async {
+  Future<void> loadChats({bool quiet = false, int? page}) async {
+    if (page != null) {
+      setState(() {
+        chatPage = page;
+        loading = true;
+      });
+    }
+    final request = ++chatRequest;
     try {
-      final result = await repository.list();
-      if (mounted) {
+      final result = await repository.list(page: chatPage);
+      if (mounted && request == chatRequest) {
+        final total = result['total'] as int;
+        final lastPage = total == 0 ? 1 : (total / 100).ceil();
+        if (chatPage > lastPage) {
+          await loadChats(quiet: quiet, page: lastPage);
+          return;
+        }
         setState(() {
           chats = (result['items'] as List).cast<Json>();
+          totalChats = total;
           loading = false;
           if (!quiet) error = null;
         });
       }
     } catch (failure) {
-      if (mounted && !quiet) {
+      if (mounted && request == chatRequest && !quiet) {
         setState(() {
           error = failure.toString();
           loading = false;
@@ -124,11 +139,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   }
 
   Future<void> open(String id) async {
+    ++chatRequest;
     final request = ++sequence;
     setState(() {
       loading = true;
       error = null;
       messages = [];
+      messagePage = 1;
+      totalMessages = 0;
       draft.clear();
       nonce = null;
     });
@@ -170,7 +188,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       setState(() {
         messages = chronologicalMessages(byId.values);
         totalMessages = result['total'] as int;
-        if (page > 1) messagePage = page;
+        if (page > messagePage) messagePage = page;
         if (!quiet) error = null;
       });
       if (foreground && page == 1) {
@@ -322,7 +340,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               ),
             if (loading)
               const Expanded(child: Center(child: CircularProgressIndicator()))
-            else if (active == null)
+            else if (active == null) ...[
               Expanded(
                 child: chats.isEmpty
                     ? const Center(child: Text('No hay chats'))
@@ -378,8 +396,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                           },
                         ),
                       ),
-              )
-            else ...[
+              ),
+              if (totalChats > 100)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: loading || chatPage == 1
+                            ? null
+                            : () => loadChats(page: chatPage - 1),
+                        child: const Text('Anterior'),
+                      ),
+                      Semantics(
+                        liveRegion: true,
+                        child: Text('$chatPage / ${(totalChats / 100).ceil()}'),
+                      ),
+                      TextButton(
+                        onPressed: loading || chatPage * 100 >= totalChats
+                            ? null
+                            : () => loadChats(page: chatPage + 1),
+                        child: const Text('Siguiente'),
+                      ),
+                    ],
+                  ),
+                ),
+            ] else ...[
               Expanded(
                 child: messages.isEmpty
                     ? const Center(child: Text('Todavía no hay mensajes'))

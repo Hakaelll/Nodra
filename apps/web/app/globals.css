@@ -4139,6 +4139,18 @@ td small {
   min-width: 0;
   border-right: 1px solid var(--line);
 }
+.chat-list-pagination {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
 .chat-list-header {
   min-height: 102px;
   padding: 21px 22px;

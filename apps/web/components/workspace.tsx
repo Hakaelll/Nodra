@@ -1477,6 +1477,7 @@ function OrganizationWorkspace({
   if (view === "Chat")
     return (
       <ChatScreen
+        key={`${base}:${user.id}`}
         base={base}
         userId={user.id}
         chatId={route.chatId}

@@ -23,8 +23,8 @@ class ChatRepository {
 
   String get _base => '/organizations/$organizationId/chats';
 
-  Future<Json> list() async =>
-      await api.request('$_base?page=1&limit=100') as Json;
+  Future<Json> list({int page = 1}) async =>
+      await api.request('$_base?page=$page&limit=100') as Json;
 
   Future<Json> candidates(String search) async => await api.request(
     '$_base/candidates?page=1&limit=100&search=${Uri.encodeQueryComponent(search)}',
