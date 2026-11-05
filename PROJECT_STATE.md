@@ -31,6 +31,8 @@ REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Wor
 
 ## Web y móvil
 
+05/11 — Reducción de espacio solicitada: carpeta medida después de limpiar en 6.414.811.741 bytes lógicos, unos 6,0 GiB, frente a los aproximadamente 12,2 GiB iniciales. Retirados cachés locales de Gradle/CLI Android, .dart_tool, .gradle del proyecto, intermediarios móviles y build web inactivo .next. APK preservado por hash, firma de desarrollo/SDK/Flutter, dependencias y datos conservados; .next-dev activo intacto. Las cachés se regenerarán al compilar. No se reinstala emulador ni se repiten builds/tests por limpieza. La medida no equivale a bloques físicos liberados. Docker estaba apagado durante la comprobación final; arrancado en segundo plano y recuperados PostgreSQL/Valkey/Mailpit con sus datos existentes. Tres contenedores saludables y web/API/worker HTTP 200 después.
+
 05/11 — Limpieza adicional solicitada: retirados caché residual de Android, instaladores descargados de Android/Java y directorios vacíos de staging/system-images. Los instaladores sumaban 360.728.847 bytes lógicos; no se mide espacio físico recuperado. Emulador, imágenes y AVD ausentes, sin procesos emulator/qemu/adb. SDK, firma y APK conservados. Web LAN, API readiness y worker readiness devolvieron 200 después de la limpieza.
 
 05/11 — El propietario respondió «La he probado sin pendientes» a la revisión de la versión LAN. Se registra la aceptación web y se cierra NOD-021; las comprobaciones nativas y demás límites de evidencia permanecen separados. Añadida y releída la descripción inglesa del repositorio en GitHub; antes estaba vacía. Cambio sólo de metadatos/documentación, sin modificar la aplicación.

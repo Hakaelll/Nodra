@@ -8,6 +8,8 @@ Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
 
 ## Prioridad de continuidad
 
+05/11 — Reducción de espacio solicitada: carpeta medida después de limpiar en 6.414.811.741 bytes lógicos, unos 6,0 GiB, frente a los aproximadamente 12,2 GiB iniciales. Retirados cachés locales de Gradle/CLI Android, .dart_tool, .gradle del proyecto, intermediarios móviles y build web inactivo .next. APK preservado por hash, firma de desarrollo/SDK/Flutter, dependencias y datos conservados; .next-dev activo intacto. Las cachés se regenerarán al compilar. No se reinstala emulador ni se repiten builds/tests por limpieza. La medida no equivale a bloques físicos liberados. Docker estaba apagado durante la comprobación final; arrancado en segundo plano y recuperados PostgreSQL/Valkey/Mailpit con sus datos existentes. Tres contenedores saludables y web/API/worker HTTP 200 después.
+
 05/11 — §256/257: perfil ya delegado a ProfileService; grafo de imports revisado en 89 archivos TS/TSX y 25 Dart, 325 aristas internas. Sin ciclos TS ni Dart propio; única referencia mutua en traducciones generadas de Flutter. [Evidencia y límites](docs/validation/2026-11-05-import-graph.md). No cambia runtime ni la suite permanente.
 
 1. NOD-020: aceptación web del propietario recibida sin pendientes el 05/11; continuar con las comprobaciones restantes según la [disposición actual](docs/validation/2026-11-05-delivery-review.md); los gates técnicos y los componentes §182/183 tienen evidencia. Mantener el objetivo abierto mientras falten las comprobaciones de las tareas REVIEW, sin repetir suites retiradas ni convertir el roadmap futuro en funciones obligatorias.
