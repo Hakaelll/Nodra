@@ -241,7 +241,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     if (id == null || sending) return;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => NodraDialog(
         title: const Text('¿Borrar de tu lista?'),
         content: const Text(
           'Los demás participantes conservarán la conversación. Si llega un mensaje nuevo, volverá a aparecer.',

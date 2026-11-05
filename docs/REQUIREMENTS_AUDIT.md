@@ -1,5 +1,7 @@
 # Auditoría del prompt de arranque
 
+05/11 — §183 implementado: familia móvil completa en design/widgets.dart y consumidores migrados, con formularios/diálogos Material, selector sincronizado al contexto y skeleton accesible. Analyze, tres tests esenciales, una sonda puntual de interacción y build Android aprobados; detalle y límites en MOBILE_APP/TESTING. Esta nota actualiza la carencia histórica de componentes de SECTIONS_169_195, sin convertir pruebas de widgets en aceptación visual ni prueba física. El objetivo global permanece activo.
+
 Primer pase individual completo: [secciones 256–290](audit/SECTIONS_256_290.md). Hay 291 entradas únicas, §0–290, sin huecos ni duplicados. Esto demuestra cobertura de la revisión, **no finalización de los requisitos**. NOD-020 sigue abierto para corregir discrepancias y reunir evidencia de aceptación. Las notas anteriores se conservan como historial fechado.
 
 03/11 — [Revisión consolidada](validation/2026-11-03-bootstrap-gates.md): lint/tipos/builds del monorepo, veinte casos esenciales, Flutter analyze, catorce migraciones, seed doble, HTTP/BFF y contrato API aprobados; contenedores saludables y documentación contrastada. §182 conserva una discrepancia concreta de componentes web, ahora NOD-025. E2E DOM, uso físico/iOS y aceptación visual siguen sin demostrar. No se declara completo el objetivo ni se amplían funciones futuras por esta comprobación.

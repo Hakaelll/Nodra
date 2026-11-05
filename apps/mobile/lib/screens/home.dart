@@ -104,7 +104,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final strings = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => NodraDialog(
         title: Text(strings.logoutTitle),
         content: Text(strings.logoutBody),
         actions: [
@@ -209,23 +209,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           padding: const EdgeInsets.all(24),
           children: [
             if (session.memberships.length > 1 && tab != 4) ...[
-              DropdownButtonFormField<String>(
-                initialValue: session.organizationId,
-                decoration: InputDecoration(
-                  labelText: strings.labelOrganization,
-                ),
-                items: session.memberships.map((m) {
-                  final org = m['organization'] as Json;
-                  return DropdownMenuItem(
-                    value: org['id'] as String,
-                    child: Text(org['name'] as String),
-                  );
+              NodraOrganizationSwitcher(
+                value: session.organizationId,
+                label: strings.labelOrganization,
+                organizations: session.memberships.map((membership) {
+                  final org = membership['organization'] as Json;
+                  return (id: org['id'] as String, name: org['name'] as String);
                 }).toList(),
-                onChanged: (id) {
-                  if (id != null) {
-                    run(() => ref.read(sessionProvider.notifier).select(id));
-                  }
-                },
+                onChanged: (id) =>
+                    run(() => ref.read(sessionProvider.notifier).select(id)),
               ),
               const SizedBox(height: 30),
             ],

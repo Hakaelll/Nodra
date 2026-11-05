@@ -27,6 +27,8 @@ REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Wor
 
 ## Web y móvil
 
+05/11 — §183: widgets.dart completa la familia compartida móvil con NodraTextField, NodraDialog, NodraSkeleton y NodraOrganizationSwitcher. Formularios y confirmaciones existentes usan los controles; el selector refleja cambios externos sin desbordar nombres largos y el detalle tiene carga accesible. Analyze, tres tests esenciales, sonda puntual de interacción y build APK debug aprobados. Web/API/worker recuperados tras arrancar Docker; cuatro contenedores saludables, migraciones principales al día y tres endpoints HTTP 200. No seed/reset, nuevas dependencias ni validación visual/física.
+
 Web usa cookies HttpOnly, BFF con validación Origin y timeouts. Contexto y filtros navegables en URL. Cabecera de 52 px, lateral compacto, chat a altura disponible y contenido adaptado a 2K. Referencia clara [design.md](docs/design.md), con instrucciones posteriores del propietario sobre navegación, radios y estados. La revisión visual corresponde al propietario: no Computer Use ni subagentes.
 
 Flutter tiene sesión en secure storage, contexto tenant, servicios, calendario, avisos, perfil y chat. Inicio consulta resúmenes globales independientes; los fallos de red conservan sesión y permiten reintento. Android/iOS tienen scaffolds. El 03/11 se recompiló y verificó un APK Android debug con aislamiento de sesiones, fechas IANA/DST y personalización por organización; falta ejecución en dispositivo. iOS exige macOS/Xcode y su build sigue pendiente.

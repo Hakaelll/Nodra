@@ -108,7 +108,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
     if (active) {
       final accepted = await showDialog<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
+        builder: (ctx) => NodraDialog(
           title: Text('¿Archivar ${role['name']}?'),
           content: const Text(
             'Dejará de estar disponible para nuevas posiciones. El historial se conservará.',
@@ -337,7 +337,7 @@ class _RoleEditorState extends State<_RoleEditor> {
   @override
   Widget build(BuildContext context) => PopScope(
     canPop: !busy,
-    child: AlertDialog(
+    child: NodraDialog(
       title: Text(
         widget.role == null
             ? organizationText(context, "Crear rol")
@@ -349,7 +349,7 @@ class _RoleEditorState extends State<_RoleEditor> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
+              NodraTextField(
                 controller: name,
                 enabled: !busy,
                 maxLength: 80,
@@ -360,7 +360,7 @@ class _RoleEditorState extends State<_RoleEditor> {
                     ? 'Escribe al menos dos caracteres.'
                     : null,
               ),
-              TextFormField(
+              NodraTextField(
                 controller: description,
                 enabled: !busy,
                 maxLength: 1000,

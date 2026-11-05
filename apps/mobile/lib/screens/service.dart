@@ -92,7 +92,10 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
       body: ref
           .watch(serviceProvider(widget.id))
           .when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Padding(
+              padding: EdgeInsets.all(24),
+              child: NodraSkeleton(),
+            ),
             error: (e, _) => Padding(
               padding: const EdgeInsets.all(24),
               child: NodraError(
@@ -287,7 +290,7 @@ class _ServiceScreenState extends ConsumerState<ServiceScreen> {
                                                 final accepted =
                                                     await showDialog<bool>(
                                                       context: context,
-                                                      builder: (ctx) => AlertDialog(
+                                                      builder: (ctx) => NodraDialog(
                                                         title: const Text(
                                                           '¿Cancelar tu participación?',
                                                         ),

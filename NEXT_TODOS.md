@@ -4,7 +4,7 @@ Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa
 
 ## Prioridad de continuidad
 
-1. NOD-020: continuar revisión de cierre; NOD-025/§182 ya tiene componentes compartidos utilizados por las pantallas. La revisión consolidada de gates pasa; [evidencia y límites](docs/validation/2026-11-03-bootstrap-gates.md). Primer pase individual §0–290 completo, sin confundir inventario con implementación.
+1. NOD-020: continuar revisión de cierre; NOD-025/§182 y §183 móvil ya tienen componentes compartidos utilizados por las pantallas. Flutter analyze/tres tests/build Android aprobados el 05/11. La revisión consolidada de gates pasa; [evidencia y límites](docs/validation/2026-11-03-bootstrap-gates.md). Primer pase individual §0–290 completo, sin confundir inventario con implementación.
    §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. Continuar revisión residual de permisos/logs y validación final, manteniendo pruebas físicas/aceptación visual pendientes.
 2. NOD-019/008: inventario de las 47 operaciones tenant contrastado con OpenAPI; 188 rechazos sin sesión o Membership activa verificados. Revisar combinaciones de roles activos, carreras de revocación y logs. Las acciones requeridas, cancelaciones por lote y JobRole tienen evidencia; E2E de clientes y aceptación siguen pendientes.
 3. NOD-014/015/017/022: recorrido de datos Flutter/API real aprobado el 05/11, incluido contexto restaurado y confirmación persistida; evidencia en MOBILE_APP/TESTING. Continúan pendientes interacción completa de pantallas y prueba física; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.

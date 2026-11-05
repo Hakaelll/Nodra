@@ -164,14 +164,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (_register && !_enteringReset) ...[
-                      TextFormField(
+                      NodraTextField(
                         controller: _first,
                         decoration: const InputDecoration(labelText: 'Nombre'),
                         validator: (v) =>
                             v!.trim().isEmpty ? 'Escribe tu nombre.' : null,
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
+                      NodraTextField(
                         controller: _last,
                         decoration: const InputDecoration(
                           labelText: 'Apellidos',
@@ -182,7 +182,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       const SizedBox(height: 16),
                     ],
                     if (_enteringReset) ...[
-                      TextFormField(
+                      NodraTextField(
                         controller: _resetLink,
                         decoration: const InputDecoration(
                           labelText: 'Enlace de recuperación',
@@ -200,7 +200,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       ),
                       const SizedBox(height: 16),
                     ] else ...[
-                      TextFormField(
+                      NodraTextField(
                         controller: _email,
                         decoration: const InputDecoration(labelText: 'Email'),
                         keyboardType: TextInputType.emailAddress,
@@ -212,7 +212,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       const SizedBox(height: 16),
                     ],
                     if (!_recovering)
-                      TextFormField(
+                      NodraTextField(
                         controller: _password,
                         decoration: InputDecoration(
                           labelText: _enteringReset
@@ -231,7 +231,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       ),
                     if (_enteringReset) ...[
                       const SizedBox(height: 16),
-                      TextFormField(
+                      NodraTextField(
                         controller: _confirmPassword,
                         decoration: const InputDecoration(
                           labelText: 'Repite la contraseña',

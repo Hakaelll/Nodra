@@ -384,7 +384,7 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 18),
-                  TextFormField(
+                  NodraTextField(
                     controller: firstName,
                     decoration: const InputDecoration(labelText: 'Nombre'),
                     textCapitalization: TextCapitalization.words,
@@ -395,7 +395,7 @@ class _ProfilePanelState extends ConsumerState<ProfilePanel> {
                         : null,
                   ),
                   const SizedBox(height: 10),
-                  TextFormField(
+                  NodraTextField(
                     controller: lastName,
                     decoration: const InputDecoration(labelText: 'Apellidos'),
                     textCapitalization: TextCapitalization.words,
@@ -701,7 +701,7 @@ class _VerifyEmailSheetState extends ConsumerState<VerifyEmailSheet> {
               NodraInlineError(message: error!),
               const SizedBox(height: 16),
             ],
-            TextFormField(
+            NodraTextField(
               controller: link,
               decoration: const InputDecoration(
                 labelText: 'Enlace de verificación',

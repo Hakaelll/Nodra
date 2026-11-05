@@ -2,6 +2,108 @@ import 'package:flutter/material.dart';
 
 import 'theme.dart';
 
+class NodraTextField extends TextFormField {
+  NodraTextField({
+    super.key,
+    super.controller,
+    super.initialValue,
+    super.focusNode,
+    super.decoration,
+    super.keyboardType,
+    super.textInputAction,
+    super.textCapitalization,
+    super.obscureText,
+    super.autofillHints,
+    super.autocorrect,
+    super.enableSuggestions,
+    super.enabled,
+    super.readOnly,
+    super.maxLength,
+    super.minLines,
+    super.maxLines,
+    super.onChanged,
+    super.onFieldSubmitted,
+    super.validator,
+    super.autovalidateMode,
+  });
+}
+
+class NodraDialog extends AlertDialog {
+  const NodraDialog({
+    super.key,
+    super.title,
+    super.content,
+    super.actions,
+    super.scrollable,
+  });
+}
+
+class NodraOrganizationSwitcher extends StatelessWidget {
+  const NodraOrganizationSwitcher({
+    super.key,
+    required this.value,
+    required this.label,
+    required this.organizations,
+    required this.onChanged,
+  });
+  final String? value;
+  final String label;
+  final List<({String id, String name})> organizations;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) => DropdownButtonFormField<String>(
+    key: ValueKey(value),
+    initialValue: value,
+    isExpanded: true,
+    decoration: InputDecoration(labelText: label),
+    items: organizations
+        .map(
+          (org) => DropdownMenuItem(
+            value: org.id,
+            child: Text(org.name, overflow: TextOverflow.ellipsis),
+          ),
+        )
+        .toList(),
+    onChanged: (id) {
+      if (id != null) onChanged(id);
+    },
+  );
+}
+
+class NodraSkeleton extends StatelessWidget {
+  const NodraSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: 'Cargando',
+    liveRegion: true,
+    child: ExcludeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final width in [0.55, 1.0, 0.8])
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: FractionallySizedBox(
+                widthFactor: width,
+                child: Container(
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
+}
+
 class NodraButton extends StatelessWidget {
   const NodraButton({
     super.key,
