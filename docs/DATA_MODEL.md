@@ -1,5 +1,7 @@
 # Modelo de datos
 
+05/11 — §68: [análisis de planes reales](validation/2026-11-05-query-plans.md) de servicios/fecha, Membership, posiciones, intereses, asignaciones/pendientes, grupos y notificaciones. Con los índices existentes, filtrar organización en las dos subconsultas de pendientes reemplazó el scan de posiciones por búsquedas de clave primaria en el fixture observado. No índice/migración nuevos; no conclusión de latencia ni capacidad productiva.
+
 Fuente ejecutable: infrastructure/database/schema.prisma y catorce migraciones. Fechas persistidas con timestamptz; zona de organización para presentación. UUIDs identifican entidades.
 
 `Organization.logoKey` es nullable y guarda la referencia privada al objeto vigente; las respuestas públicas la sustituyen por `logoUrl` nullable. La migración 13 sólo añade esa columna, sin modificar datos anteriores. OWNER/ADMIN pueden reemplazar o quitar el logo; la actualización y ORGANIZATION_UPDATED comparten transacción Serializable. Los objetos usan claves únicas para que la limpieza de un reemplazo no elimine la imagen vigente de otro cambio concurrente.

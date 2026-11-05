@@ -146,8 +146,10 @@ export class ServicesService {
           ...upcoming,
           positions: {
             some: {
+              organizationId: org,
               assignments: {
                 some: {
+                  organizationId: org,
                   status: "AWAITING_CONFIRMATION",
                   ...(!manage ? { userId } : {}),
                 },

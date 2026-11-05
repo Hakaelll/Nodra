@@ -39,6 +39,8 @@ Mailpit/SMTP local, ConsolePushProvider sin contenido sensible en logs, filesyst
 
 ## Evidencia de pruebas
 
+05/11 — §68: [planes de consultas reales](docs/validation/2026-11-05-query-plans.md) analizados en PostgreSQL con 10.000 servicios de cuatro tenants. Dos predicados de organización en pendientes sustituyeron, en el escenario observado, un scan de 10.000 posiciones por 25 búsquedas de clave primaria; cinco resúmenes HTTP se conservaron. Sin índice/migración nuevos ni afirmación de velocidad. Lint, tipos/build API y trece integraciones aprobados; tres bases propias eliminadas. No es una prueba de capacidad productiva.
+
 05/11 — [Gates consolidados](docs/validation/2026-11-05-bootstrap-gates.md): lint, tipos, builds Node, cuatro tests web, trece integraciones, contrato API, inventario, esquema y Compose aprobados. Bootstrap con catorce migraciones/seed doble y HTTP/BFF real aprobados; ambas bases propias eliminadas. Componentes §182/183 resueltos; Android/analyze/tres tests Flutter aprobados el mismo día y sin cambios Dart posteriores. El informe distingue aceptación manual y funciones futuras de requisitos de bootstrap; no declara el objetivo completo por tener checks verdes.
 
 05/11 — Protección de propiedad e invitaciones comprobada por HTTP/PostgreSQL en base propia con catorce migraciones: dos OWNER intentaron dejar la organización simultáneamente; respuestas 200/409, un OWNER ACTIVE y una sola auditoría MEMBER_REMOVED. Ocho rechazos de invitaciones caducadas/revocadas cubrieron enlace/código en preview/accept, sin usos ni Membership nueva. Base nodra_verify_cdfaf690c80801e2 eliminada. Sonda puntual sin cambios de producción ni casos nuevos; no prueba todos los órdenes posibles de concurrencia.

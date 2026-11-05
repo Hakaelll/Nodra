@@ -1,0 +1,174 @@
+{
+  "baselineCommit": "90d67aa8dd33fd4a7d5cc77ed19eb5ada439a376",
+  "change": "ServicesService.summary: organizationId on nested positions and assignments",
+  "database": "PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit",
+  "fixtureCounts": {
+    "Service": 10000,
+    "ServicePosition": 10000,
+    "ServiceInterest": 10000,
+    "ServiceAssignment": 100,
+    "Membership": 4,
+    "Group": 1000,
+    "Notification": 10000
+  },
+  "responses": [
+    {
+      "path": "services",
+      "items": 10,
+      "total": 39
+    },
+    {
+      "path": "dashboard",
+      "items": 5,
+      "total": 25
+    },
+    {
+      "path": "members",
+      "items": 1,
+      "total": 1
+    },
+    {
+      "path": "groups",
+      "items": 10,
+      "total": 250
+    },
+    {
+      "path": "notifications",
+      "items": 10
+    }
+  ],
+  "capturedQueries": 26,
+  "distinctQueryAndParameterPairs": 19,
+  "pendingPlans": [
+    {
+      "variant": "before",
+      "kind": "page",
+      "sql": "SELECT \"public\".\"Service\".\"id\", \"public\".\"Service\".\"title\", \"public\".\"Service\".\"locationText\", \"public\".\"Service\".\"startsAt\", \"public\".\"Service\".\"endsAt\", \"public\".\"Service\".\"status\"::text, \"public\".\"Service\".\"organizationId\" FROM \"public\".\"Service\" WHERE (\"public\".\"Service\".\"organizationId\" = $1 AND ((\"public\".\"Service\".\"organizationId\" = $2 AND \"public\".\"Service\".\"status\" = CAST($3::text AS \"public\".\"ServiceStatus\")) OR (\"public\".\"Service\".\"organizationId\" = $4 AND \"public\".\"Service\".\"status\" NOT IN (CAST($5::text AS \"public\".\"ServiceStatus\"),CAST($6::text AS \"public\".\"ServiceStatus\"),CAST($7::text AS \"public\".\"ServiceStatus\")) AND \"public\".\"Service\".\"endsAt\" > $8 AND EXISTS(SELECT \"t0\".\"serviceId\", \"t0\".\"organizationId\" FROM \"public\".\"ServicePosition\" AS \"t0\" WHERE (EXISTS(SELECT \"t1\".\"servicePositionId\", \"t1\".\"organizationId\" FROM \"public\".\"ServiceAssignment\" AS \"t1\" WHERE (\"t1\".\"status\" = CAST($9::text AS \"public\".\"AssignmentStatus\") AND (\"t0\".\"id\",\"t0\".\"organizationId\") = (\"t1\".\"servicePositionId\",\"t1\".\"organizationId\") AND \"t1\".\"servicePositionId\" IS NOT NULL AND \"t1\".\"organizationId\" IS NOT NULL)) AND (\"public\".\"Service\".\"id\",\"public\".\"Service\".\"organizationId\") = (\"t0\".\"serviceId\",\"t0\".\"organizationId\") AND \"t0\".\"serviceId\" IS NOT NULL AND \"t0\".\"organizationId\" IS NOT NULL))))) ORDER BY \"public\".\"Service\".\"startsAt\" ASC, \"public\".\"Service\".\"id\" ASC LIMIT $10 OFFSET $11",
+      "nodes": [
+        {
+          "type": "Index Scan",
+          "relation": "Service",
+          "index": "Service_organizationId_startsAt_status_idx",
+          "rows": 6,
+          "loops": 1,
+          "filtered": 603
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "ServicePosition",
+          "rows": 10000,
+          "loops": 1,
+          "filtered": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "ServiceAssignment",
+          "rows": 100,
+          "loops": 1,
+          "filtered": 0
+        }
+      ]
+    },
+    {
+      "variant": "before",
+      "kind": "count",
+      "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"Service\".\"id\" FROM \"public\".\"Service\" WHERE (\"public\".\"Service\".\"organizationId\" = $1 AND ((\"public\".\"Service\".\"organizationId\" = $2 AND \"public\".\"Service\".\"status\" = CAST($3::text AS \"public\".\"ServiceStatus\")) OR (\"public\".\"Service\".\"organizationId\" = $4 AND \"public\".\"Service\".\"status\" NOT IN (CAST($5::text AS \"public\".\"ServiceStatus\"),CAST($6::text AS \"public\".\"ServiceStatus\"),CAST($7::text AS \"public\".\"ServiceStatus\")) AND \"public\".\"Service\".\"endsAt\" > $8 AND EXISTS(SELECT \"t0\".\"serviceId\", \"t0\".\"organizationId\" FROM \"public\".\"ServicePosition\" AS \"t0\" WHERE (EXISTS(SELECT \"t1\".\"servicePositionId\", \"t1\".\"organizationId\" FROM \"public\".\"ServiceAssignment\" AS \"t1\" WHERE (\"t1\".\"status\" = CAST($9::text AS \"public\".\"AssignmentStatus\") AND (\"t0\".\"id\",\"t0\".\"organizationId\") = (\"t1\".\"servicePositionId\",\"t1\".\"organizationId\") AND \"t1\".\"servicePositionId\" IS NOT NULL AND \"t1\".\"organizationId\" IS NOT NULL)) AND (\"public\".\"Service\".\"id\",\"public\".\"Service\".\"organizationId\") = (\"t0\".\"serviceId\",\"t0\".\"organizationId\") AND \"t0\".\"serviceId\" IS NOT NULL AND \"t0\".\"organizationId\" IS NOT NULL))))) OFFSET $10) AS \"sub\"",
+      "nodes": [
+        {
+          "type": "Bitmap Heap Scan",
+          "relation": "Service",
+          "rows": 25,
+          "loops": 1,
+          "filtered": 2475
+        },
+        {
+          "type": "Bitmap Index Scan",
+          "index": "Service_organizationId_startsAt_status_idx",
+          "rows": 2500,
+          "loops": 1,
+          "filtered": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "ServicePosition",
+          "rows": 10000,
+          "loops": 1,
+          "filtered": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "ServiceAssignment",
+          "rows": 100,
+          "loops": 1,
+          "filtered": 0
+        }
+      ]
+    },
+    {
+      "variant": "after",
+      "kind": "page",
+      "sql": "SELECT \"public\".\"Service\".\"id\", \"public\".\"Service\".\"title\", \"public\".\"Service\".\"locationText\", \"public\".\"Service\".\"startsAt\", \"public\".\"Service\".\"endsAt\", \"public\".\"Service\".\"status\"::text, \"public\".\"Service\".\"organizationId\" FROM \"public\".\"Service\" WHERE (\"public\".\"Service\".\"organizationId\" = $1 AND ((\"public\".\"Service\".\"organizationId\" = $2 AND \"public\".\"Service\".\"status\" = CAST($3::text AS \"public\".\"ServiceStatus\")) OR (\"public\".\"Service\".\"organizationId\" = $4 AND \"public\".\"Service\".\"status\" NOT IN (CAST($5::text AS \"public\".\"ServiceStatus\"),CAST($6::text AS \"public\".\"ServiceStatus\"),CAST($7::text AS \"public\".\"ServiceStatus\")) AND \"public\".\"Service\".\"endsAt\" > $8 AND EXISTS(SELECT \"t0\".\"serviceId\", \"t0\".\"organizationId\" FROM \"public\".\"ServicePosition\" AS \"t0\" WHERE (\"t0\".\"organizationId\" = $9 AND EXISTS(SELECT \"t1\".\"servicePositionId\", \"t1\".\"organizationId\" FROM \"public\".\"ServiceAssignment\" AS \"t1\" WHERE (\"t1\".\"organizationId\" = $10 AND \"t1\".\"status\" = CAST($11::text AS \"public\".\"AssignmentStatus\") AND (\"t0\".\"id\",\"t0\".\"organizationId\") = (\"t1\".\"servicePositionId\",\"t1\".\"organizationId\") AND \"t1\".\"servicePositionId\" IS NOT NULL AND \"t1\".\"organizationId\" IS NOT NULL)) AND (\"public\".\"Service\".\"id\",\"public\".\"Service\".\"organizationId\") = (\"t0\".\"serviceId\",\"t0\".\"organizationId\") AND \"t0\".\"serviceId\" IS NOT NULL AND \"t0\".\"organizationId\" IS NOT NULL))))) ORDER BY \"public\".\"Service\".\"startsAt\" ASC, \"public\".\"Service\".\"id\" ASC LIMIT $12 OFFSET $13",
+      "nodes": [
+        {
+          "type": "Index Scan",
+          "relation": "Service",
+          "index": "Service_organizationId_startsAt_status_idx",
+          "rows": 6,
+          "loops": 1,
+          "filtered": 603
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "ServiceAssignment",
+          "rows": 25,
+          "loops": 1,
+          "filtered": 75
+        },
+        {
+          "type": "Index Scan",
+          "relation": "ServicePosition",
+          "index": "ServicePosition_pkey",
+          "rows": 1,
+          "loops": 25,
+          "filtered": 0
+        }
+      ]
+    },
+    {
+      "variant": "after",
+      "kind": "count",
+      "sql": "SELECT COUNT(*) AS \"_count$_all\" FROM (SELECT \"public\".\"Service\".\"id\" FROM \"public\".\"Service\" WHERE (\"public\".\"Service\".\"organizationId\" = $1 AND ((\"public\".\"Service\".\"organizationId\" = $2 AND \"public\".\"Service\".\"status\" = CAST($3::text AS \"public\".\"ServiceStatus\")) OR (\"public\".\"Service\".\"organizationId\" = $4 AND \"public\".\"Service\".\"status\" NOT IN (CAST($5::text AS \"public\".\"ServiceStatus\"),CAST($6::text AS \"public\".\"ServiceStatus\"),CAST($7::text AS \"public\".\"ServiceStatus\")) AND \"public\".\"Service\".\"endsAt\" > $8 AND EXISTS(SELECT \"t0\".\"serviceId\", \"t0\".\"organizationId\" FROM \"public\".\"ServicePosition\" AS \"t0\" WHERE (\"t0\".\"organizationId\" = $9 AND EXISTS(SELECT \"t1\".\"servicePositionId\", \"t1\".\"organizationId\" FROM \"public\".\"ServiceAssignment\" AS \"t1\" WHERE (\"t1\".\"organizationId\" = $10 AND \"t1\".\"status\" = CAST($11::text AS \"public\".\"AssignmentStatus\") AND (\"t0\".\"id\",\"t0\".\"organizationId\") = (\"t1\".\"servicePositionId\",\"t1\".\"organizationId\") AND \"t1\".\"servicePositionId\" IS NOT NULL AND \"t1\".\"organizationId\" IS NOT NULL)) AND (\"public\".\"Service\".\"id\",\"public\".\"Service\".\"organizationId\") = (\"t0\".\"serviceId\",\"t0\".\"organizationId\") AND \"t0\".\"serviceId\" IS NOT NULL AND \"t0\".\"organizationId\" IS NOT NULL))))) OFFSET $12) AS \"sub\"",
+      "nodes": [
+        {
+          "type": "Bitmap Heap Scan",
+          "relation": "Service",
+          "rows": 25,
+          "loops": 1,
+          "filtered": 2475
+        },
+        {
+          "type": "Bitmap Index Scan",
+          "index": "Service_organizationId_startsAt_status_idx",
+          "rows": 2500,
+          "loops": 1,
+          "filtered": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "ServiceAssignment",
+          "rows": 25,
+          "loops": 1,
+          "filtered": 75
+        },
+        {
+          "type": "Index Scan",
+          "relation": "ServicePosition",
+          "index": "ServicePosition_pkey",
+          "rows": 1,
+          "loops": 25,
+          "filtered": 0
+        }
+      ]
+    }
+  ]
+}
