@@ -2,17 +2,17 @@
 
 Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
 
-05/11 — [Disposición vigente de los 25 IDs](docs/validation/2026-11-05-delivery-review.md): once DONE técnicos, doce REVIEW, NOD-020 IN_PROGRESS y NOD-023 BLOCKED para proveedores futuros. Las notas iniciales y las fechadas anteriormente se conservan como historial; no sustituyen los estados y pendientes de esta revisión.
+05/11 — [Disposición vigente de los 25 IDs](docs/validation/2026-11-05-delivery-review.md): doce DONE, once REVIEW, NOD-020 IN_PROGRESS y NOD-023 BLOCKED para proveedores futuros. Las notas iniciales y las fechadas anteriormente se conservan como historial; no sustituyen los estados y pendientes de esta revisión.
 
 ## Prioridad de continuidad
 
-1. NOD-020: completar la aceptación pendiente según la [disposición actual](docs/validation/2026-11-05-delivery-review.md); los gates técnicos y los componentes §182/183 tienen evidencia. Mantener el objetivo abierto mientras falten las comprobaciones de las tareas REVIEW, sin repetir suites retiradas ni convertir el roadmap futuro en funciones obligatorias.
+1. NOD-020: aceptación web del propietario recibida sin pendientes el 05/11; continuar con las comprobaciones restantes según la [disposición actual](docs/validation/2026-11-05-delivery-review.md); los gates técnicos y los componentes §182/183 tienen evidencia. Mantener el objetivo abierto mientras falten las comprobaciones de las tareas REVIEW, sin repetir suites retiradas ni convertir el roadmap futuro en funciones obligatorias.
    §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. NOD-019 cumple sus criterios de bootstrap; se mantienen explícitos los límites de seguridad productiva y las pruebas físicas/aceptación visual pendientes.
    §68: análisis de SQL real y ajuste acotado de pendientes comprobado el 05/11; [planes y límites](docs/validation/2026-11-05-query-plans.md). No añadir índices por scans de tablas pequeñas ni interpretar este fixture como benchmark productivo.
    §258: tipos de chat/actividad/notificaciones compartidos entre API/web y derivados de Zod; OpenAPI completo sin cambios. La duplicación local indicada en la auditoría histórica está resuelta; generación Flutter desde OpenAPI continúa como evolución futura.
    §190/229, chat: resuelto historial atascado por polling y tope de primera página en ambos clientes; [evidencia con 110 chats/130 mensajes](docs/validation/2026-11-05-chat-paging.md). Mantener pendiente interacción completa/aceptación; emulador sigue desinstalado.
 2. NOD-008 y demás REVIEW: completar revisión de uso sin Computer Use, según la preferencia del propietario. NOD-005 conserva el registro duplicado con 409 como limitación documentada; no dar por cumplido su criterio amplio de no enumeración ni cambiar el flujo de acceso silenciosamente.
-3. NOD-014/015/017/022: recorrido de datos Flutter/API real aprobado el 05/11, incluido contexto restaurado y confirmación persistida; evidencia en MOBILE_APP/TESTING. Continúan pendientes interacción completa de pantallas y prueba física; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
+3. NOD-014/015/017/022: recorrido de datos Flutter/API real aprobado el 05/11, incluido contexto restaurado y confirmación persistida; evidencia en MOBILE_APP/TESTING. Continúan pendientes interacción completa de pantallas y prueba física; aceptación web recibida del propietario; conservar los límites de las pruebas nativas, sin Computer Use ni subagentes.
 4. NOD-013/016/020: separar aceptación pendiente de evolución futura. Android debug compilado y [arranque nativo en AVD API 35 comprobado](docs/validation/2026-11-05-android-startup.md) el 05/11; falta interacción completa y prueba física. Emulador/imagen/AVD retirados después por petición del propietario. §271 sitúa macOS/Xcode/Apple Developer/APNs como futuros; adquisición push remota y distribución nativa no son prerrequisitos del APK local. Conservarlos en roadmap sin simular implementación ni contratar servicios.
 
 Resumen vigente en [PROJECT_STATE](PROJECT_STATE.md), evidencia detallada en [auditoría](docs/REQUIREMENTS_AUDIT.md). [Historial íntegro al 30/09](docs/history/NEXT_TODOS_2026_09_30.md) conserva notas de avance anteriores y los estados fechados. Las notas históricas de las tareas no sustituyen al resumen vigente.
@@ -429,9 +429,11 @@ Notas técnicas: 17 documentos requeridos ya creados. Una base local vacía reci
 
 ## NOD-021 — Revisión visual solicitada por el propietario
 
+05/11 — Aceptación del propietario recibida: «La he probado sin pendientes» sobre la versión LAN. Estado DONE por esa aceptación; no se atribuyen pruebas de dispositivos, teclado o movimiento adicionales que el mensaje no detalla. Las tareas nativas conservan sus propios criterios y estados.
+
 Descripción: aplicar UI UX Pro Max, hueyexe frontend skills, Emil y la skill universal/Impeccable al producto real.
 Prioridad: P0
-Estado: REVIEW
+Estado: DONE
 Dependencias: NOD-014, NOD-015.
 Objetivo: interfaz operativa cuidada, sin decoración genérica, con navegación inferior móvil y animaciones fluidas.
 Criterios de aceptación: rutas funcionales, diseño revisado en escritorio/móvil, teclado y reduce motion; validar barra inferior y ausencia de overflow.

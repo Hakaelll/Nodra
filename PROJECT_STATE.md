@@ -2,7 +2,7 @@
 
 Última actualización: 05/11/2026. Objetivo bootstrap **activo**; primera vertical funcional, sin certificación de entrega completa ni despliegue productivo.
 
-Disposición vigente: [revisión de entrega](docs/validation/2026-11-05-delivery-review.md). De 25 tareas, once están DONE con evidencia técnica, doce en REVIEW, NOD-020 IN_PROGRESS y NOD-023 BLOCKED exclusivamente para proveedores futuros. REVIEW conserva las comprobaciones manuales y decisiones sin resolver; no equivale a un fallo funcional demostrado. La revisión del propietario está solicitada sobre la aplicación LAN.
+Disposición vigente: [revisión de entrega](docs/validation/2026-11-05-delivery-review.md). De 25 tareas, doce están DONE por evidencia técnica o aceptación web del propietario, once en REVIEW, NOD-020 IN_PROGRESS y NOD-023 BLOCKED exclusivamente para proveedores futuros. REVIEW conserva las comprobaciones manuales y decisiones sin resolver; no equivale a un fallo funcional demostrado. El propietario informó el 05/11 que probó la versión LAN sin pendientes; NOD-021 queda DONE. Esto no atribuye pruebas nativas ni escenarios concretos que no haya detallado.
 
 Nota histórica del 30/09, revisión documental §146/149: resumen vigente separado del historial íntegro; conservados los IDs y estados, incluido DONE. Comprobados formato, enlaces locales editados y presencia de los 17 documentos obligatorios. README corrige el puerto del fixture anterior; ADRs actualizan storage y precedencia visual. No cambia runtime ni se repiten suites de aplicación por estos cambios. Auditoría §136–168 registrada; NOD-023 bloquea exclusivamente futuras integraciones externas. §136 reforzado: cuatro regresiones con secretos/stack canario; mensajes 5xx internos sanitizados; Calendario corregido: incluye cancelados como historial, sin incluirlos en próximos. Pasan 56 integraciones verticales, 35 unitarios, lint, typecheck y build API tras el cambio.
 
@@ -30,6 +30,8 @@ Catorce migraciones. Identidad y Session; Organization/Membership/Invitation; Jo
 REST /api/v1, OpenAPI /docs y /docs-json; health público fuera del prefijo. Worker tiene health/ready propio en loopback:4100, con PostgreSQL/Valkey/consumidor. Errores con code/message/requestId. Consultar [API](docs/API.md) y [modelo](docs/DATA_MODEL.md) para rutas, permisos y entidades implemented/planned.
 
 ## Web y móvil
+
+05/11 — El propietario respondió «La he probado sin pendientes» a la revisión de la versión LAN. Se registra la aceptación web y se cierra NOD-021; las comprobaciones nativas y demás límites de evidencia permanecen separados. Añadida y releída la descripción inglesa del repositorio en GitHub; antes estaba vacía. Cambio sólo de metadatos/documentación, sin modificar la aplicación.
 
 05/11 — [Paginación del chat corregida](docs/validation/2026-11-05-chat-paging.md): el refresco web conserva la página más antigua cargada; respuestas/envíos/borrados tardíos no modifican otra conversación seleccionada. Web/Flutter permiten acceder a más de cien chats, mantienen la página durante polling y corrigen una página vacía tras retirar chats. Lint/tipos/build web, cuatro web, analyze/tres Flutter, sonda widget y HTTP/PostgreSQL real aprobados. APK recompilado sin reinstalar emulador; no ejecución del APK nuevo ni aceptación visual.
 

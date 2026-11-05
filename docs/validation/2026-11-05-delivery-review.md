@@ -26,7 +26,7 @@ Source reviewed: `de70658293b7569029da44966da163a85165ce75`. This is the current
 | NOD-018 | REVIEW | Publication/list/acknowledgement and reader visibility implemented, ORGANIZATION/USERS scope defined and tested. Manual client acceptance remains; advanced targets stay specified future work. |
 | NOD-019 | DONE | Bootstrap security criteria have active/inactive/cross-tenant endpoint evidence, transactional audit/rollback checks, log canaries and a real non-test auth rate-limit check. This is not a production security certification. |
 | NOD-020 | IN_PROGRESS | Technical gates and this review are recorded. Complete objective acceptance remains unproven while the review items above are unresolved. |
-| NOD-021 | REVIEW | Requested design and controls implemented; visual, keyboard, motion and responsive acceptance belong to the owner, who prohibited Computer Use. |
+| NOD-021 | DONE | The owner reported testing the current LAN version without pending functional or visual issues on 5 November. This records web acceptance, not additional scripted keyboard, motion or native-device tests. |
 | NOD-022 | REVIEW | Manual/service chat, naming, chronology, unread state, removal and paging implemented with HTTP/widget evidence. Full client/device interaction remains unverified. |
 | NOD-023 | BLOCKED | Future commercial-provider choice requires the owner's explicit instruction. It does not block local providers. |
 | NOD-024 | REVIEW | Account profile without Membership is implemented; complete onboarding/profile interaction remains unverified. |
@@ -48,6 +48,6 @@ A separate `createApp(false)` instance, with no listener and `NODE_ENV=developme
 
 ## Remaining work
 
-The owner's review is requested against the running LAN application. Reported functional or visual defects must be fixed before claiming that acceptance. No further interaction or physical-device result is inferred from compilation, callback checks, HTTP tests or native startup alone. Registration's duplicate-account behavior remains visible in NOD-005 rather than being silently treated as non-enumerating.
+The owner reported testing the current LAN application without pending issues on 5 November. That web acceptance is recorded; any subsequently reported defect remains actionable. No further interaction or physical-device result is inferred from compilation, callback checks, HTTP tests or native startup alone. Registration's duplicate-account behavior remains visible in NOD-005 rather than being silently treated as non-enumerating.
 
 Future availability, advanced targets, custom fields, presets, remote push and iOS distribution retain the dispositions allowed by the original prompt. They are not invented prerequisites for the local Android bootstrap, and they are not represented as implemented features. No paid provider, additional permanent test case, emulator reinstall or GitHub CI was introduced in this review.
