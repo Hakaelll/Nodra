@@ -1,13 +1,13 @@
 # Próximas tareas de Nodra
 
-Actualizado: 04/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
+Actualizado: 05/11/2026. El objetivo bootstrap sigue activo. REVIEW no significa DONE; se conservan todos los IDs y estados anteriores.
 
 ## Prioridad de continuidad
 
 1. NOD-020: continuar revisión de cierre; NOD-025/§182 ya tiene componentes compartidos utilizados por las pantallas. La revisión consolidada de gates pasa; [evidencia y límites](docs/validation/2026-11-03-bootstrap-gates.md). Primer pase individual §0–290 completo, sin confundir inventario con implementación.
    §61 tiene backend/editor web y consumo Flutter; las catorce acciones de §63 están comprobadas en PostgreSQL. Continuar revisión residual de permisos/logs y validación final, manteniendo pruebas físicas/aceptación visual pendientes.
 2. NOD-019/008: inventario de las 47 operaciones tenant contrastado con OpenAPI; 188 rechazos sin sesión o Membership activa verificados. Revisar combinaciones de roles activos, carreras de revocación y logs. Las acciones requeridas, cancelaciones por lote y JobRole tienen evidencia; E2E de clientes y aceptación siguen pendientes.
-3. NOD-014/015/017/022: completar pruebas de clientes y cambios de contexto; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
+3. NOD-014/015/017/022: recorrido de datos Flutter/API real aprobado el 05/11, incluido contexto restaurado y confirmación persistida; evidencia en MOBILE_APP/TESTING. Continúan pendientes interacción completa de pantallas y prueba física; mantener aceptación visual a cargo del propietario, sin Computer Use ni subagentes.
 4. NOD-013/016/020: adquisición push, build iOS y prueba física siguen sin demostrar. Android debug recompilado y firma verificada el 04/11 con sesión/personalización/logo; SDK/JDK locales instalados. iOS requiere host compatible. No contratar servicios.
 
 Resumen vigente en [PROJECT_STATE](PROJECT_STATE.md), evidencia detallada en [auditoría](docs/REQUIREMENTS_AUDIT.md). [Historial íntegro al 30/09](docs/history/NEXT_TODOS_2026_09_30.md) conserva notas de avance anteriores y los estados fechados. Las notas históricas de las tareas no sustituyen al resumen vigente.

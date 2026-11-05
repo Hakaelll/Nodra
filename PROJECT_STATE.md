@@ -1,6 +1,6 @@
 # Estado de Nodra
 
-Última actualización: 04/11/2026. Objetivo bootstrap **activo**; primera vertical funcional, sin certificación de entrega completa ni despliegue productivo.
+Última actualización: 05/11/2026. Objetivo bootstrap **activo**; primera vertical funcional, sin certificación de entrega completa ni despliegue productivo.
 
 Nota histórica del 30/09, revisión documental §146/149: resumen vigente separado del historial íntegro; conservados los IDs y estados, incluido DONE. Comprobados formato, enlaces locales editados y presencia de los 17 documentos obligatorios. README corrige el puerto del fixture anterior; ADRs actualizan storage y precedencia visual. No cambia runtime ni se repiten suites de aplicación por estos cambios. Auditoría §136–168 registrada; NOD-023 bloquea exclusivamente futuras integraciones externas. §136 reforzado: cuatro regresiones con secretos/stack canario; mensajes 5xx internos sanitizados; Calendario corregido: incluye cancelados como historial, sin incluirlos en próximos. Pasan 56 integraciones verticales, 35 unitarios, lint, typecheck y build API tras el cambio.
 
@@ -36,6 +36,8 @@ Flutter tiene sesión en secure storage, contexto tenant, servicios, calendario,
 Mailpit/SMTP local, ConsolePushProvider sin contenido sensible en logs, filesystem para avatares y logos privados. S3/MinIO sólo adapter/fixture opcional; MinIO upstream archivado no es elección productiva predeterminada. DeviceToken tiene API propia, pero no adquisición de tokens ni push real en clientes. OpenTelemetry preparado en [OBSERVABILITY](docs/OBSERVABILITY.md), sin SDK/exporter instalado.
 
 ## Evidencia de pruebas
+
+05/11 — Recorrido Flutter contra HTTP real aprobado en PostgreSQL local aislado con catorce migraciones: NodraApi, SessionController, proveedores de lista/detalle y CoordinationRepository completaron alta, invitación por código, sesión/contexto, inscripción, selección y confirmación. El administrador releyó CONFIRMED con una Confirmation persistida. La base nodra_verify_c971c025f27aa502 se eliminó al terminar. Sólo el almacenamiento seguro fue sustituido por memoria; no demuestra interacción de pantallas, persistencia nativa ni ejecución física. Sonda puntual fuera de la suite conservada de veinte casos. Docker no estaba disponible en esta ejecución; los estados saludables del 04/11 son históricos.
 
 Suite vigente reducida por petición del propietario: trece integraciones PostgreSQL, cuatro pruebas web (origen, snapshots, transporte por sesión/organización y coordinación entre pestañas) y tres pruebas Flutter de sesión. Las integraciones recientes cubren permisos/rollback de personalización y logo privado, además de sus cambios concurrentes; veinte casos en total. El caso esencial de acceso contrasta con OpenAPI las 47 operaciones tenant y prueba 188 rechazos sin sesión o Membership activa, sin cambios en datos/auditoría. Las dos regresiones recientes de Flutter cubren carreras reales de cambio de cuenta y organización. Los conteos superiores de las revisiones anteriores son históricos. El workflow GitHub Actions fue retirado. Consultar TESTING para cobertura conservada y retirada.
 
